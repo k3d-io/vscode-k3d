@@ -1,0 +1,109 @@
+{
+    "name": "vscode-k3d",
+    "displayName": "Kubernetes k3d",
+    "description": "Work with the k3d local Kubernetes provider in Visual Studio Code",
+    "version": "0.0.1",
+    "preview": true,
+    "publisher": "ms-kubernetes-tools",
+    "engines": {
+        "vscode": "^1.32.0"
+    },
+    "license": "MIT",
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "kubernetes",
+        "k3d",
+        "kubernetes-extension-cloud-provider"
+    ],
+    "icon": "images/k3d_logo_black_blue.png",
+    "activationEvents": [
+        "onCommand:extension.vsKubernetesConfigureFromCluster",
+        "onCommand:extension.vsKubernetesCreateCluster",
+        "onView:kubernetes.cloudExplorer",
+        "onCommand:k3d.createCluster",
+        "onCommand:k3d.deleteCluster"
+    ],
+    "main": "./dist/extension",
+    "contributes": {
+		"configuration": [
+			{
+				"title": "K3D configuration",
+				"properties": {
+                    "k3d": {
+                        "type": "object",
+                        "description": "Kubernetes configuration",
+                        "properties": {
+                            "k3d.path": {
+                                "type": "string",
+                                "default": "k3d",
+                                "description": "k3d executable path"
+                            }
+                        }
+                    }
+				}
+			}
+		],
+        "commands": [
+            {
+                "command": "k3d.createCluster",
+                "category": "k3d",
+                "title": "Create Cluster"
+            },
+            {
+                "command": "k3d.deleteCluster",
+                "category": "k3d",
+                "title": "Delete Cluster"
+            }
+        ],
+        "menus": {
+            "view/item/context": [
+                {
+                    "command": "k3d.createCluster",
+                    "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
+                },
+                {
+                    "command": "k3d.deleteCluster",
+                    "when": "viewItem =~ /k3d\\.cluster/"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "webpack --mode production",
+        "compile": "webpack --mode none",
+        "watch": "webpack --mode none --watch",
+        "test-compile": "tsc -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "dist-tools": "npm install -g vsce",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "extensionDependencies": [
+        "ms-kubernetes-tools.vscode-kubernetes-tools"
+    ],
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "@types/shelljs": "^0.8.3",
+        "@types/tmp": "0.0.33",
+        "ts-loader": "^6.0.4",
+        "tslint": "^5.8.0",
+        "typescript": "^3.5.2",
+        "vscode": "^1.1.36",
+        "webpack": "^4.36.1",
+        "webpack-cli": "^3.3.6"
+    },
+    "dependencies": {
+        "replace-string": "^3.0.0",
+        "rxjs": "^6.4.0",
+        "shelljs": "^0.8.3",
+        "spawn-rx": "^3.0.0",
+        "tmp": "^0.0.33",
+        "vscode-kubernetes-tools-api": "^1.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/inercia/vscode-k3d"
+    }
+}

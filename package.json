@@ -2,7 +2,7 @@
     "name": "vscode-k3d",
     "displayName": "Kubernetes k3d",
     "description": "Work with the k3d local Kubernetes provider in Visual Studio Code",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "preview": true,
     "publisher": "ms-kubernetes-tools",
     "engines": {
@@ -27,10 +27,10 @@
     ],
     "main": "./dist/extension",
     "contributes": {
-		"configuration": [
-			{
-				"title": "K3D configuration",
-				"properties": {
+        "configuration": [
+            {
+                "title": "K3D configuration",
+                "properties": {
                     "k3d": {
                         "type": "object",
                         "description": "Kubernetes configuration",
@@ -42,9 +42,9 @@
                             }
                         }
                     }
-				}
-			}
-		],
+                }
+            }
+        ],
         "commands": [
             {
                 "command": "k3d.createCluster",

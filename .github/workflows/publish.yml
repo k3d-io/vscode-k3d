@@ -1,0 +1,61 @@
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+name: Create Release
+jobs:
+  build:
+    name: Create and Upload Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Compile
+        run: npm run compile
+
+      - name: test
+        run: npm run test
+
+      - name: Set release version
+        run: npm version ${{ github.ref }}
+
+      - name: Create package project
+        uses: lannonbr/vsce-action@master
+        with:
+          args: "package -o vscode-k3d-${{ github.ref }}.vsix"
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload to GitHub release
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # This pulls from the CREATE RELEASE step above, referencing it's ID to
+          # get its outputs object, which include a `upload_url`. See this blog
+          # post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./vscode-k3d-${{ github.ref }}.vsix
+          asset_name: vscode-k3d.vsix
+
+      # - name: Publish package to marketplace
+      #   uses: lannonbr/vsce-action@master
+      #   with:
+      #     args: "publish -p $VSCE_TOKEN"
+      #   env:
+      #     VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

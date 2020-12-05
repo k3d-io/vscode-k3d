@@ -6,7 +6,7 @@ import * as shelljs from 'shelljs';
 import { ChildProcess } from 'child_process';
 import { k3dExe } from '../k3d/k3d';
 import * as k3d from '../k3d/k3d';
-import { getActiveKubeconfig } from '../utils/kubeconfig';
+import { getKubeconfigPath } from '../utils/kubeconfig';
 
 const K3D_CLUSTER_PROVIDER_ID = 'k3d';
 
@@ -68,7 +68,7 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
             argsStr += " --wait --update-default-kubeconfig";
 
             const exe = k3dExe();
-            shelljs.env["KUBECONFIG"] = getActiveKubeconfig();
+            shelljs.env["KUBECONFIG"] = getKubeconfigPath();
             const command = `${exe} cluster create ${settings.name} ${argsStr}`;
 
             const childProcess = shelljs.exec(command, { async: true }) as ChildProcess;

@@ -36,6 +36,10 @@ async function createClusterInteractive(settings: ClusterCreateSettings): Promis
     );
 
     await displayClusterCreationUI(progressSteps);
+
+    // refresh the views
+    vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
+    vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
 }
 
 // createClusterProgressOf is invoked for processing each line of output from `k3d cluster create`
@@ -84,9 +88,10 @@ async function displayClusterCreationResult(result: Errorable<null>): Promise<vo
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function promptClusterSettings(): Promise<Cancellable<ClusterCreateSettings>> {
-    const formResult = await showHTMLForm("k3d.createCluster",
+    const formResult = await showHTMLForm(
+        "extension.vsKubernetesK3DCreate",
         "Create k3d cluster",
-        k3d.createClusterHTML,
+        k3d.createClusterHTMLHeader + k3d.createClusterHTML,
         "Create Cluster");
     if (formResult.cancelled) {
         return formResult;

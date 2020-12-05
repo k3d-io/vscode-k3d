@@ -45,6 +45,10 @@ async function deleteClusterByName(clusterName: string): Promise<void> {
 
     // TODO: remove from kubeconfig?
     await displayClusterDeletionResult(result, clusterName);
+
+    // refresh the views
+    vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
+    vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
 }
 
 async function displayClusterDeletionResult(result: Errorable<null>, clusterName: string): Promise<void> {

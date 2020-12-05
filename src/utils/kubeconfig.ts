@@ -23,6 +23,7 @@ export function getActiveKubeconfig(): string {
     return vscode.workspace.getConfiguration(VS_KUBE_EXTENSION_CONFIG_KEY)[VS_KUBE_KUBECONFIG_PATH_KEY];
 }
 
+// TODO: I think we could replace this by https://github.com/Azure/vscode-kubernetes-tools-api/blob/master/ts/configuration/v1.ts
 export function getKubeconfigPath(): string {
     // If the user specified a kubeconfig path -WSL or not-, let's use it.
     let kubeconfigPath: string | undefined = getActiveKubeconfig();

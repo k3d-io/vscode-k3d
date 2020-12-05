@@ -74,10 +74,10 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
     };
 }
 
+export const createClusterHTMLHeader = "<h1>Create k3d cluster</h1>";
+
 // createClusterHTML is the form that is shown when creating a new cluster
 export const createClusterHTML = `
-    <h1>Create k3d cluster</h1>
-    <p/>
     Create a new k3s cluster with containerized nodes (k3s in docker).
     Every cluster will consist of one or more containers:
     <ul>

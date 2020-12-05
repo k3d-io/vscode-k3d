@@ -23,8 +23,8 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     const disposables = [
-        vscode.commands.registerCommand("k3d.createCluster", onCreateCluster),
-        vscode.commands.registerCommand("k3d.deleteCluster", onDeleteCluster),
+        vscode.commands.registerCommand("extension.vsKubernetesK3DCreate", onCreateCluster),
+        vscode.commands.registerCommand("extension.vsKubernetesK3DDelete", onDeleteCluster),
     ];
 
     context.subscriptions.push(...disposables);

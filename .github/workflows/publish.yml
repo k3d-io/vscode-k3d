@@ -13,12 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Compile
-        run: npm run compile
-
-      - name: test
-        run: npm run test
-
       - name: Set release version
         run: npm version ${{ github.ref }}
 

@@ -1,6 +1,7 @@
 
 // TODO: this whole file seems to have many things in common with k3d/k3d.ts
 
+import * as vscode from 'vscode';
 import * as k8s from 'vscode-kubernetes-tools-api';
 import * as shelljs from 'shelljs';
 import { ChildProcess } from 'child_process';
@@ -40,7 +41,7 @@ function getPage(sendingStep: string, previousData: any): k8s.ClusterProviderV1.
 function collectSettings(previousData: any): string {
     const html = formPage(
         PAGE_SETTINGS,
-        "Create k3d Cluster",
+        "Create k3d cluster",
         k3d.createClusterHTML,
         "Create",
         previousData);
@@ -68,7 +69,8 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
             argsStr += " --wait --update-default-kubeconfig";
 
             const exe = k3dExe();
-            shelljs.env["KUBECONFIG"] = getKubeconfigPath();
+            const kubeconfig = getKubeconfigPath();
+            shelljs.env["KUBECONFIG"] = kubeconfig;
             const command = `${exe} cluster create ${settings.name} ${argsStr}`;
 
             const childProcess = shelljs.exec(command, { async: true }) as ChildProcess;
@@ -99,21 +101,17 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
             childProcess.on('exit', (code: number) => {
                 if (code === 0) {
                     title = 'Cluster created';
-                    resultPara = `<p style='font-weight: bold; color: lightgreen'>Your local cluster has been created BUT HAS NOT BEEN set as active in your kubeconfig</p>`;
+                    resultPara = `<p style='font-weight: bold; color: lightgreen'>Your local cluster has been created and has been merged in your kubeconfig ${kubeconfig}</p>`;
                     observer.onNext(html());
-
-                    shelljs.exec(`${exe} kubeconfig get ${settings.name}`, { async: true }, (code, pStdout, _pStderr) => {
-                        if (code === 0) {
-                            const kcpath = pStdout.trim();
-                            resultPara = `<p style='font-weight: bold; color: lightgreen'>Your local cluster has been created and its kubeconfig is at ${kcpath}. To work with your cluster, switch to this kubeconfig, or copy settings from this file to your main kubeconfig.</p>`;
-                            observer.onNext(html());
-                        }
-                    });
                 } else {
                     title = 'Cluster creation failed';
                     resultPara = `<p style='font-weight: bold; color: red'>Your local cluster was not created.  See tool output above for why.</p>`;
                     observer.onNext(html());
                 }
+
+                // refresh the views
+                vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
+                vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
             });
         }
     };

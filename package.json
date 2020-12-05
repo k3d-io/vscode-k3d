@@ -2,7 +2,7 @@
     "name": "vscode-k3d",
     "displayName": "Kubernetes k3d",
     "description": "Work with the k3d local Kubernetes provider in Visual Studio Code",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "preview": true,
     "publisher": "ms-kubernetes-tools",
     "engines": {
@@ -22,8 +22,8 @@
         "onCommand:extension.vsKubernetesConfigureFromCluster",
         "onCommand:extension.vsKubernetesCreateCluster",
         "onView:kubernetes.cloudExplorer",
-        "onCommand:k3d.createCluster",
-        "onCommand:k3d.deleteCluster"
+        "onCommand:extension.vsKubernetesK3DCreate",
+        "onCommand:extension.vsKubernetesK3DDelete"
     ],
     "main": "./dist/extension",
     "contributes": {
@@ -47,12 +47,12 @@
         ],
         "commands": [
             {
-                "command": "k3d.createCluster",
+                "command": "extension.vsKubernetesK3DCreate",
                 "category": "k3d",
                 "title": "Create Cluster"
             },
             {
-                "command": "k3d.deleteCluster",
+                "command": "extension.vsKubernetesK3DDelete",
                 "category": "k3d",
                 "title": "Delete Cluster"
             }
@@ -60,24 +60,27 @@
         "menus": {
             "view/item/context": [
                 {
-                    "command": "k3d.createCluster",
+                    "command": "extension.vsKubernetesK3DCreate",
                     "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
                 },
                 {
-                    "command": "k3d.deleteCluster",
+                    "command": "extension.vsKubernetesK3DDelete",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 }
             ]
         }
     },
     "scripts": {
-        "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode none",
         "watch": "webpack --mode none --watch",
-        "test-compile": "tsc -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "dist-tools": "npm install -g vsce",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+
+        "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "test-compile": "tsc -p ./",
+
+        "vscode:prepublish": "webpack --mode production",
+        "dist": "vsce package",
+        "dist-tools": "npm install -g vsce"
     },
     "extensionDependencies": [
         "ms-kubernetes-tools.vscode-kubernetes-tools"

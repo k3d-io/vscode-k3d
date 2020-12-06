@@ -10,18 +10,50 @@ jobs:
     name: Create and Upload Release
     runs-on: ubuntu-latest
     steps:
+
+      - name: Build info
+        id: info
+        run: |
+          echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
+          echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
+          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
+
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://npm.pkg.github.com/
+
+      - run: npm install
+      - run: npm test
+
+      # - name: Authenticate against GitHub package registry
+      #   run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
+
+      - name: Setup GIT
+        run: |
+          git switch -c main
+          git config --global user.email "alvaro.saurin@gmail.com"
+          git config --global user.name "Alvaro Saurin"
+
       - name: Set release version
-        run: npm version ${{ github.ref }}
+        run: npm version --allow-same-version ${{ steps.info.outputs.SOURCE_TAG }}
 
       - name: Create package project
         uses: lannonbr/vsce-action@master
         with:
-          args: "package -o vscode-k3d-${{ github.ref }}.vsix"
+          args: "package -o vscode-k3d-${{ steps.info.outputs.SOURCE_TAG }}.vsix"
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+
+      - name: Changelog
+        uses: scottbrenner/generate-changelog-action@master
+        id: changelog
+        env:
+          REPO: ${{ github.repository }}
 
       - name: Create Release
         id: create_release
@@ -29,8 +61,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.info.outputs.SOURCE_TAG }}
+          release_name: Release ${{ steps.info.outputs.SOURCE_TAG }}
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
 
@@ -44,8 +78,9 @@ jobs:
           # get its outputs object, which include a `upload_url`. See this blog
           # post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vscode-k3d-${{ github.ref }}.vsix
+          asset_path: ./vscode-k3d-${{ steps.info.outputs.SOURCE_TAG }}.vsix
           asset_name: vscode-k3d.vsix
+          asset_content_type: application/zip
 
       # - name: Publish package to marketplace
       #   uses: lannonbr/vsce-action@master

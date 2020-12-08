@@ -42,7 +42,11 @@ jobs:
       - name: Set release version
         run: npm version --allow-same-version ${{ steps.info.outputs.SOURCE_TAG }}
 
-      - name: Create package project
+      - name: Publish package to VS Marketplace
+        run: |
+          npm install vsce && $(npm bin)/vsce publish -p ${{ secrets.VSCE_TOKEN }}
+
+      - name: Create VSIX package
         uses: lannonbr/vsce-action@master
         with:
           args: "package -o vscode-k3d-${{ steps.info.outputs.SOURCE_TAG }}.vsix"
@@ -55,7 +59,7 @@ jobs:
         env:
           REPO: ${{ github.repository }}
 
-      - name: Create Release
+      - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -68,7 +72,7 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload to GitHub release
+      - name: Upload VXIS to GitHub release
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -81,10 +85,3 @@ jobs:
           asset_path: ./vscode-k3d-${{ steps.info.outputs.SOURCE_TAG }}.vsix
           asset_name: vscode-k3d.vsix
           asset_content_type: application/zip
-
-      - name: Publish package to marketplace
-        uses: lannonbr/vsce-action@master
-        with:
-          args: "publish -p $VSCE_TOKEN"
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

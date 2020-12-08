@@ -1,10 +1,15 @@
 # Kubernetes [k3d](https://github.com/rancher/k3d) extension for Visual Studio Code
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/inercia/vscode-k3d)
+![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/inercia.vscode-k3d)
+
 ## Overview
 
 This extension displays your [k3d](https://github.com/rancher/k3d) local clusters
 in the Kubernetes extension's Cloud Explorer. You can use this to create and
 delete clusters, and to merge them into your `kubeconfig`.
+
+![](images/screencast-1.gif)
 
 **This is an early stage preview. It's not feature complete! Feature requests
 welcome via the issues page. (And let us know about bugs too!)**

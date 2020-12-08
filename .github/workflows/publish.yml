@@ -82,9 +82,9 @@ jobs:
           asset_name: vscode-k3d.vsix
           asset_content_type: application/zip
 
-      # - name: Publish package to marketplace
-      #   uses: lannonbr/vsce-action@master
-      #   with:
-      #     args: "publish -p $VSCE_TOKEN"
-      #   env:
-      #     VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+      - name: Publish package to marketplace
+        uses: lannonbr/vsce-action@master
+        with:
+          args: "publish -p $VSCE_TOKEN"
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

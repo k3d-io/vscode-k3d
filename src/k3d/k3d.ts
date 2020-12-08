@@ -1,43 +1,43 @@
-import * as vscode from 'vscode';
 
 // import * as config from '../config/config';
-import { Errorable } from '../utils/errorable';
+import { Errorable, failed } from '../utils/errorable';
 import * as shell from '../utils/shell';
 import { K3dClusterInfo } from "./k3d.objectmodel";
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { logChannel } from '../utils/log';
 import '../utils/array';
+
+import { getOrInstallK3D, EnsureMode } from '../installer/installer';
 
 // import { ListenOptions } from 'net';
 
-// the setting that stores the k3d executable
-const settingK3DExecutable = "k3d.path";
-
-// the default k3d executable
-const defaultK3DExecutable = "k3d";
-
-// k3dExe returns the k3d executable
-export function k3dExe(): string {
-    return vscode.workspace.getConfiguration().get(settingK3DExecutable, defaultK3DExecutable);
-}
-
-const logChannel = vscode.window.createOutputChannel("k3d");
-
 async function invokeK3DCommandObj<T>(sh: shell.Shell, command: string, args: string, opts: shell.ExecOpts, fn: (stdout: string) => T): Promise<Errorable<T>> {
-    const exe = k3dExe();
+    const k3dExe = getOrInstallK3D(EnsureMode.Alert);
+    if (failed(k3dExe)) {
+        return k3dExe;
+    }
+    const exe = k3dExe.result;
+
     const cmd = `${exe} ${command} ${args}`;
     logChannel.appendLine(`$ ${cmd}`);
+
+    function andLog<T>(fn: (s: string) => T): (s: string) => T {
+        return (s: string) => {
+            logChannel.appendLine(s);
+            return fn(s);
+        };
+    }
+
     return await sh.execObj<T>(cmd, `${exe} ${command}`, opts, andLog(fn));
 }
 
-function andLog<T>(fn: (s: string) => T): (s: string) => T {
-    return (s: string) => {
-        logChannel.appendLine(s);
-        return fn(s);
-    };
-}
-
 function invokeTracking(sh: shell.Shell, command: string, ...args: string[]): Observable<shell.ProcessTrackingEvent> {
-    const exe = k3dExe();
+    const k3dExe = getOrInstallK3D(EnsureMode.Alert);
+    if (failed(k3dExe)) {
+        return throwError(new Error(k3dExe.error[0]));
+    }
+    const exe = k3dExe.result;
+
     const cmd = [...(command.split(' ')), ...args];
     logChannel.appendLine(`$ ${exe} ${cmd.join(' ')}`);
     return sh.execTracking(exe, cmd);

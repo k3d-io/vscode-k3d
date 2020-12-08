@@ -4,7 +4,7 @@
     "description": "Work with the k3d local Kubernetes provider in Visual Studio Code",
     "version": "0.0.1",
     "preview": true,
-    "publisher": "ms-kubernetes-tools",
+    "publisher": "inercia",
     "engines": {
         "vscode": "^1.32.0"
     },
@@ -31,11 +31,26 @@
             {
                 "title": "K3D configuration",
                 "properties": {
-                    "k3d": {
+                    "vs-kubernetes-k3d": {
                         "type": "object",
                         "description": "Kubernetes configuration",
                         "properties": {
-                            "k3d.path": {
+                            "vs-kubernetes-k3d.k3d-path": {
+                                "type": "string",
+                                "default": "k3d",
+                                "description": "k3d executable path"
+                            },
+                            "vs-kubernetes-k3d.k3d-path.linux": {
+                                "type": "string",
+                                "default": "k3d",
+                                "description": "k3d executable path"
+                            },
+                            "vs-kubernetes-k3d.k3d-path.mac": {
+                                "type": "string",
+                                "default": "k3d",
+                                "description": "k3d executable path"
+                            },
+                            "vs-kubernetes-k3d.k3d-path.windows": {
                                 "type": "string",
                                 "default": "k3d",
                                 "description": "k3d executable path"
@@ -96,6 +111,9 @@
         "webpack-cli": "^3.3.6"
     },
     "dependencies": {
+        "@types/mkdirp": "^0.5.2",
+        "download": "^7.1.0",
+        "mkdirp": "^0.5.1",
         "replace-string": "^3.0.0",
         "rxjs": "^6.4.0",
         "shelljs": "^0.8.3",

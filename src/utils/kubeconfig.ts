@@ -1,15 +1,10 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as shelljs from 'shelljs';
+import { getUseWsl, VS_KUBE_EXTENSION_CONFIG_KEY } from './config';
 
-const VS_KUBE_EXTENSION_CONFIG_KEY = "vs-kubernetes";
-const VS_KUBE_KUBECONFIG_PATH_KEY = "vs-kubernetes.kubeconfig";
-const VS_KUBE_KNOWN_KUBECONFIGS_KEY = "vs-kubernetes.knownKubeconfigs";
-const VS_KUBE_USE_WSL_KEY = "use-wsl";
-
-export function getUseWsl(): boolean {
-    return vscode.workspace.getConfiguration(VS_KUBE_EXTENSION_CONFIG_KEY)[VS_KUBE_USE_WSL_KEY];
-}
+const VS_KUBE_KUBECONFIG_PATH_KEY = `${VS_KUBE_EXTENSION_CONFIG_KEY}.kubeconfig`;
+const VS_KUBE_KNOWN_KUBECONFIGS_KEY = `${VS_KUBE_EXTENSION_CONFIG_KEY}.knownKubeconfigs`;
 
 export function getKnownKubeconfigs(): string[] {
     const kkcConfig = vscode.workspace.getConfiguration(VS_KUBE_EXTENSION_CONFIG_KEY)[VS_KUBE_KNOWN_KUBECONFIGS_KEY];

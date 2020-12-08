@@ -4,7 +4,7 @@ import * as rx from '../../node_modules/rxjs';
 import * as shelljs from 'shelljs';
 import * as spawnrx from 'spawn-rx';
 import * as vscode from 'vscode';
-
+import { getUseWsl } from './config';
 import { Errorable } from './errorable';
 
 export interface ExecOpts {
@@ -131,4 +131,65 @@ function exitCodeFrom(error: any): 'no-program' | number | undefined {
         return Number.parseInt((error.message as string).substring(prefix.length));
     }
     return undefined;
+}
+
+export enum Platform {
+    Windows,
+    MacOS,
+    Linux,
+    Unsupported,  // shouldn't happen!
+}
+
+export function platform(): Platform {
+    if (getUseWsl()) {
+        return Platform.Linux;
+    }
+    switch (process.platform) {
+        case 'win32': return Platform.Windows;
+        case 'darwin': return Platform.MacOS;
+        case 'linux': return Platform.Linux;
+        default: return Platform.Unsupported;
+    }
+}
+
+const WINDOWS: string = 'win32';
+
+export function isWindows(): boolean {
+    return (process.platform === WINDOWS) && !getUseWsl();
+}
+
+export function isUnix(): boolean {
+    return !isWindows();
+}
+
+function concatIfSafe(homeDrive: string | undefined, homePath: string | undefined): string | undefined {
+    if (homeDrive && homePath) {
+        const safe = !homePath.toLowerCase().startsWith('\\windows\\system32');
+        if (safe) {
+            return homeDrive.concat(homePath);
+        }
+    }
+
+    return undefined;
+}
+
+export function home(): string {
+    if (getUseWsl()) {
+        return shelljs.exec('wsl.exe echo ${HOME}').stdout.trim();
+    }
+    return process.env['HOME'] ||
+        concatIfSafe(process.env['HOMEDRIVE'], process.env['HOMEPATH']) ||
+        process.env['USERPROFILE'] ||
+        '';
+}
+
+export function which(bin: string): string | null {
+    if (getUseWsl()) {
+        const result = shelljs.exec(`wsl.exe which ${bin}`);
+        if (result.code !== 0) {
+            throw new Error(result.stderr);
+        }
+        return result.stdout;
+    }
+    return shelljs.which(bin);
 }

@@ -5,9 +5,10 @@ import * as vscode from 'vscode';
 import * as k8s from 'vscode-kubernetes-tools-api';
 import * as shelljs from 'shelljs';
 import { ChildProcess } from 'child_process';
-import { k3dExe } from '../k3d/k3d';
 import * as k3d from '../k3d/k3d';
 import { getKubeconfigPath } from '../utils/kubeconfig';
+import { failed } from '../utils/errorable';
+import { getOrInstallK3D, EnsureMode } from '../installer/installer';
 
 const K3D_CLUSTER_PROVIDER_ID = 'k3d';
 
@@ -68,7 +69,14 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
             let argsStr = args.join(" ");
             argsStr += " --wait --update-default-kubeconfig";
 
-            const exe = k3dExe();
+            const k3dExe = getOrInstallK3D(EnsureMode.Alert);
+            if (failed(k3dExe)) {
+                stderr += k3dExe.error;
+                observer.onNext(html());
+                return;
+            }
+            const exe = k3dExe.result;
+
             const kubeconfig = getKubeconfigPath();
             shelljs.env["KUBECONFIG"] = kubeconfig;
             const command = `${exe} cluster create ${settings.name} ${argsStr}`;

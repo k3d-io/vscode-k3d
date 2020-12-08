@@ -1,5 +1,8 @@
 # Kubernetes [k3d](https://github.com/rancher/k3d) extension for Visual Studio Code
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/inercia/vscode-k3d)
+![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/inercia.vscode-k3d)
+
 ## Overview
 
 This extension displays your [k3d](https://github.com/rancher/k3d) local clusters

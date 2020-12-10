@@ -2,11 +2,11 @@ import * as vscode from 'vscode';
 import * as k8s from 'vscode-kubernetes-tools-api';
 
 import * as k3d from '../k3d/k3d';
-import * as k3dCloudProvider from '../providers/cloud-provider';
+import * as k3dCloudProvider from '../providers/cloudProvider';
 import { shell } from '../utils/shell';
 import { failed, Errorable, succeeded } from '../utils/errorable';
 import { longRunning, confirm } from '../utils/host';
-import { K3dCloudProviderTreeNode, K3dCloudProviderClusterNode } from '../providers/cloud-provider';
+import { K3dCloudProviderTreeNode, K3dCloudProviderClusterNode } from '../providers/cloudProvider';
 
 export async function onDeleteCluster(target?: any): Promise<void> {
     if (target) {

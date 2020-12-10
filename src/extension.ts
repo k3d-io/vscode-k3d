@@ -1,11 +1,11 @@
 import * as k8s from 'vscode-kubernetes-tools-api';
 import * as vscode from 'vscode';
 
-import { K3D_CLUSTER_PROVIDER } from './providers/cluster-provider';
-import { K3D_CLOUD_PROVIDER } from './providers/cloud-provider';
+import { K3D_CLUSTER_PROVIDER } from './providers/clusterProvider';
+import { K3D_CLOUD_PROVIDER } from './providers/cloudProvider';
 
-import { onCreateCluster } from './commands/create-cluster';
-import { onDeleteCluster } from './commands/delete-cluster';
+import { onCreateCluster } from './commands/createCluster';
+import { onDeleteCluster } from './commands/deleteCluster';
 
 export async function activate(context: vscode.ExtensionContext) {
     const clusterProvider = await k8s.extension.clusterProvider.v1;

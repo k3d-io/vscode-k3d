@@ -5,7 +5,8 @@ import { map, filter } from 'rxjs/operators';
 import * as k3d from '../k3d/k3d';
 import * as k3dCloudProvider from '../providers/cloudProvider';
 
-import { ClusterCreateSettings } from '../k3d/k3d';
+import { ClusterCreateSettings, getNewClusterSettingsFromLast } from './createClusterSettings';
+import * as form from './createClusterForm';
 
 import { shell, ProcessTrackingEvent } from '../utils/shell';
 import { succeeded, Errorable } from '../utils/errorable';
@@ -17,7 +18,8 @@ import { cantHappen } from '../utils/never';
 import { Observable } from '../../node_modules/rxjs';
 
 export async function onCreateCluster(target?: any): Promise<void> {
-    const settings = await promptClusterSettings();
+    const defaults = getNewClusterSettingsFromLast();
+    const settings = await promptClusterSettings(defaults);
     if (settings.cancelled) {
         return;
     }
@@ -87,11 +89,11 @@ async function displayClusterCreationResult(result: Errorable<null>): Promise<vo
 // cluster settings dialog
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-async function promptClusterSettings(): Promise<Cancellable<ClusterCreateSettings>> {
+async function promptClusterSettings(defaults: ClusterCreateSettings): Promise<Cancellable<ClusterCreateSettings>> {
     const formResult = await showHTMLForm(
         "extension.vsKubernetesK3DCreate",
         "Create k3d cluster",
-        k3d.createClusterHTMLHeader + k3d.createClusterHTML,
+        form.createClusterHTMLHeader + form.getCreateClusterForm(defaults),
         "Create Cluster");
     if (formResult.cancelled) {
         return formResult;
@@ -99,6 +101,6 @@ async function promptClusterSettings(): Promise<Cancellable<ClusterCreateSetting
 
     return {
         cancelled: false,
-        value: k3d.createClusterSettingsFromForm(formResult.value)
+        value: form.createClusterSettingsFromForm(formResult.value)
     };
 }

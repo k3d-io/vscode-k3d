@@ -5,7 +5,11 @@ import * as vscode from 'vscode';
 import * as k8s from 'vscode-kubernetes-tools-api';
 import * as shelljs from 'shelljs';
 import { ChildProcess } from 'child_process';
-import * as k3d from '../k3d/k3d';
+
+import * as form from '../commands/createClusterForm';
+import * as settings from '../commands/createClusterSettings';
+
+import { logChannel } from '../utils/log';
 import { getKubeconfigPath } from '../utils/kubeconfig';
 import { failed } from '../utils/errorable';
 import { getOrInstallK3D, EnsureMode } from '../installer/installer';
@@ -24,14 +28,15 @@ const PAGE_SETTINGS = 'settings';
 function onNext(wizard: k8s.ClusterProviderV1.Wizard, _action: k8s.ClusterProviderV1.ClusterProviderAction, message: any): void {
     wizard.showPage("<h1>Please wait...</h1>");
     const sendingStep: string = message[k8s.ClusterProviderV1.SENDING_STEP_KEY];
-    const htmlPromise = getPage(sendingStep, message);
+    const defaults = settings.getNewClusterSettingsFromLast();
+    const htmlPromise = getPage(defaults, sendingStep, message);
     wizard.showPage(htmlPromise);
 }
 
-function getPage(sendingStep: string, previousData: any): k8s.ClusterProviderV1.Sequence<string> {
+function getPage(defaults: settings.ClusterCreateSettings, sendingStep: string, previousData: any): k8s.ClusterProviderV1.Sequence<string> {
     switch (sendingStep) {
         case k8s.ClusterProviderV1.SELECT_CLUSTER_TYPE_STEP_ID:
-            return collectSettings(previousData);
+            return collectSettings(defaults, previousData);
         case PAGE_SETTINGS:
             return createCluster(previousData);
         default:
@@ -39,11 +44,11 @@ function getPage(sendingStep: string, previousData: any): k8s.ClusterProviderV1.
     }
 }
 
-function collectSettings(previousData: any): string {
+function collectSettings(defaults: settings.ClusterCreateSettings, previousData: any): string {
     const html = formPage(
         PAGE_SETTINGS,
         "Create k3d cluster",
-        k3d.createClusterHTML,
+        form.getCreateClusterForm(defaults),
         "Create",
         previousData);
     return html;
@@ -63,8 +68,8 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
                 return `<h1>${title}</h1>${paragraphise(stdout)}${paragraphise(stderr, 'red')}${resultPara}`;
             }
 
-            const settings = k3d.createClusterSettingsFromForm(previousData);
-            const args = k3d.createClusterArgsFromSettings(settings);
+            const createSettings = form.createClusterSettingsFromForm(previousData);
+            const args = settings.createClusterArgsFromSettings(createSettings);
 
             let argsStr = args.join(" ");
             argsStr += " --wait --update-default-kubeconfig";
@@ -79,7 +84,11 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
 
             const kubeconfig = getKubeconfigPath();
             shelljs.env["KUBECONFIG"] = kubeconfig;
-            const command = `${exe} cluster create ${settings.name} ${argsStr}`;
+
+            if (!createSettings.name) {
+                logChannel.appendLine(`[ERROR] no cluster name provided in 'createCluster'`);
+            }
+            const command = `${exe} cluster create ${createSettings.name} ${argsStr}`;
 
             const childProcess = shelljs.exec(command, { async: true }) as ChildProcess;
 
@@ -110,6 +119,7 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
                 if (code === 0) {
                     title = 'Cluster created';
                     resultPara = `<p style='font-weight: bold; color: lightgreen'>Your local cluster has been created and has been merged in your kubeconfig ${kubeconfig}</p>`;
+                    settings.saveLastClusterCreateSettings(createSettings);
                     observer.onNext(html());
                 } else {
                     title = 'Cluster creation failed';

@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { map, filter } from 'rxjs/operators';
 
 import * as k3d from '../k3d/k3d';
-import * as k3dCloudProvider from '../providers/cloud-provider';
+import * as k3dCloudProvider from '../providers/cloudProvider';
 
 import { ClusterCreateSettings } from '../k3d/k3d';
 

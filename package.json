@@ -67,6 +67,11 @@
                 "title": "Create Cluster"
             },
             {
+                "command": "extension.vsKubernetesK3DCreateLast",
+                "category": "k3d",
+                "title": "Create Cluster (with last settings)"
+            },
+            {
                 "command": "extension.vsKubernetesK3DDelete",
                 "category": "k3d",
                 "title": "Delete Cluster"
@@ -76,6 +81,10 @@
             "view/item/context": [
                 {
                     "command": "extension.vsKubernetesK3DCreate",
+                    "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DCreateLast",
                     "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
                 },
                 {

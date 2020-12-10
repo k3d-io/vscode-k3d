@@ -17,6 +17,7 @@ import { cantHappen } from '../utils/never';
 
 import { Observable } from '../../node_modules/rxjs';
 
+// entrypoint for the "k3d: create cluster" command
 export async function onCreateCluster(target?: any): Promise<void> {
     const defaults = getNewClusterSettingsFromLast();
     const settings = await promptClusterSettings(defaults);
@@ -30,6 +31,17 @@ export async function onCreateCluster(target?: any): Promise<void> {
     }
 
     await createClusterInteractive(settings.value);
+}
+
+// entrypoint for the "k3d: create cluster (with last settings)" command
+export async function onCreateClusterLast(target?: any): Promise<void> {
+    const settings = getNewClusterSettingsFromLast();
+
+    if (target) {
+        await createClusterInteractive(settings);
+        return;
+    }
+    await createClusterInteractive(settings);
 }
 
 async function createClusterInteractive(settings: ClusterCreateSettings): Promise<void> {

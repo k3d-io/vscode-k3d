@@ -6,7 +6,7 @@ import { Context } from "./utils/context";
 import { K3D_CLUSTER_PROVIDER } from './providers/clusterProvider';
 import { K3D_CLOUD_PROVIDER } from './providers/cloudProvider';
 
-import { onCreateCluster } from './commands/createCluster';
+import { onCreateCluster, onCreateClusterLast } from './commands/createCluster';
 import { onDeleteCluster } from './commands/deleteCluster';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -28,6 +28,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const disposables = [
         vscode.commands.registerCommand("extension.vsKubernetesK3DCreate", onCreateCluster),
+        vscode.commands.registerCommand("extension.vsKubernetesK3DCreateLast", onCreateClusterLast),
         vscode.commands.registerCommand("extension.vsKubernetesK3DDelete", onDeleteCluster),
     ];
 

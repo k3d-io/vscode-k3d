@@ -1,12 +1,12 @@
 {
     "name": "vscode-k3d",
     "displayName": "Kubernetes k3d",
-    "description": "Work with the k3d local Kubernetes provider in Visual Studio Code",
+    "description": "Work with local Kubernetes clusters with K3D provider in Visual Studio Code",
     "version": "0.0.1",
     "preview": true,
     "publisher": "inercia",
     "engines": {
-        "vscode": "^1.32.0"
+        "vscode": "^1.44.0"
     },
     "license": "MIT",
     "categories": [
@@ -18,6 +18,10 @@
         "kubernetes-extension-cloud-provider"
     ],
     "icon": "images/k3d_logo_black_blue.png",
+    "galleryBanner": {
+        "theme": "light"
+    },
+    "homepage": "https://github.com/inercia/vscode-k3d/blob/master/README.md",
     "activationEvents": [
         "onCommand:extension.vsKubernetesConfigureFromCluster",
         "onCommand:extension.vsKubernetesCreateCluster",
@@ -97,7 +101,6 @@
     "scripts": {
         "compile": "webpack --mode none",
         "watch": "webpack --mode none --watch",
-        "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "test-compile": "tsc -p ./",
         "vscode:prepublish": "webpack --mode production",
@@ -112,10 +115,10 @@
         "@types/node": "^8.10.25",
         "@types/shelljs": "^0.8.3",
         "@types/tmp": "0.0.33",
+        "@types/vscode": "^1.44.0",
         "ts-loader": "^6.0.4",
         "tslint": "^5.8.0",
         "typescript": "^3.5.2",
-        "vscode": "^1.1.36",
         "webpack": "^4.36.1",
         "webpack-cli": "^3.3.6"
     },
@@ -133,5 +136,8 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/inercia/vscode-k3d"
+    },
+    "bugs": {
+        "url": "https://github.com/inercia/vscode-k3d/issues"
     }
 }

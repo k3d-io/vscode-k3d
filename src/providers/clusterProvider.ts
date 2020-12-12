@@ -50,6 +50,8 @@ function collectSettings(defaults: settings.ClusterCreateSettings, previousData:
         "Create k3d cluster",
         form.getCreateClusterForm(defaults),
         "Create",
+        form.getCreateClusterFormStyle(),
+        form.getCreateClusterFormJavascript(),
         previousData);
     return html;
 }
@@ -64,8 +66,13 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
 
             let title = 'Creating k3d Cluster';
 
+            // this re-creates a HTML page with all the content (so far)
+            // of 1) stdout 2) stderr
             function html() {
-                return `<h1>${title}</h1>${paragraphise(stdout)}${paragraphise(stderr, 'red')}${resultPara}`;
+                return `<h1>${title}</h1>
+                    ${paragraphise(stdout)}
+                    ${paragraphise(stderr, 'red')}
+                    ${resultPara}`;
             }
 
             const createSettings = form.createClusterSettingsFromForm(previousData);
@@ -135,19 +142,42 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
     };
 }
 
-function formPage(stepId: string, title: string, body: string, buttonCaption: string | null, previousData: any): string {
-    const buttonHtml = buttonCaption ? `<button onclick='${k8s.ClusterProviderV1.NEXT_PAGE}'>${buttonCaption}</button>` : '';
+function formPage(stepId: string, title: string,
+    formContent: string, formSubmitText: string | null, formStyle: string,
+    javascript: string,
+    previousData: any): string {
+
+    const buttonHtml = formSubmitText ?
+        `<button onclick='${k8s.ClusterProviderV1.NEXT_PAGE}'>
+            ${formSubmitText}
+        </button>` : '';
+
     const previousDataFields = Object.keys(previousData)
         .filter((k) => k !== k8s.ClusterProviderV1.SENDING_STEP_KEY)
         .map((k) => `<input type='hidden' name='${k}' value='${previousData[k]}' />`)
         .join('\n');
-    const html = `<h1>${title}</h1>
-    <form id="${k8s.ClusterProviderV1.WIZARD_FORM_NAME}">
-        <input type='hidden' name='${k8s.ClusterProviderV1.SENDING_STEP_KEY}' value='${stepId}' />
-        ${previousDataFields}
-        ${body}
-        <p>${buttonHtml}</p>
-    </form>
+
+    const html = `
+        <style>
+        ${formStyle}
+        </style>
+
+        <h1>${title}</h1>
+
+        <form id="${k8s.ClusterProviderV1.WIZARD_FORM_NAME}">
+            <input type='hidden' name='${k8s.ClusterProviderV1.SENDING_STEP_KEY}' value='${stepId}' />
+            ${previousDataFields}
+
+            ${formContent}
+
+            <p>
+                ${buttonHtml}
+            </p>
+        </form>
+
+        <script>
+        ${javascript}
+        </script>
     `;
 
     return html;

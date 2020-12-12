@@ -8,6 +8,8 @@ export interface ClusterCreateSettings {
     image: string | undefined;
     numServers: number | undefined;
     numAgents: number | undefined;
+    network: string | undefined;
+    lb: boolean | undefined;
 }
 
 export function createClusterArgsFromSettings(settings: ClusterCreateSettings): string[] {
@@ -21,6 +23,14 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings): 
     }
     if (settings.image !== "") {
         args.push("--image", `${settings.image}`);
+    }
+    if (settings.network) {
+        args.push("--network", `${settings.network}`);
+    }
+    if (settings.lb !== undefined) {
+        if (!settings.lb) {
+            args.push("--no-lb");
+        }
     }
     return args;
 }
@@ -38,6 +48,8 @@ class MementoClusterSettings implements ClusterCreateSettings {
     private readonly imageStorageKey = "k3d-last-image";
     private readonly numServersStorageKey = "k3d-last-num-servers";
     private readonly numAgentsStorageKey = "k3d-last-num-agents";
+    private readonly netStorageKey = "k3d-last-net";
+    private readonly lbStorageKey = "k3d-last-lb";
 
     private readonly storage: vscode.Memento;
 
@@ -51,7 +63,7 @@ class MementoClusterSettings implements ClusterCreateSettings {
 
     get name(): string | undefined {
         const name = this.storage.get<string>(this.nameStorageKey);
-        if (!name) {
+        if (name === undefined) {
             return undefined;
         }
         return name;
@@ -62,11 +74,11 @@ class MementoClusterSettings implements ClusterCreateSettings {
     }
 
     get image(): string | undefined {
-        const name = this.storage.get<string>(this.imageStorageKey);
-        if (!name) {
+        const value = this.storage.get<string>(this.imageStorageKey);
+        if (value === undefined) {
             return undefined;
         }
-        return name;
+        return value;
     }
 
     set numServers(value: number | undefined) {
@@ -74,11 +86,11 @@ class MementoClusterSettings implements ClusterCreateSettings {
     }
 
     get numServers(): number | undefined {
-        const name = this.storage.get<number>(this.numServersStorageKey);
-        if (!name) {
+        const value = this.storage.get<number>(this.numServersStorageKey);
+        if (value == undefined) {
             return undefined;
         }
-        return name;
+        return value;
     }
 
     set numAgents(value: number | undefined) {
@@ -87,10 +99,34 @@ class MementoClusterSettings implements ClusterCreateSettings {
 
     get numAgents(): number | undefined {
         const name = this.storage.get<number>(this.numAgentsStorageKey);
-        if (!name) {
+        if (name === undefined) {
             return undefined;
         }
         return name;
+    }
+
+    set network(value: string | undefined) {
+        this.storage.update(this.netStorageKey, value);
+    }
+
+    get network(): string | undefined {
+        const value = this.storage.get<string>(this.netStorageKey);
+        if (value === undefined) {
+            return undefined;
+        }
+        return value;
+    }
+
+    set lb(value: boolean | undefined) {
+        this.storage.update(this.lbStorageKey, value);
+    }
+
+    get lb(): boolean | undefined {
+        const value = this.storage.get<boolean>(this.lbStorageKey);
+        if (value === undefined) {
+            return undefined;
+        }
+        return value;
     }
 
     static getInstance(): MementoClusterSettings {
@@ -125,14 +161,20 @@ export function getNewClusterSettingsFromLast(): ClusterCreateSettings {
     const randInt = Math.floor(Math.random() * (max + 1));
 
     settings.name = `k3d-cluster-${randInt}`;
-    if (!settings.numServers) {
+    if (settings.numServers === undefined) {
         settings.numServers = 1;
     }
-    if (!settings.numAgents) {
+    if (settings.numAgents === undefined) {
         settings.numAgents = 0;
     }
-    if (!settings.image) {
+    if (settings.image === undefined) {
         settings.image = "";
+    }
+    if (settings.network === undefined) {
+        settings.network = "";
+    }
+    if (settings.lb === undefined) {
+        settings.lb = true;
     }
     return settings;
 }

@@ -12,7 +12,7 @@ import { shell, ProcessTrackingEvent } from '../utils/shell';
 import { succeeded, Errorable } from '../utils/errorable';
 import { longRunningWithMessages, ProgressStep, ProgressUpdate } from '../utils/host';
 import { Cancellable } from '../utils/cancellable';
-import { showHTMLForm } from '../utils/webview';
+import * as webview from '../utils/webview';
 import { cantHappen } from '../utils/never';
 
 import { Observable } from '../../node_modules/rxjs';
@@ -102,11 +102,13 @@ async function displayClusterCreationResult(result: Errorable<null>): Promise<vo
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function promptClusterSettings(defaults: ClusterCreateSettings): Promise<Cancellable<ClusterCreateSettings>> {
-    const formResult = await showHTMLForm(
+    const formResult = await webview.showHTMLForm(
         "extension.vsKubernetesK3DCreate",
         "Create k3d cluster",
-        form.createClusterHTMLHeader + form.getCreateClusterForm(defaults),
-        "Create Cluster");
+        form.getCreateClusterForm(defaults),
+        "Create Cluster",
+        form.getCreateClusterFormStyle(),
+        form.getCreateClusterFormJavascript());
     if (formResult.cancelled) {
         return formResult;
     }

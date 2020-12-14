@@ -49,16 +49,16 @@ async function atAllConfigScopes<T>(fn: ConfigUpdater<T>, configKey: string, val
 }
 
 export function toolPathOSKey(os: Platform, tool: string): string {
-    const baseKey = toolPathBaseKey(tool);
+    const baseKey = getK3DToolPathBaseKey(tool);
     const osSpecificKey = osOverrideKey(os, baseKey);
     return osSpecificKey;
 }
 
-function toolPathBaseKey(tool: string): string {
+export function getK3DToolPathBaseKey(tool: string): string {
     return `${VS_KUBE_K3D_EXTENSION_CONFIG_KEY}.${tool}-path`;
 }
 
-function osOverrideKey(os: Platform, baseKey: string): string {
+export function osOverrideKey(os: Platform, baseKey: string): string {
     const osKey = osKeyString(os);
     return osKey ? `${baseKey}.${osKey}` : baseKey;  // The 'else' clause should never happen so don't worry that this would result in double-checking a missing base key
 }

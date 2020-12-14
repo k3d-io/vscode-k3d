@@ -33,7 +33,7 @@
     "contributes": {
         "configuration": [
             {
-                "title": "K3D configuration",
+                "title": "Kubernetes K3D",
                 "properties": {
                     "vs-kubernetes-k3d": {
                         "type": "object",

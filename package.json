@@ -114,6 +114,8 @@
         "watch": "webpack --mode none --watch",
         "test": "npm run compile",
         "test-compile": "tsc -p ./",
+        "lint": "./node_modules/tslint/bin/tslint -p tsconfig.json -c tslint.json  src/**/*.ts",
+		"lint:fix": "./node_modules/tslint/bin/tslint -p tsconfig.json -c tslint.json --fix src/**/*.ts",
         "vscode:prepublish": "webpack --mode production",
         "dist": "vsce package",
         "dist-tools": "npm install -g vsce"

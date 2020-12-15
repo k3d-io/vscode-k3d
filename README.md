@@ -1,7 +1,8 @@
 # Kubernetes [k3d](https://github.com/rancher/k3d) extension for Visual Studio Code
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/inercia/vscode-k3d)
-![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/inercia.vscode-k3d)
+[![Version](https://vsmarketplacebadge.apphb.com/version/inercia.vscode-k3d.svg)](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/inercia.vscode-k3d.svg)](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d)
+[![Ratings](https://vsmarketplacebadge.apphb.com/rating/inercia.vscode-k3d.svg)](https://vsmarketplacebadge.apphb.com/rating/inercia.vscode-k3d.svg)
 
 ## Overview
 
@@ -16,24 +17,36 @@ welcome via the issues page. (And let us know about bugs too!)**
 
 This project is heavily based on the [KinD plugin for VSCode](https://github.com/deislabs/kind-vscode).
 
+## Installation
+
+You can find this plugin in the
+[VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d).
+You will find detailed installation instructions there.
+
+This extension will download the latest, stable version of `k3d` automatically, although you can
+force a specific version of `k3d` with some settings (see bellow).
+
 ## Settings
 
-Example:
+This extension is controlled by a multitude of user settings.
+
+The following list contains all the options and their default values. Options must be preceeded
+by `vs-kubernetes-k3d`:
+
+| Option | Default value | Description |
+| :--- | :--- | :--- |
+| `k3d-path` | "" | this extension will download a recent version of `k3d` automatically, but you can use your own binary by seting this parameter. You can use OS-specific binaries by using `vs-kubernetes-k3d.k3d-path.{linux,mac,windows}` instead. |
+| `updateKubeconfigOnCreate` | true | merge the kubeconfig obtained after creating a new cluster into the default kubeconfig |
+| `kubeconfig` | "" | apply changes in this kubeconfig when merging configuration after creating new clusters. |
+
+Example configuration:
 
 ```JSON
     "vs-kubernetes-k3d": {
-        "vs-kubernetes-k3d.k3d-path.linux": "/home/user/bin/k3d"
+        "vs-kubernetes-k3d.k3d-path.linux": "/home/user/bin/k3d",
+        "vs-kubernetes-k3d.updateKubeconfigOnCreate": false
     }
 ```
-
-* `vs-kubernetes-k3d.k3d-path`: this extension will download a recent
-version of `k3d` automatically, but you can use your own binary by
-seting this parameter. You can use OS-specific binaries by using
-`vs-kubernetes-k3d.k3d-path.{linux,mac,windows}` instead.
-* `vs-kubernetes-k3d.updateKubeconfigOnCreate`: merge the kubeconfig
-obtained after creating a new cluster into the default kubeconfig.
-* `vs-kubernetes-k3d.kubeconfig`: apply changes in this kubeconfig
-when merging configuration after creating new clusters.
 
 ## Development
 

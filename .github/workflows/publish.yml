@@ -40,7 +40,7 @@ jobs:
           git config --global user.name "Alvaro Saurin"
 
       - name: Set release version
-        run: npm version --allow-same-version ${{ steps.info.outputs.SOURCE_TAG }}
+        run: npm version --no-git-tag-version --allow-same-version ${{ steps.info.outputs.SOURCE_TAG }}
 
       - name: Publish package to VS Marketplace
         run: |

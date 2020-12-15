@@ -112,7 +112,7 @@
     "scripts": {
         "compile": "webpack --mode none",
         "watch": "webpack --mode none --watch",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "test": "npm run compile",
         "test-compile": "tsc -p ./",
         "vscode:prepublish": "webpack --mode production",
         "dist": "vsce package",

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import * as config from '../utils/config';
 import { Context } from '../utils/context';
 
 // Settings used for creating the cluster
@@ -32,14 +33,17 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings): 
             args.push("--no-lb");
         }
     }
+    if (config.getK3DCreateClusterConfigUpdateKubeconfig()) {
+        args.push("--update-default-kubeconfig");
+    }
     return args;
 }
 
 ////////////////////////////////////////////////////////////////////////
 
-
 /**
- * An implementation of {@link ClusterSettings} that stores settings using the VS Code memento API.
+ * An implementation of {@link ClusterSettings} that stores settings
+ * using the VS Code memento API.
  */
 class MementoClusterSettings implements ClusterCreateSettings {
     private static instance: MementoClusterSettings;

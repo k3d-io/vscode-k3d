@@ -3,16 +3,19 @@
 
 import * as vscode from 'vscode';
 import * as k8s from 'vscode-kubernetes-tools-api';
-import * as shelljs from 'shelljs';
-import { ChildProcess } from 'child_process';
+import { Observable } from '../../node_modules/rxjs';
+import { map } from 'rxjs/operators';
 
+import * as create from '../commands/createCluster';
 import * as form from '../commands/createClusterForm';
 import * as settings from '../commands/createClusterSettings';
 
-import { logChannel } from '../utils/log';
-import { getKubeconfigPath } from '../utils/kubeconfig';
-import { failed } from '../utils/errorable';
-import { getOrInstallK3D, EnsureMode } from '../installer/installer';
+import * as k3d from '../k3d/k3d';
+
+import { Errorable } from '../utils/errorable';
+import { shell, ProcessTrackingEvent } from '../utils/shell';
+import { cantHappen } from '../utils/never';
+import { ProgressStep } from '../utils/host';
 
 const K3D_CLUSTER_PROVIDER_ID = 'k3d';
 
@@ -68,76 +71,65 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
 
             // this re-creates a HTML page with all the content (so far)
             // of 1) stdout 2) stderr
-            function html() {
+            function asHTML() {
                 return `<h1>${title}</h1>
                     ${paragraphise(stdout)}
                     ${paragraphise(stderr, 'red')}
                     ${resultPara}`;
             }
 
-            const createSettings = form.createClusterSettingsFromForm(previousData);
-            const args = settings.createClusterArgsFromSettings(createSettings);
+            // createClusterProgressOf is invoked for processing each line of output from `k3d cluster create`
+            function createClusterProgressOf(e: ProcessTrackingEvent): ProgressStep<Errorable<null>> {
+                if (e.eventType === 'line') {
+                    stdout += k3d.strippedLines(e.text)
+                        .map((l) => `<p>${l}</p>`);
+                    observer.onNext(asHTML());
 
-            let argsStr = args.join(" ");
-            argsStr += " --wait --update-default-kubeconfig";
-
-            const k3dExe = getOrInstallK3D(EnsureMode.Alert);
-            if (failed(k3dExe)) {
-                stderr += k3dExe.error;
-                observer.onNext(html());
-                return;
-            }
-            const exe = k3dExe.result;
-
-            const kubeconfig = getKubeconfigPath();
-            shelljs.env["KUBECONFIG"] = kubeconfig;
-
-            if (!createSettings.name) {
-                logChannel.appendLine(`[ERROR] no cluster name provided in 'createCluster'`);
-            }
-            const command = `${exe} cluster create ${createSettings.name} ${argsStr}`;
-
-            const childProcess = shelljs.exec(command, { async: true }) as ChildProcess;
-
-            childProcess.stdout.on('data', (chunk: string) => {
-                for (let line of chunk.split(/\r?\n/)) {
-                    // skip the first charts in the line (the `INFO[0000]` stuff)
-                    line = line.substring(20);
-                    stdout += line + '\n';
-                }
-                observer.onNext(html());
-            });
-
-            childProcess.stderr.on('data', (chunk: string) => {
-                for (let line of chunk.split(/\r?\n/)) {
-                    // skip the first charts in the line (the `WARN[0000]` stuff)
-                    line = line.substring(20);
-                    stderr += line + '\n';
-                }
-                observer.onNext(html());
-            });
-
-            childProcess.on('error', (err: Error) => {
-                stderr += err.message;
-                observer.onNext(html());
-            });
-
-            childProcess.on('exit', (code: number) => {
-                if (code === 0) {
+                    return {
+                        type: 'update',
+                        message: e.text
+                    };
+                } else if (e.eventType === 'succeeded') {
                     title = 'Cluster created';
-                    resultPara = `<p style='font-weight: bold; color: lightgreen'>Your local cluster has been created and has been merged in your kubeconfig ${kubeconfig}</p>`;
+                    resultPara = `<p style='font-weight: bold; color: lightgreen'>Your local cluster has been created.</p>`;
                     settings.saveLastClusterCreateSettings(createSettings);
-                    observer.onNext(html());
-                } else {
-                    title = 'Cluster creation failed';
-                    resultPara = `<p style='font-weight: bold; color: red'>Your local cluster was not created.  See tool output above for why.</p>`;
-                    observer.onNext(html());
-                }
+                    observer.onNext(asHTML());
 
-                // refresh the views
-                vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
-                vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
-            });
+                    // refresh the views
+                    vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
+                    vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
+
+                    return {
+                        type: 'complete',
+                        value: {
+                            succeeded: true,
+                            result: null
+                        }
+                    };
+                } else if (e.eventType === 'failed') {
+                    stderr += k3d.strippedLines(e.stderr)
+                        .map((l) => `<p>${l}</p>`);
+                    observer.onNext(asHTML());
+                    return {
+                        type: 'complete',
+                        value: {
+                            succeeded: false,
+                            error: [e.stderr]
+                        }
+                    };
+                } else {
+                    return cantHappen(e);
+                }
+            }
+
+            const createSettings = form.createClusterSettingsFromForm(previousData);
+
+            const progressSteps: Observable<ProgressStep<Errorable<null>>> = k3d.createCluster(shell,
+                createSettings, undefined).pipe(
+                    map((e) => createClusterProgressOf(e))
+                );
+
+            create.displayClusterCreationUI(progressSteps);
         }
     };
 }

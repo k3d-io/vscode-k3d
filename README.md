@@ -26,9 +26,14 @@ Example:
     }
 ```
 
-* `vs-kubernetes-k3d.k3d-path`: this extension will download a recent version
-of `k3d` automatically, but you can use your own binary by seting this
-parameter.
+* `vs-kubernetes-k3d.k3d-path`: this extension will download a recent
+version of `k3d` automatically, but you can use your own binary by
+seting this parameter. You can use OS-specific binaries by using
+`vs-kubernetes-k3d.k3d-path.{linux,mac,windows}` instead.
+* `vs-kubernetes-k3d.updateKubeconfigOnCreate`: merge the kubeconfig
+obtained after creating a new cluster into the default kubeconfig.
+* `vs-kubernetes-k3d.kubeconfig`: apply changes in this kubeconfig
+when merging configuration after creating new clusters.
 
 ## Development
 

@@ -37,27 +37,37 @@
                 "properties": {
                     "vs-kubernetes-k3d": {
                         "type": "object",
-                        "description": "Kubernetes configuration",
+                        "description": "Configuration for Kubernetes clusters created with K3D",
                         "properties": {
                             "vs-kubernetes-k3d.k3d-path": {
                                 "type": "string",
                                 "default": "k3d",
-                                "description": "k3d executable path"
+                                "description": "k3d executable path."
                             },
                             "vs-kubernetes-k3d.k3d-path.linux": {
                                 "type": "string",
                                 "default": "k3d",
-                                "description": "k3d executable path"
+                                "description": "k3d executable path (on Linux)."
                             },
                             "vs-kubernetes-k3d.k3d-path.mac": {
                                 "type": "string",
                                 "default": "k3d",
-                                "description": "k3d executable path"
+                                "description": "k3d executable path (on Mac)."
                             },
                             "vs-kubernetes-k3d.k3d-path.windows": {
                                 "type": "string",
                                 "default": "k3d",
-                                "description": "k3d executable path"
+                                "description": "k3d executable path (on Windows)."
+                            },
+                            "vs-kubernetes-k3d.updateKubeconfigOnCreate" : {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Merge the kubeconfig obtained after creating a new cluster into the default kubeconfig."
+                            },
+                            "vs-kubernetes-k3d.kubeconfig" : {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Apply changes in this kubeconfig when merging configuration after creating new clusters."
                             }
                         }
                     }

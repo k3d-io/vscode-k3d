@@ -34,8 +34,8 @@ export function formatBin(tool: string, platform: Platform): string | null {
 export function getConfigK3DToolPath(tool: string): string | undefined {
     const baseKey = config.getK3DToolPathBaseKey(tool);
     const os = platform();
-    const osOverridePath = vscode.workspace.getConfiguration(config.VS_KUBE_K3D_EXTENSION_CONFIG_KEY)[config.osOverrideKey(os, baseKey)];
-    return osOverridePath || vscode.workspace.getConfiguration(config.VS_KUBE_K3D_EXTENSION_CONFIG_KEY)[baseKey];
+    const osOverridePath = vscode.workspace.getConfiguration(config.VS_KUBE_K3D_CFG_KEY)[config.osOverrideKey(os, baseKey)];
+    return osOverridePath || vscode.workspace.getConfiguration(config.VS_KUBE_K3D_CFG_KEY)[baseKey];
 }
 
 export function getInstallFolder(tool: string): string {

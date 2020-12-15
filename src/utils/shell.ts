@@ -1,14 +1,29 @@
 'use strict';
 
 import * as rx from '../../node_modules/rxjs';
+
 import * as shelljs from 'shelljs';
 import * as spawnrx from 'spawn-rx';
 import * as vscode from 'vscode';
+
 import { getUseWsl } from './config';
 import { Errorable } from './errorable';
+import { Dictionary } from './dictionary';
 
 export interface ExecOpts {
     readonly cwd?: string;
+    readonly env?: Dictionary<string>;
+}
+
+// defExecOpts craetes some default ExecOpts
+export function defExecOpts(): any {
+    const env = process.env;
+    const opts = {
+        cwd: vscode.workspace.rootPath,
+        env: env,
+        async: true
+    };
+    return opts;
 }
 
 export interface Shell {
@@ -31,28 +46,24 @@ export interface ShellResult {
 
 export type ShellHandler = (code: number, stdout: string, stderr: string) => void;
 
-function execOpts(): any {
-    const env = process.env;
-    const opts = {
-        cwd: vscode.workspace.rootPath,
-        env: env,
-        async: true
-    };
-    return opts;
-}
-
 async function exec(cmd: string, stdin?: string): Promise<Errorable<ShellResult>> {
     try {
-        return { succeeded: true, result: await execCore(cmd, execOpts(), stdin) };
+        return {
+            succeeded: true,
+            result: await execCore(cmd, defExecOpts(), stdin)
+        };
     } catch (ex) {
-        return { succeeded: false, error: [`Error invoking '${cmd}: ${ex}`] };
+        return {
+            succeeded: false,
+            error: [`Error invoking '${cmd}: ${ex}`]
+        };
     }
 }
 
 async function execObj<T>(cmd: string, cmdDesc: string, opts: ExecOpts, fn: ((stdout: string) => T)): Promise<Errorable<T>> {
-    const o = Object.assign({}, execOpts(), opts);
+    const defaultedOpts = Object.assign({}, defExecOpts(), opts);
     try {
-        const sr = await execCore(cmd, o);
+        const sr = await execCore(cmd, defaultedOpts);
         if (sr.code === 0) {
             const value = fn(sr.stdout);
             return { succeeded: true, result: value };

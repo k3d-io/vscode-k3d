@@ -27,6 +27,7 @@
         "onCommand:extension.vsKubernetesCreateCluster",
         "onView:kubernetes.cloudExplorer",
         "onCommand:extension.vsKubernetesK3DCreate",
+        "onCommand:extension.vsKubernetesK3DCreateLast",
         "onCommand:extension.vsKubernetesK3DDelete"
     ],
     "main": "./dist/extension",

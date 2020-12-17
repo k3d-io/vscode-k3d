@@ -110,9 +110,27 @@ export function deleteCluster(sh: shell.Shell, clusterName: string): Promise<Err
 export async function getClusters(sh: shell.Shell): Promise<Errorable<K3dClusterInfo[]>> {
     function parse(stdout: string): K3dClusterInfo[] {
         return JSON.parse(stdout)
-            .map((l: any) => ({ name: l.name }))
-            .orderBy((c: K3dClusterInfo) => c.name);
+            .map((cluster: any) => (
+                {
+                    name: cluster.name,
+                    nodes: cluster.nodes.map((node: any) => (
+                        {
+                            name: node.name,
+                            network: node.Network,
+                            role: node.role,
+                            running: node.State.Running,
+                            image: node.image,
+                        })),
+                    agentsCount: cluster.agentsCount,
+                    agentsRunning: cluster.agentsRunning,
+                    serversCount: cluster.serversCount,
+                    serversRunning: cluster.serversRunning,
+                    hasLoadBalancer: cluster.hasLoadBalancer,
+                    imageVolume: cluster.imageVolume
+                }))
+            .orderBy((cluster: K3dClusterInfo) => cluster.name);
     }
+
     return invokeK3DCommandObj(sh, 'cluster list -o json', '', {}, parse);
 }
 

@@ -1,7 +1,6 @@
 
 // TODO: this whole file seems to have many things in common with k3d/k3d.ts
 
-import * as vscode from 'vscode';
 import * as k8s from 'vscode-kubernetes-tools-api';
 import { Observable } from '../../node_modules/rxjs';
 import { map } from 'rxjs/operators';
@@ -39,15 +38,16 @@ function onNext(wizard: k8s.ClusterProviderV1.Wizard, _action: k8s.ClusterProvid
 function getPage(defaults: settings.ClusterCreateSettings, sendingStep: string, previousData: any): k8s.ClusterProviderV1.Sequence<string> {
     switch (sendingStep) {
         case k8s.ClusterProviderV1.SELECT_CLUSTER_TYPE_STEP_ID:
-            return collectSettings(defaults, previousData);
+            return getPageSettings(defaults, previousData);
         case PAGE_SETTINGS:
-            return createCluster(previousData);
+            return getPageCreatingCluster(previousData);
         default:
             return "Internal error";
     }
 }
 
-function collectSettings(defaults: settings.ClusterCreateSettings, previousData: any): string {
+// getPageSettings shows the web page with the form with the new cluster details
+function getPageSettings(defaults: settings.ClusterCreateSettings, previousData: any): string {
     const html = formPage(
         PAGE_SETTINGS,
         "Create k3d cluster",
@@ -59,14 +59,15 @@ function collectSettings(defaults: settings.ClusterCreateSettings, previousData:
     return html;
 }
 
-function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<string> {
+// getPageCreatingCluster shows the web page that show how the cluster is being created
+function getPageCreatingCluster(previousData: any): k8s.ClusterProviderV1.Observable<string> {
     return {
         subscribe(observer: k8s.ClusterProviderV1.Observer<string>): void {
             observer.onNext("<h1>Creating k3d Cluster</h1>");
+
             let stdout = '';
             let stderr = '';
             let resultPara = '';
-
             let title = 'Creating k3d Cluster';
 
             // this re-creates a HTML page with all the content (so far)

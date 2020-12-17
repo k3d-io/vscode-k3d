@@ -1,21 +1,11 @@
 import * as k8s from 'vscode-kubernetes-tools-api';
 import * as vscode from 'vscode';
+
 import * as k3d from '../k3d/k3d';
 import { shell } from '../utils/shell';
 import { failed } from '../utils/errorable';
 import '../utils/string';
 
-class K3dCloudProvider implements k8s.CloudExplorerV1.CloudProvider {
-    readonly cloudName = "k3d";
-    readonly treeDataProvider = new K3dTreeDataProvider();
-    async getKubeconfigYaml(cluster: any): Promise<string | undefined> {
-        const treeNode = cluster as K3dCloudProviderTreeNode;
-        if (treeNode.nodeType === 'cluster') {
-            return await getK3dKubeconfigYaml(treeNode.clusterName);
-        }
-        return undefined;
-    }
-}
 
 export interface K3dCloudProviderClusterNode {
     readonly nodeType: 'cluster';
@@ -29,8 +19,22 @@ export interface K3dCloudProviderErrorNode {
 
 export type K3dCloudProviderTreeNode = K3dCloudProviderClusterNode | K3dCloudProviderErrorNode;
 
+class K3dCloudProvider implements k8s.CloudExplorerV1.CloudProvider {
+    readonly cloudName = "k3d";
+    readonly treeDataProvider = new K3dTreeDataProvider();
+
+    async getKubeconfigYaml(cluster: any): Promise<string | undefined> {
+        const treeNode = cluster as K3dCloudProviderTreeNode;
+        if (treeNode.nodeType === 'cluster') {
+            return await getK3dKubeconfigYaml(treeNode.clusterName);
+        }
+        return undefined;
+    }
+}
+
 class K3dTreeDataProvider implements vscode.TreeDataProvider<K3dCloudProviderTreeNode> {
     private onDidChangeTreeDataEmitter: vscode.EventEmitter<K3dCloudProviderTreeNode | undefined> = new vscode.EventEmitter<K3dCloudProviderTreeNode | undefined>();
+
     readonly onDidChangeTreeData: vscode.Event<K3dCloudProviderTreeNode | undefined> = this.onDidChangeTreeDataEmitter.event;
 
     getTreeItem(element: K3dCloudProviderTreeNode): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -39,11 +43,30 @@ class K3dTreeDataProvider implements vscode.TreeDataProvider<K3dCloudProviderTre
             treeItem.tooltip = element.diagnostic;
             return treeItem;
         } else {
-            const treeItem = new vscode.TreeItem(element.clusterName, vscode.TreeItemCollapsibleState.None);
-            treeItem.contextValue = `k3d.cluster ${k8s.CloudExplorerV1.SHOW_KUBECONFIG_COMMANDS_CONTEXT}`;
-            return treeItem;
+            return new Promise<vscode.TreeItem>((resolve) => {
+                // try to get some information for this cluster
+                k3d.getClusters(shell).then(function (clusters) {
+                    const treeItem = new vscode.TreeItem(element.clusterName, vscode.TreeItemCollapsibleState.None);
+                    treeItem.contextValue = `k3d.cluster ${k8s.CloudExplorerV1.SHOW_KUBECONFIG_COMMANDS_CONTEXT}`;
+
+                    // look for this cluster in the list of current clusters
+                    if (clusters.succeeded) {
+                        for (const cluster of clusters.result) {
+                            if (cluster.name === element.clusterName) {
+                                // create some description (text that is displayed by the side)
+                                // and tooltip for this cluster
+                                treeItem.description = `(${cluster.serversRunning} / ${cluster.agentsRunning})`;
+                                treeItem.tooltip = `k3d cluster "${element.clusterName}": ${cluster.serversRunning} servers / ${cluster.agentsRunning} agents`;
+                            }
+                        }
+                    }
+
+                    resolve(treeItem);
+                });
+            });
         }
     }
+
     getChildren(element?: K3dCloudProviderTreeNode | undefined): vscode.ProviderResult<K3dCloudProviderTreeNode[]> {
         if (element) {
             return [];
@@ -52,21 +75,30 @@ class K3dTreeDataProvider implements vscode.TreeDataProvider<K3dCloudProviderTre
     }
 }
 
+// getClusters get the current list of k3d clusters
 async function getClusters(): Promise<K3dCloudProviderTreeNode[]> {
     const clusters = await k3d.getClusters(shell);
     if (failed(clusters)) {
-        return [{ nodeType: 'error', diagnostic: clusters.error[0] }];
+        return [{
+            nodeType: 'error',
+            diagnostic: clusters.error[0]
+        }];
     }
-    return clusters.result.map((c) => ({ nodeType: 'cluster', clusterName: c.name } as const));
+
+    return clusters.result.map((c) => ({
+        nodeType: 'cluster',
+        clusterName: c.name,
+    } as const));
 }
 
 // getK3dKubeconfigYaml is invoked when we click on "Merge into Kubeconfig"
 async function getK3dKubeconfigYaml(clusterName: string): Promise<string | undefined> {
     const kcyaml = await k3d.getKubeconfig(shell, clusterName);
     if (failed(kcyaml)) {
-        vscode.window.showErrorMessage(`Can't get kubeconfig for ${clusterName}: ${kcyaml.error[0]}`);
+        vscode.window.showErrorMessage(`Can't get kubeconfig for k3d cluster "${clusterName}": ${kcyaml.error[0]}`);
         return undefined;
     }
+
     const originalKubeconfig = kcyaml.result;
     const distinctKubeconfig = replaceAPIServerIP(originalKubeconfig, clusterName);
     return distinctKubeconfig;

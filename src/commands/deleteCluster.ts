@@ -2,11 +2,12 @@ import * as vscode from 'vscode';
 import * as k8s from 'vscode-kubernetes-tools-api';
 
 import * as k3d from '../k3d/k3d';
-import * as k3dCloudProvider from '../providers/cloudProvider';
+
 import { shell } from '../utils/shell';
 import { failed, Errorable, succeeded } from '../utils/errorable';
 import { longRunning, confirm } from '../utils/host';
 import { K3dCloudProviderTreeNode, K3dCloudProviderClusterNode } from '../providers/cloudProvider';
+import { refreshKubernetesToolsViews } from '../utils/vscode';
 
 export async function onDeleteCluster(target?: any): Promise<void> {
     if (target) {
@@ -45,17 +46,13 @@ async function deleteClusterByName(clusterName: string): Promise<void> {
 
     // TODO: remove from kubeconfig?
     await displayClusterDeletionResult(result, clusterName);
-
-    // refresh the views
-    vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
-    vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
 }
 
 async function displayClusterDeletionResult(result: Errorable<null>, clusterName: string): Promise<void> {
     if (succeeded(result)) {
         await Promise.all([
             vscode.window.showInformationMessage(`Deleted cluster ${clusterName}`),
-            k3dCloudProvider.refresh()
+            refreshKubernetesToolsViews()
         ]);
     } else {
         await vscode.window.showErrorMessage(`Deleting K3d cluster failed: ${result.error[0]}`);

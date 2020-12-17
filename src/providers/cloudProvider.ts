@@ -79,10 +79,3 @@ function replaceAPIServerIP(kubeconfig: string, clusterName: string): string {
 }
 
 export const K3D_CLOUD_PROVIDER = new K3dCloudProvider();
-
-export async function refresh(): Promise<void> {
-    const cloudExplorer = await k8s.extension.cloudExplorer.v1;
-    if (cloudExplorer.available) {
-        cloudExplorer.api.refresh();
-    }
-}

@@ -3,11 +3,10 @@ import * as vscode from 'vscode';
 import { map, filter } from 'rxjs/operators';
 import { Observable } from '../../node_modules/rxjs';
 
-import * as k3d from '../k3d/k3d';
-import * as k3dCloudProvider from '../providers/cloudProvider';
-
 import { ClusterCreateSettings, getNewClusterSettingsFromLast } from './createClusterSettings';
 import * as form from './createClusterForm';
+
+import * as k3d from '../k3d/k3d';
 
 import { logChannel } from '../utils/log';
 import { shell, ProcessTrackingEvent } from '../utils/shell';
@@ -15,8 +14,12 @@ import { succeeded, Errorable } from '../utils/errorable';
 import { longRunningWithMessages, ProgressStep, ProgressUpdate } from '../utils/host';
 import { Cancellable } from '../utils/cancellable';
 import * as webview from '../utils/webview';
+import { refreshKubernetesToolsViews } from '../utils/vscode';
 import { cantHappen } from '../utils/never';
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+// commands entrypoints
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 // entrypoint for the "k3d: create cluster" command
 export async function onCreateCluster(target?: any): Promise<void> {
@@ -44,6 +47,8 @@ export async function onCreateClusterLast(target?: any): Promise<void> {
     }
     await createClusterInteractive(settings);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 async function createClusterInteractive(settings: ClusterCreateSettings): Promise<void> {
 
@@ -77,11 +82,7 @@ async function createClusterInteractive(settings: ClusterCreateSettings): Promis
         map((e) => createClusterProgressOf(e))
     );
 
-    await displayClusterCreationUI(progressSteps);
-
-    // refresh the views
-    vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
-    vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
+    await displayClusterCreationUI(settings, progressSteps);
 }
 
 function undecorateClusterCreationOutput<T>(events: Observable<ProgressStep<T>>): Observable<ProgressStep<T>> {
@@ -101,18 +102,18 @@ function undecorateClusterCreationOutput<T>(events: Observable<ProgressStep<T>>)
     );
 }
 
-export async function displayClusterCreationUI(progressSteps: Observable<ProgressStep<Errorable<null>>>): Promise<void> {
+export async function displayClusterCreationUI(settings: ClusterCreateSettings, progressSteps: Observable<ProgressStep<Errorable<null>>>): Promise<void> {
     const progressToDisplay = undecorateClusterCreationOutput(progressSteps);
     const result = await longRunningWithMessages("Creating k3d cluster", progressToDisplay);
 
     async function displayClusterCreationResult(result: Errorable<null>): Promise<void> {
         if (succeeded(result)) {
             await Promise.all([
-                vscode.window.showInformationMessage("Created k3d cluster"),
-                k3dCloudProvider.refresh()
+                vscode.window.showInformationMessage(`Created k3d cluster "${settings.name}"`),
+                refreshKubernetesToolsViews()
             ]);
         } else {
-            await vscode.window.showErrorMessage(`Creating k3d cluster failed: ${result.error[0]}`);
+            await vscode.window.showErrorMessage(`Creation of k3d cluster "${settings.name}" failed: ${result.error[0]}`);
         }
     }
 

@@ -95,10 +95,6 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
                     settings.saveLastClusterCreateSettings(createSettings);
                     observer.onNext(asHTML());
 
-                    // refresh the views
-                    vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
-                    vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
-
                     return {
                         type: 'complete',
                         value: {
@@ -129,7 +125,7 @@ function createCluster(previousData: any): k8s.ClusterProviderV1.Observable<stri
                     map((e) => createClusterProgressOf(e))
                 );
 
-            create.displayClusterCreationUI(progressSteps);
+            create.displayClusterCreationUI(createSettings, progressSteps);
         }
     };
 }

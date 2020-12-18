@@ -35,42 +35,50 @@
         "configuration": [
             {
                 "title": "Kubernetes K3D",
+                "description": "Configuration for the K3D kubernetes provider.",
                 "properties": {
-                    "vs-kubernetes-k3d": {
+                    "k3d.paths": {
                         "type": "object",
-                        "description": "Configuration for Kubernetes clusters created with K3D",
+                        "title": "k3d path",
+                        "description": "k3d executable path",
                         "properties": {
-                            "vs-kubernetes-k3d.k3d-path": {
+                            "k3d.paths.k3d": {
                                 "type": "string",
                                 "default": "k3d",
                                 "description": "k3d executable path."
                             },
-                            "vs-kubernetes-k3d.k3d-path.linux": {
+                            "k3d.paths.k3d-linux": {
                                 "type": "string",
                                 "default": "k3d",
                                 "description": "k3d executable path (on Linux)."
                             },
-                            "vs-kubernetes-k3d.k3d-path.mac": {
+                            "k3d.paths.k3d-mac": {
                                 "type": "string",
                                 "default": "k3d",
                                 "description": "k3d executable path (on Mac)."
                             },
-                            "vs-kubernetes-k3d.k3d-path.windows": {
+                            "k3d.paths.k3d-windows": {
                                 "type": "string",
                                 "default": "k3d",
                                 "description": "k3d executable path (on Windows)."
-                            },
-                            "vs-kubernetes-k3d.updateKubeconfigOnCreate" : {
-                                "type": "boolean",
-                                "default": true,
-                                "description": "Merge the kubeconfig obtained after creating a new cluster into the default kubeconfig."
-                            },
-                            "vs-kubernetes-k3d.kubeconfig" : {
-                                "type": "boolean",
-                                "default": true,
-                                "description": "Apply changes in this kubeconfig when merging configuration after creating new clusters."
                             }
                         }
+                    },
+                    "k3d.updateKubeconfig": {
+                        "type": "string",
+                        "enum": [
+                            "onCreate",
+                            "onDelete",
+                            "always",
+                            "never"
+                        ],
+                        "default": "always",
+                        "description": "Update the kubeconfig after creating or deleting a cluster."
+                    },
+                    "k3d.kubeconfig": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Apply changes in this kubeconfig when merging configuration after creating new clusters."
                     }
                 }
             }
@@ -115,7 +123,7 @@
         "test": "npm run compile",
         "test-compile": "tsc -p ./",
         "lint": "./node_modules/tslint/bin/tslint -p tsconfig.json -c tslint.json  src/**/*.ts",
-		"lint:fix": "./node_modules/tslint/bin/tslint -p tsconfig.json -c tslint.json --fix src/**/*.ts",
+        "lint:fix": "./node_modules/tslint/bin/tslint -p tsconfig.json -c tslint.json --fix src/**/*.ts",
         "vscode:prepublish": "webpack --mode production",
         "dist": "vsce package",
         "dist-tools": "npm install -g vsce"

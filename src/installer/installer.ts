@@ -5,11 +5,15 @@ import * as download from './downloads';
 import * as fs from 'fs';
 import * as path from 'path';
 import mkdirp = require('mkdirp');
+
+import { platformUrlString, getInstallFolder } from './installationlayout';
+
 import * as shell from '../utils/shell';
 import { logChannel } from '../utils/log';
 import { Errorable, failed } from '../utils/errorable';
-import { addPathToConfig, toolPathOSKey } from '../utils/config';
-import { platformUrlString, getConfigK3DToolPath, getInstallFolder } from './installationlayout';
+import * as config from '../utils/config';
+import { refreshKubernetesToolsViews } from '../utils/vscode';
+
 
 export enum EnsureMode {
     Alert,
@@ -17,7 +21,7 @@ export enum EnsureMode {
 }
 
 export function getOrInstallK3D(mode: EnsureMode): Errorable<string> {
-    const configuredBin: string | undefined = getConfigK3DToolPath('k3d');
+    const configuredBin: string | undefined = config.getK3DConfigPathFor('k3d');
     if (configuredBin) {
         if (fs.existsSync(configuredBin)) {
             return {
@@ -105,13 +109,10 @@ export async function installK3D(): Promise<Errorable<string>> {
     }
 
     // update the config for pointing to this file
-    await addPathToConfig(toolPathOSKey(platform, tool), downloadFile);
+    await config.addPathToConfig(config.toolPathOSKey(platform, tool), downloadFile);
 
     logChannel.appendLine(`[installer] k3d installed successfully`);
-
-    // refresh the views
-    vscode.commands.executeCommand("extension.vsKubernetesRefreshExplorer");
-    vscode.commands.executeCommand("extension.vsKubernetesRefreshCloudExplorer");
+    refreshKubernetesToolsViews();
 
     return {
         succeeded: true,

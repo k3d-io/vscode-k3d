@@ -1,8 +1,7 @@
-import * as vscode from 'vscode';
-import { Platform, platform } from "../utils/shell";
 import * as path from 'path';
+
+import { Platform } from "../utils/shell";
 import * as shell from '../utils/shell';
-import * as config from "../utils/config";
 
 export function platformUrlString(platform: Platform, supported?: Platform[]): string | null {
     if (supported && supported.indexOf(platform) < 0) {
@@ -27,15 +26,6 @@ export function formatBin(tool: string, platform: Platform): string | null {
         return toolPath + '.exe';
     }
     return toolPath;
-}
-
-// Functions for working with tool paths
-
-export function getConfigK3DToolPath(tool: string): string | undefined {
-    const baseKey = config.getK3DToolPathBaseKey(tool);
-    const os = platform();
-    const osOverridePath = vscode.workspace.getConfiguration(config.VS_KUBE_K3D_CFG_KEY)[config.osOverrideKey(os, baseKey)];
-    return osOverridePath || vscode.workspace.getConfiguration(config.VS_KUBE_K3D_CFG_KEY)[baseKey];
 }
 
 export function getInstallFolder(tool: string): string {

@@ -69,10 +69,11 @@ export function createCluster(sh: shell.Shell,
     let opts = shell.defExecOpts();
 
     // check if we should set the KUBECONFIG env variable
-    const shouldUpdateKubeconfig = config.getK3DCreateClusterConfigUpdateKubeconfig();
-    if (shouldUpdateKubeconfig !== undefined && shouldUpdateKubeconfig) {
+    const updateKubeconfig = config.getK3DConfigUpdateKubeconfig();
+    if (updateKubeconfig &&
+        (updateKubeconfig === config.UpdateKubeconfig.Always || updateKubeconfig === config.UpdateKubeconfig.OnCreate)) {
         if (kubeconfig === undefined) {
-            const forcedKubeconfig = config.getK3DCreateClusterForcedKubeconfig();
+            const forcedKubeconfig = config.getK3DConfigForcedKubeconfig();
             if (forcedKubeconfig) {
                 kubeconfig = forcedKubeconfig;
             } else {

@@ -30,21 +30,21 @@ force a specific version of `k3d` with some settings (see bellow).
 
 This extension is controlled by a multitude of user settings.
 
-The following list contains all the options and their default values. Options must be preceeded
-by `vs-kubernetes-k3d`:
+The following list contains all the options and their default values.:
 
 | Option | Default value | Description |
 | :--- | :--- | :--- |
-| `k3d-path` | "" | this extension will download a recent version of `k3d` automatically, but you can use your own binary by seting this parameter. You can use OS-specific binaries by using `vs-kubernetes-k3d.k3d-path.{linux,mac,windows}` instead. |
-| `updateKubeconfigOnCreate` | true | merge the kubeconfig obtained after creating a new cluster into the default kubeconfig |
-| `kubeconfig` | "" | apply changes in this kubeconfig when merging configuration after creating new clusters. |
+| `k3d.paths` | {} | paths for different tools |
+| `k3d.paths.k3d` | "" | this extension will download a recent version of `k3d` automatically, but you can use your own binary by seting this parameter. You can use OS-specific binaries by using `k3d.paths.k3d-{linux,mac,windows}` instead. |
+| `k3d.updateKubeconfig` | "always" | update the kubeconfig after creating/destroying a cluster |
+| `k3d.kubeconfig` | "" | apply changes in this kubeconfig when merging configuration after creating new clusters. |
 
 Example configuration:
 
 ```JSON
-    "vs-kubernetes-k3d": {
-        "vs-kubernetes-k3d.k3d-path.linux": "/home/user/bin/k3d",
-        "vs-kubernetes-k3d.updateKubeconfigOnCreate": false
+    "k3d.updateKubeconfig": "always",
+    "k3d.paths": {
+        "k3d.paths.k3d-linux": "/home/user/bin/k3d"
     }
 ```
 

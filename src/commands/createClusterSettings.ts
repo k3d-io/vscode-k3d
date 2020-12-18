@@ -33,7 +33,11 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings): 
             args.push("--no-lb");
         }
     }
-    if (config.getK3DCreateClusterConfigUpdateKubeconfig()) {
+
+    // check if we want to modify the kubeconfig
+    const updateKubeconfig = config.getK3DConfigUpdateKubeconfig();
+    if (updateKubeconfig &&
+        (updateKubeconfig === config.UpdateKubeconfig.Always || updateKubeconfig === config.UpdateKubeconfig.OnCreate)) {
         args.push("--update-default-kubeconfig");
     }
     return args;

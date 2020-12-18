@@ -3,10 +3,11 @@ import * as k8s from 'vscode-kubernetes-tools-api';
 
 import * as k3d from '../k3d/k3d';
 
+import { K3dCloudProviderTreeNode, K3dCloudProviderClusterNode } from '../providers/cloudProvider';
+
 import { shell } from '../utils/shell';
 import { failed, Errorable, succeeded } from '../utils/errorable';
 import { longRunning, confirm } from '../utils/host';
-import { K3dCloudProviderTreeNode, K3dCloudProviderClusterNode } from '../providers/cloudProvider';
 import { refreshKubernetesToolsViews } from '../utils/vscode';
 
 export async function onDeleteCluster(target?: any): Promise<void> {
@@ -44,10 +45,10 @@ async function deleteClusterByName(clusterName: string): Promise<void> {
     const result = await longRunning(`Deleting cluster ${clusterName}...`,
         () => k3d.deleteCluster(shell, clusterName));
 
-    // TODO: remove from kubeconfig?
     await displayClusterDeletionResult(result, clusterName);
 }
 
+// displayClusterDeletionResult displais the results of the cluster destruction
 async function displayClusterDeletionResult(result: Errorable<null>, clusterName: string): Promise<void> {
     if (succeeded(result)) {
         await Promise.all([
@@ -73,6 +74,7 @@ async function tryResolveClusterNode(target: any): Promise<K3dCloudProviderClust
     if (!cloudExplorer.available) {
         return undefined;
     }
+
     const cloudExplorerNode = cloudExplorer.api.resolveCommandTarget(target);
     if (cloudExplorerNode && cloudExplorerNode.nodeType === 'resource' && cloudExplorerNode.cloudName === 'k3d') {
         const k3dTreeNode: K3dCloudProviderTreeNode = cloudExplorerNode.cloudResource;

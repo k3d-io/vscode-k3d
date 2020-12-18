@@ -25,6 +25,8 @@ export async function tryResolveClusterNode(target: any): Promise<K3dCloudProvid
     return undefined;
 }
 
+// promptCluster prompt users about a cluster,
+// showing a list of current clusters available
 export async function promptCluster(prompt: string, progressMessage: string): Promise<string | undefined> {
     const clusters = await longRunning(progressMessage, () => k3d.getClusters(shell));
     if (failed(clusters)) {
@@ -34,7 +36,13 @@ export async function promptCluster(prompt: string, progressMessage: string): Pr
             await vscode.window.showErrorMessage(`No K3d clusters running`);
             return undefined;
         } else {
-            return await vscode.window.showQuickPick(clusters.result.map((c) => c.name));
+            const clustersNames = clusters.result.map((c) => c.name);
+
+            return await vscode.window.showQuickPick(clustersNames, {
+                placeHolder: prompt,
+                canPickMany: false,
+                ignoreFocusOut: true
+            });
         }
     }
 }

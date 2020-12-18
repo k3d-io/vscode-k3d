@@ -135,6 +135,26 @@ export async function getClusters(sh: shell.Shell): Promise<Errorable<K3dCluster
     return invokeK3DCommandObj(sh, 'cluster list -o json', '', {}, parse);
 }
 
+// getClusterInfo gets some info for a cluster
+export async function getClusterInfo(sh: shell.Shell, clusterName: string): Promise<Errorable<K3dClusterInfo>> {
+    const clusters = await getClusters(sh);
+    if (clusters.succeeded) {
+        for (const cluster of clusters.result) {
+            if (cluster.name === clusterName) {
+                return {
+                    succeeded: true,
+                    result: cluster
+                };
+            }
+        }
+    }
+
+    return {
+        succeeded: false,
+        error: [`cluster ${clusterName} not found`]
+    };
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // get kubeconfig
 ///////////////////////////////////////////////////////////////////////////////

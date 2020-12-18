@@ -45,20 +45,16 @@ class K3dTreeDataProvider implements vscode.TreeDataProvider<K3dCloudProviderTre
         } else {
             return new Promise<vscode.TreeItem>((resolve) => {
                 // try to get some information for this cluster
-                k3d.getClusters(shell).then(function (clusters) {
+                k3d.getClusterInfo(shell, element.clusterName).then(function (cluster) {
                     const treeItem = new vscode.TreeItem(element.clusterName, vscode.TreeItemCollapsibleState.None);
                     treeItem.contextValue = `k3d.cluster ${k8s.CloudExplorerV1.SHOW_KUBECONFIG_COMMANDS_CONTEXT}`;
 
                     // look for this cluster in the list of current clusters
-                    if (clusters.succeeded) {
-                        for (const cluster of clusters.result) {
-                            if (cluster.name === element.clusterName) {
-                                // create some description (text that is displayed by the side)
-                                // and tooltip for this cluster
-                                treeItem.description = `(${cluster.serversRunning} / ${cluster.agentsRunning})`;
-                                treeItem.tooltip = `k3d cluster "${element.clusterName}": ${cluster.serversRunning} servers / ${cluster.agentsRunning} agents`;
-                            }
-                        }
+                    if (cluster.succeeded) {
+                        // create some description (text that is displayed by the side)
+                        // and tooltip for this cluster
+                        treeItem.description = `(${cluster.result.serversRunning} / ${cluster.result.agentsRunning})`;
+                        treeItem.tooltip = `k3d cluster "${element.clusterName}": ${cluster.result.serversRunning} servers / ${cluster.result.agentsRunning} agents`;
                     }
 
                     resolve(treeItem);

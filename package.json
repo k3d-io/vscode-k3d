@@ -29,7 +29,8 @@
         "onCommand:extension.vsKubernetesK3DCreate",
         "onCommand:extension.vsKubernetesK3DCreateLast",
         "onCommand:extension.vsKubernetesK3DDelete",
-        "onCommand:extension.vsKubernetesK3DAddAgent"
+        "onCommand:extension.vsKubernetesK3DAddAgent",
+        "onCommand:extension.vsKubernetesK3DDeleteAgent"
     ],
     "main": "./dist/extension",
     "contributes": {
@@ -87,23 +88,28 @@
         "commands": [
             {
                 "command": "extension.vsKubernetesK3DCreate",
-                "category": "k3d",
+                "category": "Kubernetes: k3d",
                 "title": "Create Cluster"
             },
             {
                 "command": "extension.vsKubernetesK3DCreateLast",
-                "category": "k3d",
+                "category": "Kubernetes: k3d",
                 "title": "Create Cluster (with last settings)"
             },
             {
                 "command": "extension.vsKubernetesK3DDelete",
-                "category": "k3d",
+                "category": "Kubernetes: k3d",
                 "title": "Delete Cluster"
             },
             {
                 "command": "extension.vsKubernetesK3DAddAgent",
-                "category": "k3d",
+                "category": "Kubernetes: k3d",
                 "title": "Add an agent node"
+            },
+            {
+                "command": "extension.vsKubernetesK3DDeleteAgent",
+                "category": "Kubernetes: k3d",
+                "title": "Delete an agent node"
             }
         ],
         "menus": {
@@ -122,6 +128,10 @@
                 },
                 {
                     "command": "extension.vsKubernetesK3DAddAgent",
+                    "when": "viewItem =~ /k3d\\.cluster/"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DDeleteAgent",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 }
             ]

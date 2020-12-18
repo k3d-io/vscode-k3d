@@ -38,3 +38,31 @@ export async function promptCluster(prompt: string, progressMessage: string): Pr
         }
     }
 }
+
+// promptNodesInCluster prompts users about some node in the cluster,
+// showing the list of nodes with a specific role
+export async function promptNodesInCluster(
+    clusterName: string,
+    role: string,
+    prompt: string, progressMessage: string): Promise<string | undefined> {
+
+    const clusterInfo = await longRunning(progressMessage, () => k3d.getClusterInfo(shell, clusterName));
+    if (failed(clusterInfo)) {
+        return await vscode.window.showInputBox({ prompt: prompt });
+    } else {
+        if (clusterInfo.result.nodes.length === 0) {
+            await vscode.window.showErrorMessage(`No K3d clusters running`);
+            return undefined;
+        } else {
+            const agentsNodesList = clusterInfo.result.nodes
+                .filter((c) => c.role === role)
+                .map((c) => c.name);
+
+            return await vscode.window.showQuickPick(agentsNodesList, {
+                placeHolder: prompt,
+                canPickMany: false,
+                ignoreFocusOut: true
+            });
+        }
+    }
+}

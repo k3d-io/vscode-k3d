@@ -9,6 +9,7 @@ import { K3D_CLOUD_PROVIDER } from './providers/cloudProvider';
 import { onCreateCluster, onCreateClusterLast } from './commands/createCluster';
 import { onDeleteCluster } from './commands/deleteCluster';
 import { onAddAgent } from './commands/addAgent';
+import { onDeleteAgent } from './commands/deleteAgent';
 
 export async function activate(context: vscode.ExtensionContext) {
     Context.register(context);
@@ -35,6 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         // Add/remove agents
         vscode.commands.registerCommand("extension.vsKubernetesK3DAddAgent", onAddAgent),
+        vscode.commands.registerCommand("extension.vsKubernetesK3DDeleteAgent", onDeleteAgent),
     ];
 
     context.subscriptions.push(...disposables);

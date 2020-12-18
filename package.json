@@ -28,7 +28,8 @@
         "onView:kubernetes.cloudExplorer",
         "onCommand:extension.vsKubernetesK3DCreate",
         "onCommand:extension.vsKubernetesK3DCreateLast",
-        "onCommand:extension.vsKubernetesK3DDelete"
+        "onCommand:extension.vsKubernetesK3DDelete",
+        "onCommand:extension.vsKubernetesK3DAddAgent"
     ],
     "main": "./dist/extension",
     "contributes": {
@@ -98,6 +99,11 @@
                 "command": "extension.vsKubernetesK3DDelete",
                 "category": "k3d",
                 "title": "Delete Cluster"
+            },
+            {
+                "command": "extension.vsKubernetesK3DAddAgent",
+                "category": "k3d",
+                "title": "Add an agent node"
             }
         ],
         "menus": {
@@ -112,6 +118,10 @@
                 },
                 {
                     "command": "extension.vsKubernetesK3DDelete",
+                    "when": "viewItem =~ /k3d\\.cluster/"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DAddAgent",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 }
             ]

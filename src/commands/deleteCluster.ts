@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
-import * as k8s from 'vscode-kubernetes-tools-api';
 
 import * as k3d from '../k3d/k3d';
 
-import { K3dCloudProviderTreeNode, K3dCloudProviderClusterNode } from '../providers/cloudProvider';
+import { tryResolveClusterNode, promptCluster } from './utils';
 
 import { shell } from '../utils/shell';
-import { failed, Errorable, succeeded } from '../utils/errorable';
+import { Errorable, succeeded } from '../utils/errorable';
 import { longRunning, confirm } from '../utils/host';
 import { refreshKubernetesToolsViews } from '../utils/vscode';
 
@@ -27,7 +26,7 @@ async function deleteCluster(target: any): Promise<void> {
 }
 
 async function deleteClusterInteractive(): Promise<void> {
-    const clusterName = await promptCluster('Getting existing clusters...');
+    const clusterName = await promptCluster('Cluster to delete', 'Getting existing clusters...');
     if (!clusterName) {
         return;
     }
@@ -58,29 +57,4 @@ async function displayClusterDeletionResult(result: Errorable<null>, clusterName
     } else {
         await vscode.window.showErrorMessage(`Deleting K3d cluster failed: ${result.error[0]}`);
     }
-}
-
-async function promptCluster(progressMessage: string): Promise<string | undefined> {
-    const clusters = await longRunning(progressMessage, () => k3d.getClusters(shell));
-    if (failed(clusters)) {
-        return await vscode.window.showInputBox({ prompt: 'Cluster to delete' });
-    } else {
-        return await vscode.window.showQuickPick(clusters.result.map((c) => c.name));
-    }
-}
-
-async function tryResolveClusterNode(target: any): Promise<K3dCloudProviderClusterNode | undefined> {
-    const cloudExplorer = await k8s.extension.cloudExplorer.v1;
-    if (!cloudExplorer.available) {
-        return undefined;
-    }
-
-    const cloudExplorerNode = cloudExplorer.api.resolveCommandTarget(target);
-    if (cloudExplorerNode && cloudExplorerNode.nodeType === 'resource' && cloudExplorerNode.cloudName === 'k3d') {
-        const k3dTreeNode: K3dCloudProviderTreeNode = cloudExplorerNode.cloudResource;
-        if (k3dTreeNode.nodeType === 'cluster') {
-            return k3dTreeNode;
-        }
-    }
-    return undefined;
 }

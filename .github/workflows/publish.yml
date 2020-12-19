@@ -42,16 +42,13 @@ jobs:
       - name: Set release version
         run: npm version --no-git-tag-version --allow-same-version ${{ steps.info.outputs.SOURCE_TAG }}
 
-      - name: Publish package to VS Marketplace
-        run: |
-          npm install vsce && $(npm bin)/vsce publish -p ${{ secrets.VSCE_TOKEN }}
-
       - name: Create VSIX package
-        uses: lannonbr/vsce-action@master
-        with:
-          args: "package -o vscode-k3d-${{ steps.info.outputs.SOURCE_TAG }}.vsix"
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+        run: |
+          npm install vsce && $(npm bin)/vsce package -o vscode-k3d-${{ steps.info.outputs.SOURCE_TAG }}.vsix
+
+      - name: Publish VSIX package to VS Marketplace
+        run: |
+          npm install vsce && $(npm bin)/vsce publish --githubBranch main -p ${{ secrets.VSCE_TOKEN }}
 
       - name: Changelog
         uses: scottbrenner/generate-changelog-action@master

@@ -11,6 +11,7 @@ export interface ClusterCreateSettings {
     numAgents: number | undefined;
     network: string | undefined;
     lb: boolean | undefined;
+    serverArgs: string | undefined;
 }
 
 export function createClusterArgsFromSettings(settings: ClusterCreateSettings): string[] {
@@ -22,7 +23,7 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings): 
     if (settings.numAgents) {
         args.push("--agents", `${settings.numAgents}`);
     }
-    if (settings.image !== "") {
+    if (settings.image) {
         args.push("--image", `${settings.image}`);
     }
     if (settings.network) {
@@ -32,6 +33,10 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings): 
         if (!settings.lb) {
             args.push("--no-lb");
         }
+    }
+    // TODO: we should improve this and split by shlex
+    if (settings.serverArgs) {
+        args.push("--k3s-server-arg", `'${settings.serverArgs}'`);
     }
 
     // check if we want to modify the kubeconfig
@@ -58,6 +63,7 @@ class MementoClusterSettings implements ClusterCreateSettings {
     private readonly numAgentsStorageKey = "k3d-last-num-agents";
     private readonly netStorageKey = "k3d-last-net";
     private readonly lbStorageKey = "k3d-last-lb";
+    private readonly serverArgsKey = "k3d-last-server-args";
 
     private readonly storage: vscode.Memento;
 
@@ -137,6 +143,18 @@ class MementoClusterSettings implements ClusterCreateSettings {
         return value;
     }
 
+    set serverArgs(value: string | undefined) {
+        this.storage.update(this.serverArgsKey, value);
+    }
+
+    get serverArgs(): string | undefined {
+        const value = this.storage.get<string>(this.serverArgsKey);
+        if (value === undefined) {
+            return undefined;
+        }
+        return value;
+    }
+
     static getInstance(): MementoClusterSettings {
         if (!MementoClusterSettings.instance) {
             MementoClusterSettings.instance = new MementoClusterSettings(Context.current.workspaceState);
@@ -183,6 +201,9 @@ export function getNewClusterSettingsFromLast(): ClusterCreateSettings {
     }
     if (settings.lb === undefined) {
         settings.lb = true;
+    }
+    if (settings.serverArgs === undefined) {
+        settings.serverArgs = "";
     }
     return settings;
 }

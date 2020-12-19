@@ -9,19 +9,20 @@ export const FIELD_NUM_SERVERS = 'cluster_num_servers';
 export const FIELD_NUM_AGENTS = 'cluster_num_agents';
 export const FIELD_LOAD_BALANCER = 'cluster_lb';
 export const FIELD_EXISTING_NET = 'cluster_net';
+export const FIELD_SERVER_ARGS = 'cluster_server_args';
 
 // getCreateClusterFormStyle returns the style for the create form page
 export function getCreateClusterFormStyle(): string {
-    const ui = {
-        [vscode.ColorThemeKind.Light]: "light",
-        [vscode.ColorThemeKind.Dark]: "dark",
-        [vscode.ColorThemeKind.HighContrast]: "dark",
-      }[vscode.window.activeColorTheme.kind];
+  const ui = {
+    [vscode.ColorThemeKind.Light]: "light",
+    [vscode.ColorThemeKind.Dark]: "dark",
+    [vscode.ColorThemeKind.HighContrast]: "dark",
+  }[vscode.window.activeColorTheme.kind];
 
-    // TODO: there must be a better way to do this...
-    const blackColor = ui === "dark" ? "lightgrey" : "lightslategrey";
+  // TODO: there must be a better way to do this...
+  const blackColor = ui === "dark" ? "lightgrey" : "lightslategrey";
 
-    return `
+  return `
   .input-counter {
     height: 20px;
     width: 40px;
@@ -33,13 +34,13 @@ export function getCreateClusterFormStyle(): string {
 
   label {
     display: inline-block;
-    width: 140px;
+    width: 200px;
     text-align: right;
     padding-right: 5px;
   }​
 
   .block {
-    padding: 5px 5px 5px 5px;
+    padding: 1em;
   }
 
   .number-block{
@@ -116,13 +117,13 @@ export function getCreateClusterFormStyle(): string {
 }
 
 export function getCreateClusterFormJavascript(): string {
-    return `
+  return `
 `;
 }
 
 // createClusterHTML is the form that is shown when creating a new cluster
 export function getCreateClusterForm(defaults: ClusterCreateSettings): string {
-    return `
+  return `
     <details open>
         <summary>General Settings</summary>
         <h6>
@@ -194,24 +195,32 @@ export function getCreateClusterForm(defaults: ClusterCreateSettings): string {
             </label>
             <input name='${FIELD_CUSTOM_IMAGE}' value='${defaults.image}' type="text" id="nodeImage">
         </div>
+        <div class="block">
+            <label for="serverArgs">
+                Extra <a href="https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/">K3S server arguments</a>
+            </label>
+            <input name='${FIELD_SERVER_ARGS}' value='${defaults.serverArgs}' type="text" id="serverArgs">
+        </div>
     </details>
     `;
 }
 
 export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
-    const name: string = s[FIELD_CLUSTER_NAME];
-    const image: string = s[FIELD_CUSTOM_IMAGE];
-    const numServers: number = +s[FIELD_NUM_SERVERS];
-    const numAgents: number = +s[FIELD_NUM_AGENTS];
-    const lb: boolean = s[FIELD_LOAD_BALANCER] === "true" ? true : false;
-    const network: string = s[FIELD_EXISTING_NET];
+  const name: string = s[FIELD_CLUSTER_NAME];
+  const image: string = s[FIELD_CUSTOM_IMAGE];
+  const numServers: number = +s[FIELD_NUM_SERVERS];
+  const numAgents: number = +s[FIELD_NUM_AGENTS];
+  const lb: boolean = s[FIELD_LOAD_BALANCER] === "true" ? true : false;
+  const network: string = s[FIELD_EXISTING_NET];
+  const serverArgs: string = s[FIELD_SERVER_ARGS];
 
-    return {
-        name: name,
-        image: image,
-        numServers: numServers,
-        numAgents: numAgents,
-        network: network,
-        lb: lb
-    };
+  return {
+    name: name,
+    image: image,
+    numServers: numServers,
+    numAgents: numAgents,
+    network: network,
+    lb: lb,
+    serverArgs: serverArgs
+  };
 }

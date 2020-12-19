@@ -41,17 +41,17 @@ async function addAgentNodeToCluster(clusterName: string): Promise<void> {
     const result = await longRunning(`Adding agent "${nodeName}" to "${clusterName}"...`,
         () => k3d.addAgentTo(shell, clusterName, nodeName));
 
-    displayAddAgentDeletionResult(result, clusterName);
+    displayAddAgentDeletionResult(result, clusterName, nodeName);
 }
 
 // displayAddAgentDeletionResult displais the results of adding an agent to the cluster
-async function displayAddAgentDeletionResult(result: Errorable<string>, clusterName: string): Promise<void> {
+async function displayAddAgentDeletionResult(result: Errorable<string>, clusterName: string, nodeName: string): Promise<void> {
     if (succeeded(result)) {
         await Promise.all([
-            vscode.window.showInformationMessage(`Agent successfully added to cluster "${clusterName}"`),
+            vscode.window.showInformationMessage(`Agent node "${nodeName}" successfully added to cluster "${clusterName}"`),
             refreshKubernetesToolsViews()
         ]);
     } else {
-        await vscode.window.showErrorMessage(`Could not add agent to cluster "${clusterName}": ${result.error[0]}`);
+        await vscode.window.showErrorMessage(`Could not add agent node "${nodeName}" to cluster "${clusterName}": ${result.error[0]}`);
     }
 }

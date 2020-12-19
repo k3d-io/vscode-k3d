@@ -34,10 +34,16 @@ The following list contains all the options and their default values.:
 
 | Option | Default value | Description |
 | :--- | :--- | :--- |
-| `k3d.paths` | {} | paths for different tools |
+| `k3d.paths` | {} | paths for different tools. _[see following settings]_ |
 | `k3d.paths.k3d` | "" | this extension will download a recent version of `k3d` automatically, but you can use your own binary by seting this parameter. You can use OS-specific binaries by using `k3d.paths.k3d-{linux,mac,windows}` instead. |
 | `k3d.updateKubeconfig` | "always" | update the kubeconfig after creating/destroying a cluster. It can be `always`, `never` or `onCreate`. |
-| `k3d.kubeconfig` | "" | use this kubeconfig for making modificatios after creating/destroying clusters. Note well that this kubeconfig must be in the `vs-kubernetes.knownKubeconfigs` for being shown in the clyusters view. |
+| `k3d.kubeconfig` | "" | use this kubeconfig for making modificatios after creating/destroying clusters. Note well that this kubeconfig must be in the `vs-kubernetes.knownKubeconfigs` for being shown in the clusters view. |
+| `k3d.defaults` | {} | defaults for different parameters used for new K3D clusters. _[see following settings]_ |
+| `k3d.defaults.image` | "" | default image for new K3D clusters. |
+| `k3d.defaults.network` | "" | default existing network for new K3D cluster. |
+| `k3d.defaults.numServers` | 1 | default number of server nodes for new K3D clusters. |
+| `k3d.defaults.numAgents` | 0 | default number of agent nodes for new K3D clusters. |
+| `k3d.defaults.serverArgs` | "" | default K3S server arguments for new K3D clusters. |
 
 Example configuration:
 
@@ -45,7 +51,11 @@ Example configuration:
     "k3d.updateKubeconfig": "always",
     "k3d.paths": {
         "k3d.paths.k3d-linux": "/home/user/bin/k3d"
+    },
+    "k3d.defaults": {
+        "k3d.defaults.image": "docker.io/rancher/k3s:v1.19.5-k3s1"
     }
+
 ```
 
 ## Development

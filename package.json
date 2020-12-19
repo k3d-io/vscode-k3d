@@ -103,12 +103,12 @@
             {
                 "command": "extension.vsKubernetesK3DAddAgent",
                 "category": "Kubernetes: k3d",
-                "title": "Add an agent node"
+                "title": "Add an Agent node"
             },
             {
                 "command": "extension.vsKubernetesK3DDeleteAgent",
                 "category": "Kubernetes: k3d",
-                "title": "Delete an agent node"
+                "title": "Delete an Agent node"
             }
         ],
         "menus": {

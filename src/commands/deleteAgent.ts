@@ -51,10 +51,10 @@ async function deleteAgentNodeToCluster(clusterName: string): Promise<void> {
 async function displayDeleteAgentDeletionResult(result: Errorable<string>, clusterName: string, nodeName: string): Promise<void> {
     if (succeeded(result)) {
         await Promise.all([
-            vscode.window.showInformationMessage(`Agent node "${nodeName}" successfully deleted from cluster "${clusterName}"`),
+            vscode.window.showInformationMessage(`"${nodeName}" successfully deleted from "${clusterName}"`),
             refreshKubernetesToolsViews()
         ]);
     } else {
-        await vscode.window.showErrorMessage(`Could not delete agent node "${nodeName}" to cluster "${clusterName}": ${result.error[0]}`);
+        await vscode.window.showErrorMessage(`Could not delete "${nodeName}" from "${clusterName}": ${result.error[0]}`);
     }
 }

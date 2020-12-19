@@ -48,10 +48,10 @@ async function addAgentNodeToCluster(clusterName: string): Promise<void> {
 async function displayAddAgentDeletionResult(result: Errorable<string>, clusterName: string, nodeName: string): Promise<void> {
     if (succeeded(result)) {
         await Promise.all([
-            vscode.window.showInformationMessage(`Agent node "${nodeName}" successfully added to cluster "${clusterName}"`),
+            vscode.window.showInformationMessage(`"${nodeName}" successfully added to "${clusterName}"`),
             refreshKubernetesToolsViews()
         ]);
     } else {
-        await vscode.window.showErrorMessage(`Could not add agent node "${nodeName}" to cluster "${clusterName}": ${result.error[0]}`);
+        await vscode.window.showErrorMessage(`Could not add "${nodeName}" to "${clusterName}": ${result.error[0]}`);
     }
 }

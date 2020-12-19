@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { map, filter } from 'rxjs/operators';
 import { Observable } from '../../node_modules/rxjs';
 
-import { ClusterCreateSettings, getNewClusterSettingsFromLast } from './createClusterSettings';
+import * as settings from './createClusterSettings';
 import * as form from './createClusterForm';
 
 import * as k3d from '../k3d/k3d';
@@ -23,34 +23,34 @@ import { cantHappen } from '../utils/never';
 
 // entrypoint for the "k3d: create cluster" command
 export async function onCreateCluster(target?: any): Promise<void> {
-    const defaults = getNewClusterSettingsFromLast();
-    const settings = await promptClusterSettings(defaults);
-    if (settings.cancelled) {
+    const defaultSettings = settings.forNewCluster(settings.getDefaultClusterSettings());
+    const providedSettings = await promptClusterSettings(defaultSettings);
+    if (providedSettings.cancelled) {
         return;
     }
 
     if (target) {
-        await createClusterInteractive(settings.value);
+        await createClusterInteractive(providedSettings.value);
         return;
     }
 
-    await createClusterInteractive(settings.value);
+    await createClusterInteractive(providedSettings.value);
 }
 
 // entrypoint for the "k3d: create cluster (with last settings)" command
 export async function onCreateClusterLast(target?: any): Promise<void> {
-    const settings = getNewClusterSettingsFromLast();
+    const lastSettings = settings.forNewCluster(settings.getLastClusterSettings());
 
     if (target) {
-        await createClusterInteractive(settings);
+        await createClusterInteractive(lastSettings);
         return;
     }
-    await createClusterInteractive(settings);
+    await createClusterInteractive(lastSettings);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-async function createClusterInteractive(settings: ClusterCreateSettings): Promise<void> {
+async function createClusterInteractive(clusterSettings: settings.ClusterCreateSettings): Promise<void> {
 
     // createClusterProgressOf is invoked for processing each line of output from `k3d cluster create`
     function createClusterProgressOf(e: ProcessTrackingEvent): ProgressStep<Errorable<null>> {
@@ -78,11 +78,11 @@ async function createClusterInteractive(settings: ClusterCreateSettings): Promis
         }
     }
 
-    const progressSteps = k3d.createCluster(shell, settings, undefined).pipe(
+    const progressSteps = k3d.createCluster(shell, clusterSettings, undefined).pipe(
         map((e) => createClusterProgressOf(e))
     );
 
-    await displayClusterCreationUI(settings, progressSteps);
+    await displayClusterCreationUI(clusterSettings, progressSteps);
 }
 
 function undecorateClusterCreationOutput<T>(events: Observable<ProgressStep<T>>): Observable<ProgressStep<T>> {
@@ -102,18 +102,19 @@ function undecorateClusterCreationOutput<T>(events: Observable<ProgressStep<T>>)
     );
 }
 
-export async function displayClusterCreationUI(settings: ClusterCreateSettings, progressSteps: Observable<ProgressStep<Errorable<null>>>): Promise<void> {
+export async function displayClusterCreationUI(clusterSettings: settings.ClusterCreateSettings, progressSteps: Observable<ProgressStep<Errorable<null>>>): Promise<void> {
     const progressToDisplay = undecorateClusterCreationOutput(progressSteps);
     const result = await longRunningWithMessages("Creating k3d cluster", progressToDisplay);
 
     async function displayClusterCreationResult(result: Errorable<null>): Promise<void> {
         if (succeeded(result)) {
             await Promise.all([
-                vscode.window.showInformationMessage(`Created k3d cluster "${settings.name}"`),
-                refreshKubernetesToolsViews()
+                vscode.window.showInformationMessage(`Created k3d cluster "${clusterSettings.name}"`),
+                refreshKubernetesToolsViews(),
+                settings.saveLastClusterCreateSettings(clusterSettings)
             ]);
         } else {
-            await vscode.window.showErrorMessage(`Creation of k3d cluster "${settings.name}" failed: ${result.error[0]}`);
+            await vscode.window.showErrorMessage(`Creation of k3d cluster "${clusterSettings.name}" failed: ${result.error[0]}`);
         }
     }
 
@@ -124,11 +125,11 @@ export async function displayClusterCreationUI(settings: ClusterCreateSettings, 
 // cluster settings dialog
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-async function promptClusterSettings(defaults: ClusterCreateSettings): Promise<Cancellable<ClusterCreateSettings>> {
+async function promptClusterSettings(clusterSettings: settings.ClusterCreateSettings): Promise<Cancellable<settings.ClusterCreateSettings>> {
     const formResult = await webview.showHTMLForm(
         "extension.vsKubernetesK3DCreate",
         "Create k3d cluster",
-        form.getCreateClusterForm(defaults),
+        form.getCreateClusterForm(clusterSettings),
         "Create Cluster",
         form.getCreateClusterFormStyle(),
         form.getCreateClusterFormJavascript());

@@ -14,6 +14,8 @@ export interface ClusterCreateSettings {
     serverArgs: string | undefined;
 }
 
+// createClusterArgsFromSettings returns a list of arguments for `k3d cluster create`
+// for some cluster creation settings
 export function createClusterArgsFromSettings(settings: ClusterCreateSettings): string[] {
     const args: string[] = [];
 
@@ -48,14 +50,15 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings): 
     return args;
 }
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+// default settings
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * An implementation of {@link ClusterSettings} that stores settings
  * using the VS Code memento API.
  */
 class MementoClusterSettings implements ClusterCreateSettings {
-    private static instance: MementoClusterSettings;
 
     private readonly nameStorageKey = "k3d-last-name";
     private readonly imageStorageKey = "k3d-last-image";
@@ -71,89 +74,28 @@ class MementoClusterSettings implements ClusterCreateSettings {
         this.storage = storage;
     }
 
-    set name(value: string | undefined) {
-        this.storage.update(this.nameStorageKey, value);
-    }
+    set name(value: string | undefined) { this.storage.update(this.nameStorageKey, value); }
+    get name(): string | undefined { return this.storage.get<string>(this.nameStorageKey); }
 
-    get name(): string | undefined {
-        const name = this.storage.get<string>(this.nameStorageKey);
-        if (name === undefined) {
-            return undefined;
-        }
-        return name;
-    }
+    set image(value: string | undefined) { this.storage.update(this.imageStorageKey, value); }
+    get image(): string | undefined { return this.storage.get<string>(this.imageStorageKey); }
 
-    set image(value: string | undefined) {
-        this.storage.update(this.imageStorageKey, value);
-    }
+    set numServers(value: number | undefined) { this.storage.update(this.numServersStorageKey, value); }
+    get numServers(): number | undefined { return this.storage.get<number>(this.numServersStorageKey); }
 
-    get image(): string | undefined {
-        const value = this.storage.get<string>(this.imageStorageKey);
-        if (value === undefined) {
-            return undefined;
-        }
-        return value;
-    }
+    set numAgents(value: number | undefined) { this.storage.update(this.numAgentsStorageKey, value); }
+    get numAgents(): number | undefined { return this.storage.get<number>(this.numAgentsStorageKey); }
 
-    set numServers(value: number | undefined) {
-        this.storage.update(this.numServersStorageKey, value);
-    }
+    set network(value: string | undefined) { this.storage.update(this.netStorageKey, value); }
+    get network(): string | undefined { return this.storage.get<string>(this.netStorageKey); }
 
-    get numServers(): number | undefined {
-        const value = this.storage.get<number>(this.numServersStorageKey);
-        if (value == undefined) {
-            return undefined;
-        }
-        return value;
-    }
+    set lb(value: boolean | undefined) { this.storage.update(this.lbStorageKey, value); }
+    get lb(): boolean | undefined { return this.storage.get<boolean>(this.lbStorageKey); }
 
-    set numAgents(value: number | undefined) {
-        this.storage.update(this.numAgentsStorageKey, value);
-    }
+    set serverArgs(value: string | undefined) { this.storage.update(this.serverArgsKey, value); }
+    get serverArgs(): string | undefined { return this.storage.get<string>(this.serverArgsKey); }
 
-    get numAgents(): number | undefined {
-        const name = this.storage.get<number>(this.numAgentsStorageKey);
-        if (name === undefined) {
-            return undefined;
-        }
-        return name;
-    }
-
-    set network(value: string | undefined) {
-        this.storage.update(this.netStorageKey, value);
-    }
-
-    get network(): string | undefined {
-        const value = this.storage.get<string>(this.netStorageKey);
-        if (value === undefined) {
-            return undefined;
-        }
-        return value;
-    }
-
-    set lb(value: boolean | undefined) {
-        this.storage.update(this.lbStorageKey, value);
-    }
-
-    get lb(): boolean | undefined {
-        const value = this.storage.get<boolean>(this.lbStorageKey);
-        if (value === undefined) {
-            return undefined;
-        }
-        return value;
-    }
-
-    set serverArgs(value: string | undefined) {
-        this.storage.update(this.serverArgsKey, value);
-    }
-
-    get serverArgs(): string | undefined {
-        const value = this.storage.get<string>(this.serverArgsKey);
-        if (value === undefined) {
-            return undefined;
-        }
-        return value;
-    }
+    private static instance: MementoClusterSettings;
 
     static getInstance(): MementoClusterSettings {
         if (!MementoClusterSettings.instance) {
@@ -164,46 +106,82 @@ class MementoClusterSettings implements ClusterCreateSettings {
     }
 }
 
+// getLastClusterSettings returns the last settings used
 export const getLastClusterSettings = (): ClusterCreateSettings => MementoClusterSettings.getInstance();
 
 // save the last settings used for creating a cluster
-export function saveLastClusterCreateSettings(s: ClusterCreateSettings) {
+export function saveLastClusterCreateSettings(saved: ClusterCreateSettings) {
     const lcs = getLastClusterSettings();
-    lcs.name = s.name;
-    lcs.image = s.image;
-    lcs.numServers = s.numServers;
-    lcs.numAgents = s.numAgents;
+    lcs.name = saved.name;
+    lcs.image = saved.image;
+    lcs.network = saved.network;
+    lcs.numServers = saved.numServers;
+    lcs.numAgents = saved.numAgents;
+    lcs.lb = saved.lb;
+    lcs.serverArgs = saved.serverArgs;
 }
 
-// create a new ClusterCreateSettings, using the last settings as a
-// starting point (but changing some things like a random cluster name)
-export function getNewClusterSettingsFromLast(): ClusterCreateSettings {
-    const lcs = getLastClusterSettings();
+//////////////////////////////////////////////////////////////////////////////////////////////
+// last settings
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-    // clone the settings and fix some things
-    var settings: ClusterCreateSettings = { ...lcs };
+/**
+ * An implementation of {@link ClusterSettings} that gets settings
+ * from the default values in the config.
+ */
+class DefaultClusterSettings implements ClusterCreateSettings {
+    set name(value: string | undefined) { }
+    get name(): string | undefined { return undefined; }
 
+    set image(value: string | undefined) { }
+    get image(): string | undefined { return config.getK3DConfigCreateDefaults<string>("image"); }
+
+    set numServers(value: number | undefined) { }
+    get numServers(): number | undefined { return config.getK3DConfigCreateDefaults<number>("numServers"); }
+
+    set numAgents(value: number | undefined) { }
+    get numAgents(): number | undefined { return config.getK3DConfigCreateDefaults<number>("numAgents"); }
+
+    set network(value: string | undefined) { }
+    get network(): string | undefined { return config.getK3DConfigCreateDefaults<string>("network"); }
+
+    set lb(value: boolean | undefined) { }
+    get lb(): boolean | undefined { return undefined; }
+
+    set serverArgs(value: string | undefined) { }
+    get serverArgs(): string | undefined { return config.getK3DConfigCreateDefaults<string>("serverArgs"); }
+
+    private static instance: DefaultClusterSettings;
+
+    static getInstance(): DefaultClusterSettings {
+        if (!DefaultClusterSettings.instance) {
+            DefaultClusterSettings.instance = new DefaultClusterSettings();
+        }
+        return DefaultClusterSettings.instance;
+    }
+}
+
+// getDefaultClusterSettings returns the default settings used
+export const getDefaultClusterSettings = (): ClusterCreateSettings => DefaultClusterSettings.getInstance();
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// new clusters
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+// forNewCluster() takes some settings and fixes values and sets some values for a new cluster
+export function forNewCluster(input: ClusterCreateSettings): ClusterCreateSettings {
+    // the name is always reset for a new cluster
     const max = 1000;
     const randInt = Math.floor(Math.random() * (max + 1));
+    const randomName = `k3d-cluster-${randInt}`;
 
-    settings.name = `k3d-cluster-${randInt}`;
-    if (settings.numServers === undefined) {
-        settings.numServers = 1;
-    }
-    if (settings.numAgents === undefined) {
-        settings.numAgents = 0;
-    }
-    if (settings.image === undefined) {
-        settings.image = "";
-    }
-    if (settings.network === undefined) {
-        settings.network = "";
-    }
-    if (settings.lb === undefined) {
-        settings.lb = true;
-    }
-    if (settings.serverArgs === undefined) {
-        settings.serverArgs = "";
-    }
-    return settings;
+    return {
+        name: randomName,
+        image: input.image === undefined ? "" : input.image,
+        numServers: input.numServers === undefined ? 1 : input.numServers,
+        numAgents: input.numAgents === undefined ? 0 : input.numAgents,
+        network: input.network === undefined ? "" : input.network,
+        lb: input.lb === undefined ? true : input.lb,
+        serverArgs: input.serverArgs === undefined ? "" : input.serverArgs,
+    };
 }

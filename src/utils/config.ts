@@ -16,6 +16,10 @@ export const VS_KUBE_K3D_FORCE_KUBECONFIG_CFG_KEY =
 export const VS_KUBE_K3D_UPDATE_KUBECONFIG_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.updateKubeconfig`;
 
+// setting: merge of the new kubeconfig in the default kubeconfig
+export const VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY =
+    `${VS_KUBE_K3D_CFG_KEY}.defaults`;
+
 // Use WSL on Windows
 
 const USE_WSL_KEY = "use-wsl";
@@ -47,6 +51,14 @@ export function getK3DConfigUpdateKubeconfig(): UpdateKubeconfig | undefined {
         case "never": return UpdateKubeconfig.Never;
     }
     return undefined;
+}
+
+// getK3DConfigCreateDefaults returns a cluster creation default
+// (as provided in `k3d.defaults`). The key will specify something
+// like`network` or`image`.
+export function getK3DConfigCreateDefaults<T>(key: string): T | undefined {
+    const config = getK3DConfig();
+    return config.get<T>(`${VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY}.${key}`);
 }
 
 // Functions for working with tool paths

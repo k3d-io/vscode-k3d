@@ -66,6 +66,42 @@
                             }
                         }
                     },
+                    "k3d.defaults": {
+                        "type": "object",
+                        "title": "New K3D cluster defaults",
+                        "description": "Default values for new K3D clusters",
+                        "properties": {
+                            "k3d.defaults.numServers": {
+                                "type": "integer",
+                                "default": 1,
+                                "minimum": 1,
+                                "maximum": 100,
+                                "description": "Default number of server nodes for new K3D clusters."
+                            },
+                            "k3d.defaults.numAgents": {
+                                "type": "integer",
+                                "default": 0,
+                                "minimum": 0,
+                                "maximum": 100,
+                                "description": "Default number of agent nodes for new K3D clusters."
+                            },
+                            "k3d.defaults.network": {
+                                "type": "string",
+                                "default": "",
+                                "description": "Default existing network for new K3D cluster."
+                            },
+                            "k3d.defaults.image": {
+                                "type": "string",
+                                "default": "",
+                                "description": "Default image for new K3D clusters."
+                            },
+                            "k3d.defaults.serverArgs": {
+                                "type": "string",
+                                "default": "",
+                                "description": "Default K3S server arguments for new K3D clusters."
+                            }
+                        }
+                    },
                     "k3d.updateKubeconfig": {
                         "type": "string",
                         "enum": [

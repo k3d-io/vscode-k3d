@@ -30,8 +30,8 @@ const PAGE_SETTINGS = 'settings';
 function onNext(wizard: k8s.ClusterProviderV1.Wizard, _action: k8s.ClusterProviderV1.ClusterProviderAction, message: any): void {
     wizard.showPage("<h1>Please wait...</h1>");
     const sendingStep: string = message[k8s.ClusterProviderV1.SENDING_STEP_KEY];
-    const defaults = settings.getNewClusterSettingsFromLast();
-    const htmlPromise = getPage(defaults, sendingStep, message);
+    const defaultSettings = settings.forNewCluster(settings.getDefaultClusterSettings());
+    const htmlPromise = getPage(defaultSettings, sendingStep, message);
     wizard.showPage(htmlPromise);
 }
 

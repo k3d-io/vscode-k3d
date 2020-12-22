@@ -1,5 +1,6 @@
 import * as k8s from 'vscode-kubernetes-tools-api';
 import * as vscode from 'vscode';
+import * as dedent from 'dedent';
 
 import * as k3d from '../k3d/k3d';
 import { shell } from '../utils/shell';
@@ -54,7 +55,19 @@ class K3dTreeDataProvider implements vscode.TreeDataProvider<K3dCloudProviderTre
                         // create some description (text that is displayed by the side)
                         // and tooltip for this cluster
                         treeItem.description = `(${cluster.result.serversRunning} / ${cluster.result.agentsRunning})`;
-                        treeItem.tooltip = `k3d cluster "${element.clusterName}": ${cluster.result.serversRunning} servers / ${cluster.result.agentsRunning} agents`;
+
+                        function uniqueStrings(value: string, index: number, self: string[]) {
+                            return self.indexOf(value) === index;
+                        }
+
+                        treeItem.tooltip = new vscode.MarkdownString().appendMarkdown(dedent`
+                            <strong>k3d cluster _"${element.clusterName}"_ </strong>
+                            * ${cluster.result.serversRunning} servers running (${cluster.result.serversRunning} total) / ${cluster.result.agentsRunning} agents running (${cluster.result.agentsCount} total)
+                            * created at _${cluster.result.created}_
+                            * load balancer: _${cluster.result.hasLoadBalancer}_
+                            * images volume: _${cluster.result.imageVolume}_
+                            * networks: _${cluster.result.nodes.map((node) => node.network).filter(uniqueStrings).join(",")}_
+                            `);
                     }
 
                     resolve(treeItem);

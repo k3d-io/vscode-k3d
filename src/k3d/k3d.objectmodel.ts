@@ -4,6 +4,7 @@ export interface K3dClusterNodeInfo {
     readonly role: string;
     readonly running: boolean;
     readonly image: string;
+    readonly created: Date;
 }
 
 export interface K3dClusterInfo {
@@ -16,4 +17,6 @@ export interface K3dClusterInfo {
     readonly hasLoadBalancer: boolean;
     readonly imageVolume: string;
 
+    // date when the cluster was created, obtained as the oldest `created` in the nodes
+    readonly created: Date;
 }

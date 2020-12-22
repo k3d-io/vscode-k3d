@@ -11,6 +11,7 @@ import { Errorable, failed } from '../utils/errorable';
 import * as shell from '../utils/shell';
 import { logChannel } from '../utils/log';
 import '../utils/array';
+import { minDate } from '../utils/time';
 
 
 // invokeK3DCommandObj runs the k3d command with some
@@ -119,15 +120,17 @@ export async function getClusters(sh: shell.Shell): Promise<Errorable<K3dCluster
                             name: node.name,
                             network: node.Network,
                             role: node.role,
-                            running: node.State.Running,
+                            running: new String(node.State.Running).trim().toLowerCase() === 'true',
                             image: node.image,
+                            created: new Date(node.created)
                         })),
                     agentsCount: cluster.agentsCount,
                     agentsRunning: cluster.agentsRunning,
                     serversCount: cluster.serversCount,
                     serversRunning: cluster.serversRunning,
-                    hasLoadBalancer: cluster.hasLoadBalancer,
-                    imageVolume: cluster.imageVolume
+                    hasLoadBalancer: new String(cluster.hasLoadbalancer).trim().toLowerCase() === 'true',
+                    imageVolume: cluster.imageVolume,
+                    created: minDate(cluster.nodes.map((node: any) => new Date(node.created)))
                 }))
             .orderBy((cluster: K3dClusterInfo) => cluster.name);
     }

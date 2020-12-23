@@ -28,29 +28,28 @@ export async function onCreateCluster(target?: any): Promise<void> {
     if (providedSettings.cancelled) {
         return;
     }
-
-    if (target) {
-        await createClusterInteractive(providedSettings.value);
-        return;
-    }
-
-    await createClusterInteractive(providedSettings.value);
+    return createCluster(providedSettings.value, target);
 }
 
 // entrypoint for the "k3d: create cluster (with last settings)" command
 export async function onCreateClusterLast(target?: any): Promise<void> {
     const lastSettings = settings.forNewCluster(settings.getLastClusterSettings());
-
-    if (target) {
-        await createClusterInteractive(lastSettings);
-        return;
-    }
-    await createClusterInteractive(lastSettings);
+    return createCluster(lastSettings, target);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-async function createClusterInteractive(clusterSettings: settings.ClusterCreateSettings): Promise<void> {
+export async function createCluster(createSettings: settings.ClusterCreateSettings, target?: any): Promise<void> {
+    if (target) {
+        await createClusterInteractive(createSettings);
+        return;
+    }
+    await createClusterInteractive(createSettings);
+}
+
+export async function createClusterInteractive(
+    clusterSettings: settings.ClusterCreateSettings,
+    switchContext: boolean = true): Promise<void> {
 
     // createClusterProgressOf is invoked for processing each line of output from `k3d cluster create`
     function createClusterProgressOf(e: ProcessTrackingEvent): ProgressStep<Errorable<null>> {
@@ -78,14 +77,14 @@ async function createClusterInteractive(clusterSettings: settings.ClusterCreateS
         }
     }
 
-    const progressSteps = k3d.createCluster(shell, clusterSettings, undefined).pipe(
-        map((e) => createClusterProgressOf(e))
-    );
+    const progressSteps = k3d.createCluster(shell, clusterSettings, undefined, switchContext).pipe(
+        map((e) => createClusterProgressOf(e)));
 
     await displayClusterCreationUI(clusterSettings, progressSteps);
 }
 
-function undecorateClusterCreationOutput<T>(events: Observable<ProgressStep<T>>): Observable<ProgressStep<T>> {
+export async function displayClusterCreationUI(clusterSettings: settings.ClusterCreateSettings, progressSteps: Observable<ProgressStep<Errorable<null>>>): Promise<void> {
+
     const interestingUpdatePrefix = '• ';
 
     const stripPrefix = (e: ProgressUpdate) => ({
@@ -93,18 +92,15 @@ function undecorateClusterCreationOutput<T>(events: Observable<ProgressStep<T>>)
         message: e.message.substring(interestingUpdatePrefix.length)
     } as ProgressUpdate);
 
-    const isIgnorableUpdate = (e: ProgressStep<T>) => e.type === 'update' && !e.message.startsWith(interestingUpdatePrefix);
-    const undecorate = (e: ProgressStep<T>) => e.type === 'update' ? stripPrefix(e) : e;
+    const isIgnorableUpdate = (e: ProgressStep<Errorable<null>>) => e.type === 'update' && !e.message.startsWith(interestingUpdatePrefix);
+    const undecorate = (e: ProgressStep<Errorable<null>>) => e.type === 'update' ? stripPrefix(e) : e;
 
-    return events.pipe(
+    const progressToDisplay = progressSteps.pipe(
         filter((e) => !isIgnorableUpdate(e)),
         map((e) => undecorate(e))
     );
-}
 
-export async function displayClusterCreationUI(clusterSettings: settings.ClusterCreateSettings, progressSteps: Observable<ProgressStep<Errorable<null>>>): Promise<void> {
-    const progressToDisplay = undecorateClusterCreationOutput(progressSteps);
-    const result = await longRunningWithMessages("Creating k3d cluster", progressToDisplay);
+    const result = await longRunningWithMessages(`Creating k3d cluster "${clusterSettings.name}"`, progressToDisplay);
 
     async function displayClusterCreationResult(result: Errorable<null>): Promise<void> {
         if (succeeded(result)) {
@@ -125,7 +121,7 @@ export async function displayClusterCreationUI(clusterSettings: settings.Cluster
 // cluster settings dialog
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-async function promptClusterSettings(clusterSettings: settings.ClusterCreateSettings): Promise<Cancellable<settings.ClusterCreateSettings>> {
+export async function promptClusterSettings(clusterSettings: settings.ClusterCreateSettings): Promise<Cancellable<settings.ClusterCreateSettings>> {
     const formResult = await webview.showHTMLForm(
         "extension.vsKubernetesK3DCreate",
         "Create k3d cluster",

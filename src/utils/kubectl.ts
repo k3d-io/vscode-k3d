@@ -42,3 +42,21 @@ export async function deleteClusterFromKubeconfig(context: KubectlContext): Prom
     vscode.window.showInformationMessage(`Deleted context '${context.contextName}' and associated data from the kubeconfig.`);
     return true;
 }
+
+export async function setContext(contextName: string): Promise<void> {
+    const kubectl = await k8s.extension.kubectl.v1;
+    if (!kubectl.available) {
+        vscode.window.showErrorMessage(`Delete ${contextName} failed: kubectl is not available. See Output window for more details.`);
+        return;
+    }
+
+    const setContextResult = await kubectl.api.invokeCommand(`config set-context ${contextName}`);
+    if (setContextResult?.code !== 0) {
+        const whatFailed = `Failed to set "${contextName}": ${setContextResult?.stderr}`;
+        logChannel.showOutput(whatFailed);
+        vscode.window.showErrorMessage(`Count not set "${contextName}" failed. See Output window for more details.`);
+        return;
+    }
+
+    vscode.window.showInformationMessage(`Switched to "${contextName}".`);
+}

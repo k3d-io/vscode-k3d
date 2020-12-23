@@ -34,14 +34,15 @@ async function deleteClusterInteractive(): Promise<void> {
 }
 
 // deleteClusterByName will be invoked when users click on "Delete cluster"
-async function deleteClusterByName(clusterName: string): Promise<void> {
-    const confirmed = await confirm(`This will delete ${clusterName}. You will not be able to undo this.`,
-        'Delete cluster');
-    if (!confirmed) {
-        return;
+export async function deleteClusterByName(clusterName: string, askUser: boolean = true): Promise<void> {
+    if (askUser) {
+        const confirmed = await confirm(`This will delete "${clusterName}". You will not be able to undo this.`, 'Delete cluster');
+        if (!confirmed) {
+            return;
+        }
     }
 
-    const result = await longRunning(`Deleting cluster ${clusterName}...`,
+    const result = await longRunning(`Deleting cluster "${clusterName}"...`,
         () => k3d.deleteCluster(shell, clusterName));
 
     await displayClusterDeletionResult(result, clusterName);
@@ -51,10 +52,10 @@ async function deleteClusterByName(clusterName: string): Promise<void> {
 async function displayClusterDeletionResult(result: Errorable<null>, clusterName: string): Promise<void> {
     if (succeeded(result)) {
         await Promise.all([
-            vscode.window.showInformationMessage(`Deleted cluster ${clusterName}`),
+            vscode.window.showInformationMessage(`Deleted cluster "${clusterName}"`),
             refreshKubernetesToolsViews()
         ]);
     } else {
-        await vscode.window.showErrorMessage(`Deleting K3d cluster failed: ${result.error[0]}`);
+        await vscode.window.showErrorMessage(`Deleting cluster "${clusterName}" failed: ${result.error[0]}`);
     }
 }

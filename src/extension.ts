@@ -10,6 +10,7 @@ import { onCreateCluster, onCreateClusterLast } from './commands/createCluster';
 import { onDeleteCluster } from './commands/deleteCluster';
 import { onAddAgent } from './commands/addAgent';
 import { onDeleteAgent } from './commands/deleteAgent';
+import { onRecycleCluster, onRecycleClusterLast } from './commands/recycleCluster';
 
 export async function activate(context: vscode.ExtensionContext) {
     Context.register(context);
@@ -33,6 +34,10 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand("extension.vsKubernetesK3DCreate", onCreateCluster),
         vscode.commands.registerCommand("extension.vsKubernetesK3DCreateLast", onCreateClusterLast),
         vscode.commands.registerCommand("extension.vsKubernetesK3DDelete", onDeleteCluster),
+
+        // Recycle clusters
+        vscode.commands.registerCommand("extension.vsKubernetesK3DRecycle", onRecycleCluster),
+        vscode.commands.registerCommand("extension.vsKubernetesK3DRecycleLast", onRecycleClusterLast),
 
         // Add/remove agents
         vscode.commands.registerCommand("extension.vsKubernetesK3DAddAgent", onAddAgent),

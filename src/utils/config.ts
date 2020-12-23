@@ -16,6 +16,10 @@ export const VS_KUBE_K3D_FORCE_KUBECONFIG_CFG_KEY =
 export const VS_KUBE_K3D_UPDATE_KUBECONFIG_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.updateKubeconfig`;
 
+// setting: context on recylce
+export const VS_KUBE_K3D_RECYCLE_CONTEXT_CFG_KEY =
+    `${VS_KUBE_K3D_CFG_KEY}.recycleContext`;
+
 // setting: merge of the new kubeconfig in the default kubeconfig
 export const VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.defaults`;
@@ -24,12 +28,8 @@ export const VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY =
 
 const USE_WSL_KEY = "use-wsl";
 
-export function getK3DConfig() {
-    return vscode.workspace.getConfiguration(VS_KUBE_K3D_CFG_KEY);
-}
-
 export function getK3DConfigForcedKubeconfig(): string | undefined {
-    return getK3DConfig()[VS_KUBE_K3D_FORCE_KUBECONFIG_CFG_KEY];
+    return vscode.workspace.getConfiguration()[VS_KUBE_K3D_FORCE_KUBECONFIG_CFG_KEY];
 }
 
 export enum UpdateKubeconfig {
@@ -42,7 +42,7 @@ export enum UpdateKubeconfig {
 // getK3DConfigUpdateKubeconfig returns the behaviour about modifying tyhe kubeconfig
 // when a cluster is created or deleted.
 export function getK3DConfigUpdateKubeconfig(): UpdateKubeconfig | undefined {
-    const config = getK3DConfig();
+    const config = vscode.workspace.getConfiguration();
     const value = config.get<string>(VS_KUBE_K3D_UPDATE_KUBECONFIG_CFG_KEY, "always");
     switch (value) {
         case "onCreate": return UpdateKubeconfig.OnCreate;
@@ -53,11 +53,27 @@ export function getK3DConfigUpdateKubeconfig(): UpdateKubeconfig | undefined {
     return undefined;
 }
 
+export enum RecycleContext {
+    NewCluster,
+    OldestCluster
+}
+
+// getK3DRecycleContext returns the contgext to use after recycling clusters.
+export function getK3DRecycleContext(): RecycleContext | undefined {
+    const config = vscode.workspace.getConfiguration();
+    const value = config.get<string>(VS_KUBE_K3D_RECYCLE_CONTEXT_CFG_KEY, "new");
+    switch (value) {
+        case "new": return RecycleContext.NewCluster;
+        case "oldest": return RecycleContext.OldestCluster;
+    }
+    return undefined;
+}
+
 // getK3DConfigCreateDefaults returns a cluster creation default
 // (as provided in `k3d.defaults`). The key will specify something
 // like`network` or`image`.
 export function getK3DConfigCreateDefaults<T>(key: string): T | undefined {
-    const config = getK3DConfig();
+    const config = vscode.workspace.getConfiguration(VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY);
     return config.get<T>(`${VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY}.${key}`);
 }
 

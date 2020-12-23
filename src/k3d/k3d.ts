@@ -65,7 +65,8 @@ function invokeK3DCommandTracking(
 
 export function createCluster(sh: shell.Shell,
     settings: ClusterCreateSettings,
-    kubeconfig: string | undefined): Observable<shell.ProcessTrackingEvent> {
+    kubeconfig: string | undefined,
+    switchContext: boolean = true): Observable<shell.ProcessTrackingEvent> {
 
     let opts = shell.defExecOpts();
 
@@ -84,7 +85,7 @@ export function createCluster(sh: shell.Shell,
         opts.env["KUBECONFIG"] = kubeconfig;
     }
 
-    const args: string[] = createClusterArgsFromSettings(settings);
+    const args: string[] = createClusterArgsFromSettings(settings, switchContext);
     if (settings.name) {
         return invokeK3DCommandTracking(sh,
             `cluster create ${settings.name}`,

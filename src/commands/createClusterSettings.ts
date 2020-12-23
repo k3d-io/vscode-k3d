@@ -16,7 +16,7 @@ export interface ClusterCreateSettings {
 
 // createClusterArgsFromSettings returns a list of arguments for `k3d cluster create`
 // for some cluster creation settings
-export function createClusterArgsFromSettings(settings: ClusterCreateSettings): string[] {
+export function createClusterArgsFromSettings(settings: ClusterCreateSettings, switchContext: boolean = true): string[] {
     const args: string[] = [];
 
     if (settings.numServers) {
@@ -47,6 +47,11 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings): 
         (updateKubeconfig === config.UpdateKubeconfig.Always || updateKubeconfig === config.UpdateKubeconfig.OnCreate)) {
         args.push("--update-default-kubeconfig");
     }
+
+    if (!switchContext) {
+        args.push("--switch-context=false");
+    }
+
     return args;
 }
 

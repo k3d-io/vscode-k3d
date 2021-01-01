@@ -125,7 +125,7 @@ export async function promptClusterSettings(clusterSettings: settings.ClusterCre
     const formResult = await webview.showHTMLForm(
         "extension.vsKubernetesK3DCreate",
         "Create k3d cluster",
-        form.getCreateClusterForm(clusterSettings),
+        await form.getCreateClusterForm(clusterSettings),
         "Create Cluster",
         form.getCreateClusterFormStyle(),
         form.getCreateClusterFormJavascript());

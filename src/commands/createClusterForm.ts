@@ -2,6 +2,16 @@ import * as vscode from 'vscode';
 
 import { ClusterCreateSettings } from './createClusterSettings';
 
+import * as config from '../utils/config';
+import { Errorable } from '../utils/errorable';
+import { failed } from '../utils/errorable';
+import * as registry from '../utils/registry';
+import * as docker from '../utils/docker';
+import { longRunning } from '../utils/host';
+
+const DEFAULT_IMAGE_REGISTRY = "https://registry.hub.docker.com";
+const DEFAULT_IMAGE_REPO = "rancher/k3s";
+
 // names of all the fields in the "create cluster" form
 export const FIELD_CLUSTER_NAME = 'cluster_name';
 export const FIELD_CUSTOM_IMAGE = 'cluster_image_custom';
@@ -122,19 +132,21 @@ export function getCreateClusterFormJavascript(): string {
 }
 
 // createClusterHTML is the form that is shown when creating a new cluster
-export function getCreateClusterForm(defaults: ClusterCreateSettings): string {
-  return `
+export async function getCreateClusterForm(defaults: ClusterCreateSettings): Promise<string> {
+
+  //////////////////////////
+  // general settings
+  //////////////////////////
+  let res = `
     <details open>
         <summary>General Settings</summary>
         <h6>
-            <i>
-                Every cluster will consist of one or more containers:
-                <ul>
-                    <li>1 (or more) server node container (k3s)</li>
-                    <li>(optionally) 1 loadbalancer container as the entrypoint to the cluster (nginx)</li>
-                    <li>(optionally) 1 (or more) agent node containers (k3s)</li>
-                </ul>
-            </i>
+            Every cluster will consist of one or more containers:
+            <ul>
+                <li>1 (or more) server node container (k3s)</li>
+                <li>(optionally) 1 loadbalancer container as the entrypoint to the cluster (nginx)</li>
+                <li>(optionally) 1 (or more) agent node containers (k3s)</li>
+            </ul>
         </h6>
         <div class="block">
             <label for="clusterName">
@@ -161,11 +173,60 @@ export function getCreateClusterForm(defaults: ClusterCreateSettings): string {
             </div>
         </div>
     </details>
+  `;
 
-    <details open>
+  //////////////////////////
+  // cluster node images
+  //////////////////////////
+  let datalistParam = "";
+  let datalistExplain = "";
+
+  const images = await getProposedImages();
+  if (!images.succeeded) {
+    await vscode.window.showErrorMessage(`Could not obtain a list of proposed images: ${images.error}.`);
+  } else {
+    // when a list of images is available, create a `datalist` with all the image:tag, and
+    // add a`list=images` to the <input>
+    const imagesNames = images.result;
+    if (imagesNames.length > 0) {
+      res += `<datalist id="images">`;
+      res += imagesNames.map((s) => `<option value="${s}">${s}</option>`).join("\n");
+      res += `</datalist>`;
+
+      datalistParam = `list="images"`;
+      datalistExplain = `
+      <li> ... or accept one of proposals in the dropdown menu (obtained for "${getImageRepo()}" from ${getImageRegistry()}).</li>`;
+    }
+  }
+
+  res += `
+    <details>
+        <summary>Image</summary>
+        <h6>
+            The image used for creating all the nodes in the cluster.
+            <ul>
+              <li> Leave empty for using the default image.</li>
+              <li> You can also provide your own image name (ie, "rancher/k3d:v1.18")</li>
+              ${datalistExplain}
+            </ul>
+        </h6>
+        <div class="block">
+            <label for="nodeImage">
+                Node image
+            </label>
+            <input name='${FIELD_CUSTOM_IMAGE}' value='${defaults.image}' type="text" id="nodeImage" ${datalistParam}>
+        </div>
+    </details>
+    `;
+
+  //////////////////////////
+  // network settings
+  //////////////////////////
+  res += `
+    <details>
         <summary>Network</summary>
         <h6>
-            <i>Some network customizations. You are probably safe with default values.</i>
+            Some network customizations. You are probably safe with default values.
         </h6>
         <div class="block">
             <label for="clusterNet">
@@ -174,11 +235,16 @@ export function getCreateClusterForm(defaults: ClusterCreateSettings): string {
             <input name='${FIELD_EXISTING_NET}' value='${defaults.network}' type="text" id="clusterNet">
         </div>
     </details>
+    `;
 
+  //////////////////////////
+  // advanced settings
+  //////////////////////////
+  res += `
     <details>
         <summary>Advanced settings</summary>
         <h6>
-            <i>Advanced settings, do not change these unless you are really sure what you are doing.</i>
+            Advanced settings, do not change these unless you are really sure what you are doing.
         </h6>
         <div class="block">
             <label for="lb">
@@ -190,12 +256,6 @@ export function getCreateClusterForm(defaults: ClusterCreateSettings): string {
                 ${defaults.lb ? "checked" : ""}>
         </div>
         <div class="block">
-            <label for="nodeImage">
-                Node image
-            </label>
-            <input name='${FIELD_CUSTOM_IMAGE}' value='${defaults.image}' type="text" id="nodeImage">
-        </div>
-        <div class="block">
             <label for="serverArgs">
                 Extra <a href="https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/">K3S server arguments</a>
             </label>
@@ -203,6 +263,8 @@ export function getCreateClusterForm(defaults: ClusterCreateSettings): string {
         </div>
     </details>
     `;
+
+  return res;
 }
 
 export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
@@ -223,4 +285,68 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
     lb: lb,
     serverArgs: serverArgs
   };
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// images proposals
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function getImageRepo(): string {
+  const imageRepoConfig = config.getK3DConfigImagesProposals("repo");
+  return imageRepoConfig ? imageRepoConfig : DEFAULT_IMAGE_REPO;
+}
+
+function getImageRegistry(): string {
+  const imageRegistryConfig = config.getK3DConfigImagesProposals("registry");
+  return imageRegistryConfig ? imageRegistryConfig : DEFAULT_IMAGE_REGISTRY;
+}
+
+// getProposedImages obtains a list of proposed images by querying the registry about tags
+// for a given image name.
+async function getProposedImages(): Promise<Errorable<string[]>> {
+  const imageRepo = getImageRepo();
+  const imageRegistry = getImageRegistry();
+  if (imageRegistry.length === 0) {
+    // return an empty result when no registry is provided
+    return { succeeded: true, result: [] };
+  }
+
+  const components = imageRepo.split('/').slice(0, 2);
+  if (components.length < 2) {
+    return {
+      succeeded: false,
+      error: [`imageRepo ${imageRepo} does not contain namespace/repo`]
+    };
+  }
+
+  const imageNamespace = components[0];
+  const imageName = components[1];
+
+  const imageTagFilterConfig = config.getK3DConfigImagesProposals("tagRegex");
+  const imageTagFilterRegex = imageTagFilterConfig ? new RegExp(imageTagFilterConfig, 'g') : undefined;
+
+  const dockerInfo = await docker.getDockerInfo(config.getK3DDockerHost());
+
+  let imageArchFilter = "";
+  try {
+    imageArchFilter = dockerInfo.architecture;
+  } catch (error) {
+    // TODO: could not obtain architecture info from docker info... show some message?
+    imageArchFilter = "x86_64";
+  }
+
+  const tags = await longRunning(`Obtaining image proposals for "${imageRepo}" (from ${imageRegistry})...`,
+    () => registry.registryTagsForImage(imageRegistry, imageNamespace, imageName, imageTagFilterRegex, imageArchFilter));
+  if (failed(tags)) {
+    return {
+      succeeded: false,
+      error: tags.error
+    };
+  } else {
+    const tagsResult = tags.result;
+    return {
+      succeeded: true,
+      result: tagsResult.map((tag) => `${imageRepo}:${tag.name}`)
+    };
+  }
 }

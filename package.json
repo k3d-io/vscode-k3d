@@ -104,6 +104,42 @@
                             }
                         }
                     },
+                    "k3d.images": {
+                        "type": "object",
+                        "description": "Images used for creating new K3D cluster nodes",
+                        "properties": {
+                            "k3d.images.proposals": {
+                                "type": "object",
+                                "description": "Proposed images, after querying the registry",
+                                "properties": {
+                                    "k3d.images.proposals.registry": {
+                                        "type": "string",
+                                        "default": "https://registry.hub.docker.com",
+                                        "format": "uri",
+                                        "examples": ["https://registry.hub.docker.com"],
+                                        "description": "Registry used for looking for images for the cluster (defaults to the Docker Hub)."
+                                    },
+                                    "k3d.images.proposals.repo": {
+                                        "type": "string",
+                                        "default": "rancher/k3s",
+                                        "examples": ["rancher/k3s"],
+                                        "markdownDescription": "Image repository used for proposing different images, including the namespace (ie, `rancher/k3s`)."
+                                    },
+                                    "k3d.images.proposals.tagRegex": {
+                                        "type": "string",
+                                        "default": "",
+                                        "examples": [".*1\\.19.*"],
+                                        "markdownDescription": "Filter images by a _regex_ (ie, `.*v1\\.19.*` for filtering all the images with _1.19_)."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "k3d.dockerHost": {
+                        "type": "string",
+                        "description": "Equivalent to setting the DOCKER_HOST environment variable (for example, ssh://myuser@mymachine or tcp://1.2.3.4). When not provided, it will use the value specified in the #docker.host# setting from the Docker extension (if present), or the local daemon.",
+                        "default": ""
+                    },
                     "k3d.updateKubeconfig": {
                         "type": "string",
                         "enum": [
@@ -227,6 +263,7 @@
         "@types/dedent": "^0.7.0",
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
+        "@types/request-promise-native": "^1.0.17",
         "@types/shelljs": "^0.8.3",
         "@types/tmp": "0.0.33",
         "@types/vscode": "^1.44.0",
@@ -239,13 +276,18 @@
     "dependencies": {
         "@types/mkdirp": "^0.5.2",
         "dedent": "^0.7.0",
+        "docker-cli-js": "^2.8.0",
+        "docker-client": "^1.38.1",
         "download": "^7.1.0",
         "mkdirp": "^0.5.1",
         "replace-string": "^3.0.0",
+        "request": "^2.88.2",
+        "request-promise-native": "^1.0.9",
         "rxjs": "^6.4.0",
         "shelljs": "^0.8.3",
         "spawn-rx": "^3.0.0",
         "tmp": "^0.0.33",
+        "vscode-azureextensionui": "^0.38.2",
         "vscode-kubernetes-tools-api": "^1.0.0"
     },
     "repository": {

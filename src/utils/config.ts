@@ -1,4 +1,7 @@
+// import { URL } from "url";
+
 import * as vscode from 'vscode';
+
 
 import { Platform, platform } from "../utils/shell";
 
@@ -23,6 +26,18 @@ export const VS_KUBE_K3D_RECYCLE_CONTEXT_CFG_KEY =
 // setting: merge of the new kubeconfig in the default kubeconfig
 export const VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.defaults`;
+
+// setting: images configuration
+export const VS_KUBE_K3D_IMAGES_CFG_KEY =
+    `${VS_KUBE_K3D_CFG_KEY}.images`;
+
+// setting: images proposals configuration
+export const VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY =
+`${VS_KUBE_K3D_IMAGES_CFG_KEY}.proposals`;
+
+// setting: DOCKER_HOST
+export const VS_KUBE_K3D_DOCKERHOST_CFG_KEY =
+`${VS_KUBE_K3D_CFG_KEY}.dockerHost`;
 
 // Use WSL on Windows
 
@@ -75,6 +90,45 @@ export function getK3DRecycleContext(): RecycleContext | undefined {
 export function getK3DConfigCreateDefaults<T>(key: string): T | undefined {
     const config = vscode.workspace.getConfiguration(VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY);
     return config.get<T>(`${VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY}.${key}`);
+}
+
+// getK3DConfigImages returns the image configuration.
+export function getK3DConfigImages(key: string): string | undefined {
+    const config = vscode.workspace.getConfiguration(VS_KUBE_K3D_IMAGES_CFG_KEY);
+    return config.get<string>(`${VS_KUBE_K3D_IMAGES_CFG_KEY}.${key}`);
+}
+
+// getK3DConfigImagesProposals returns the image proposals configuration.
+export function getK3DConfigImagesProposals(key: string): string | undefined {
+    const config = vscode.workspace.getConfiguration(VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY);
+    return config.get<string>(`${VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY}.${key}`);
+}
+
+// getK3DgetK3DDockerHost returns DockerHost
+export function getK3DDockerHost(): string {
+    const config = vscode.workspace.getConfiguration();
+
+    const k3dDockerHost = config.get<string>(VS_KUBE_K3D_DOCKERHOST_CFG_KEY);
+    if (k3dDockerHost) {
+        return k3dDockerHost;
+    }
+
+    const extensionDockerHost = config.get<string>("docker.host");
+    if (extensionDockerHost) {
+        return extensionDockerHost;
+    }
+
+    const dockerHost = process.env['DOCKER_HOST'];
+    if (dockerHost) {
+        return dockerHost;
+
+        // const url = new URL(dockerHost);
+        // if (!url.protocol.startsWith("unix")) {
+        //     return dockerHost;
+        // }
+    }
+
+    return "https://127.0.0.1:2375";
 }
 
 // Functions for working with tool paths

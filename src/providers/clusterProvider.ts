@@ -47,11 +47,11 @@ function getPage(defaults: settings.ClusterCreateSettings, sendingStep: string, 
 }
 
 // getPageSettings shows the web page with the form with the new cluster details
-function getPageSettings(defaults: settings.ClusterCreateSettings, previousData: any): string {
+async function getPageSettings(defaults: settings.ClusterCreateSettings, previousData: any): Promise<string> {
     const html = formPage(
         PAGE_SETTINGS,
         "Create k3d cluster",
-        form.getCreateClusterForm(defaults),
+        await form.getCreateClusterForm(defaults),
         "Create",
         form.getCreateClusterFormStyle(),
         form.getCreateClusterFormJavascript(),

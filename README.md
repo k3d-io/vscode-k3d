@@ -44,6 +44,10 @@ The following list contains all the options and their default values.:
 | `k3d.defaults.numServers` | 1 | default number of server nodes for new K3D clusters. |
 | `k3d.defaults.numAgents` | 0 | default number of agent nodes for new K3D clusters. |
 | `k3d.defaults.serverArgs` | "" | default K3S server arguments for new K3D clusters. |
+| `k3d.images` | {} | images used for creating new K3D cluster nodes |
+| `k3d.images.proposals.registry`| `https://registry.hub.docker.com` | registry used for looking for images for the cluster (defaults to the Docker Hub). |
+| `k3d.images.proposals.repo` | `rancher/k3s` | image repository used for proposing different images, including the namespace (ie, `rancher/k3s`) |
+| `k3d.images.proposals.tagRegex` | "" | filter proposed images with a _regex_ (ie, `.*v1\\.19.*` for filtering all the images with _1.19_). |
 
 Example configuration:
 

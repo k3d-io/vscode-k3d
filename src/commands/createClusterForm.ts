@@ -313,10 +313,7 @@ async function getProposedImages(): Promise<Errorable<string[]>> {
 
   const components = imageRepo.split('/').slice(0, 2);
   if (components.length < 2) {
-    return {
-      succeeded: false,
-      error: [`imageRepo ${imageRepo} does not contain namespace/repo`]
-    };
+    return { succeeded: false, error: [`imageRepo ${imageRepo} does not contain namespace/repo`] };
   }
 
   const imageNamespace = components[0];
@@ -338,15 +335,9 @@ async function getProposedImages(): Promise<Errorable<string[]>> {
   const tags = await longRunning(`Obtaining image proposals for "${imageRepo}" (from ${imageRegistry})...`,
     () => registry.registryTagsForImage(imageRegistry, imageNamespace, imageName, imageTagFilterRegex, imageArchFilter));
   if (failed(tags)) {
-    return {
-      succeeded: false,
-      error: tags.error
-    };
+    return { succeeded: false, error: tags.error };
   } else {
     const tagsResult = tags.result;
-    return {
-      succeeded: true,
-      result: tagsResult.map((tag) => `${imageRepo}:${tag.name}`)
-    };
+    return { succeeded: true, result: tagsResult.map((tag) => `${imageRepo}:${tag.name}`) };
   }
 }

@@ -60,6 +60,9 @@ export async function registryTagsForImage(registry: string, namespace: string, 
     while (true) {
         let response = await registryRequest<ITags>('GET', url.toString());
         // TODO: we should check the response errors
+        if (response.statusCode !== 200) {
+            return { succeeded: false, error: [response.statusMessage] };
+        }
 
         res = res.concat(response.body.results
             .filter((i: ITag) => i.tag_status === "active")
@@ -70,10 +73,7 @@ export async function registryTagsForImage(registry: string, namespace: string, 
         if (response.body.next && response.body.next !== url && res.length < limit) {
             url = response.body.next;
         } else {
-            return {
-                succeeded: true,
-                result: res.sort(ITagCompare).slice(0, limit)
-            };
+            return { succeeded: true, result: res.sort(ITagCompare).slice(0, limit) };
         }
     }
 }

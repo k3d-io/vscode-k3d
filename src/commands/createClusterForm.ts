@@ -2,12 +2,15 @@ import * as vscode from 'vscode';
 
 import { ClusterCreateSettings } from './createClusterSettings';
 
+import { getClustersNetworks } from '../k3d/k3d';
+
 import * as config from '../utils/config';
 import { Errorable } from '../utils/errorable';
 import { failed } from '../utils/errorable';
 import * as registry from '../utils/registry';
 import * as docker from '../utils/docker';
 import { longRunning } from '../utils/host';
+import { shell } from '../utils/shell';
 
 const DEFAULT_IMAGE_REGISTRY = "https://registry.hub.docker.com";
 const DEFAULT_IMAGE_REPO = "rancher/k3s";
@@ -222,6 +225,21 @@ export async function getCreateClusterForm(defaults: ClusterCreateSettings): Pro
   //////////////////////////
   // network settings
   //////////////////////////
+  datalistParam = "";
+  const result = await getClustersNetworks(shell);
+  if (!result.succeeded) {
+    await vscode.window.showErrorMessage(`Could not obtain list of k3d networks: ${result.error}.`);
+  } else {
+    const networkNames = result.result;
+    if (networkNames.length > 0) {
+      res += `<datalist id="networks">`;
+      res += networkNames.map((s) => `<option value="${s}">${s}</option>`).join("\n");
+      res += `</datalist>`;
+
+      datalistParam = `list="networks"`;
+    }
+  }
+
   res += `
     <details>
         <summary>Network</summary>
@@ -232,7 +250,7 @@ export async function getCreateClusterForm(defaults: ClusterCreateSettings): Pro
             <label for="clusterNet">
                 Use existing network
             </label>
-            <input name='${FIELD_EXISTING_NET}' value='${defaults.network}' type="text" id="clusterNet">
+            <input name='${FIELD_EXISTING_NET}' value='${defaults.network}' type="text" id="clusterNet" ${datalistParam}>
         </div>
     </details>
     `;

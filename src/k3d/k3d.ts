@@ -159,6 +159,24 @@ export async function getClusterInfo(sh: shell.Shell, clusterName: string): Prom
     };
 }
 
+// getClustersNetworks returns all the existing clusters networks
+export async function getClustersNetworks(sh: shell.Shell): Promise<Errorable<string[]>> {
+    const clusters = await getClusters(sh);
+    if (!clusters.succeeded) {
+        return clusters;
+    }
+
+    let res: string[] = [];
+
+    // for each cluster, go through all the nodes obtaining all the networks
+    clusters.result.forEach((cluster) => res = res.concat(cluster.nodes.map((node) => node.network)));
+
+    // remove duplicates in the result
+    res = res.filter((thing, i, arr) => arr.findIndex(t => t === thing) === i);
+
+    return { succeeded: true, result: res };
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // get kubeconfig
 ///////////////////////////////////////////////////////////////////////////////

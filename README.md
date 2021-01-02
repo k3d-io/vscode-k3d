@@ -24,7 +24,15 @@ You can find this plugin in the
 You will find detailed installation instructions there.
 
 This extension will download the latest, stable version of `k3d` automatically, although you can
-force a specific version of `k3d` with some settings (see bellow).
+force a specific version of `k3d` with some settings (see [bellow](#Settings)).
+
+## Features
+
+* Create/delete k3d clusters from the Kubernetes view.
+* Add/remove nodes to existing k3d clusters.
+* Automatically update the kubeconfig after creating/deleting clusters.
+* Commands and keyboard shortcuts for all the operations.
+* Recycle clusters: remove the oldest cluster and create a new one in just one command.
 
 ## Settings
 
@@ -61,6 +69,11 @@ Example configuration:
     }
 
 ```
+
+## Keyboard shortcuts
+
+* `ctr+k` `ctr+c`: create a new cluster with last settings.
+* `ctr+k` `ctr+r`: recycle oldest cluster with last settings.
 
 ## Development
 

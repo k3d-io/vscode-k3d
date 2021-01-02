@@ -100,13 +100,13 @@
                             "k3d.defaults.serverArgs": {
                                 "type": "string",
                                 "default": "",
-                                "description": "Default K3S server arguments for new K3D clusters."
+                                "markdownDescription": "Default [K3S server arguments](https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/) for new K3D clusters."
                             }
                         }
                     },
                     "k3d.images": {
                         "type": "object",
-                        "description": "Images used for creating new K3D cluster nodes",
+                        "description": "Settings for images used for creating new K3D cluster nodes",
                         "properties": {
                             "k3d.images.proposals": {
                                 "type": "object",
@@ -116,19 +116,25 @@
                                         "type": "string",
                                         "default": "https://registry.hub.docker.com",
                                         "format": "uri",
-                                        "examples": ["https://registry.hub.docker.com"],
+                                        "examples": [
+                                            "https://registry.hub.docker.com"
+                                        ],
                                         "description": "Registry used for looking for images for the cluster (defaults to the Docker Hub)."
                                     },
                                     "k3d.images.proposals.repo": {
                                         "type": "string",
                                         "default": "rancher/k3s",
-                                        "examples": ["rancher/k3s"],
+                                        "examples": [
+                                            "rancher/k3s"
+                                        ],
                                         "markdownDescription": "Image repository used for proposing different images, including the namespace (ie, `rancher/k3s`)."
                                     },
                                     "k3d.images.proposals.tagRegex": {
                                         "type": "string",
                                         "default": "",
-                                        "examples": [".*1\\.19.*"],
+                                        "examples": [
+                                            ".*1\\.19.*"
+                                        ],
                                         "markdownDescription": "Filter images by a _regex_ (ie, `.*v1\\.19.*` for filtering all the images with _1.19_)."
                                     }
                                 }
@@ -137,7 +143,7 @@
                     },
                     "k3d.dockerHost": {
                         "type": "string",
-                        "description": "Equivalent to setting the DOCKER_HOST environment variable (for example, ssh://myuser@mymachine or tcp://1.2.3.4). When not provided, it will use the value specified in the #docker.host# setting from the Docker extension (if present), or the local daemon.",
+                        "markdownDescription": "Equivalent to setting the DOCKER_HOST environment variable (for example, ssh://myuser@mymachine or tcp://1.2.3.4). When not provided, it will use the value specified in the `#docker.host#` setting from the Docker extension (if present), or the local daemon.",
                         "default": ""
                     },
                     "k3d.updateKubeconfig": {
@@ -146,6 +152,11 @@
                             "onCreate",
                             "always",
                             "never"
+                        ],
+                        "enumDescriptions": [
+                            "Update the kubeconfig file only after creating a new cluster",
+                            "Always update the kubeconfig file",
+                            "Do not modify the existing kubeconfig file"
                         ],
                         "default": "always",
                         "description": "Update the kubeconfig after creating or deleting a cluster."
@@ -160,6 +171,10 @@
                         "enum": [
                             "new",
                             "oldest"
+                        ],
+                        "enumDescriptions": [
+                            "Wait until the new cluster and switch to it when recycling",
+                            "Switch to the oldest, existing cluster right after recycling"
                         ],
                         "default": "new",
                         "description": "When recycling cluster, the new cluster will be automatically activated by default ('new'). However, when some other clusters exist, we can switch to the oldest cluster immediately, not waiting for the new cluster ('oldest')."
@@ -204,42 +219,61 @@
                 "title": "Delete an Agent node"
             }
         ],
+        "keybindings": [
+            {
+                "command": "extension.vsKubernetesK3DCreateLast",
+                "key": "ctrl+k ctrl+c"
+            },
+            {
+                "command": "extension.vsKubernetesK3DRecycleLast",
+                "key": "ctrl+k ctrl+r"
+            }
+        ],
         "menus": {
             "view/item/context": [
                 {
                     "command": "extension.vsKubernetesK3DCreate",
+                    "group": "Kubernetes: k3d: create",
                     "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
                 },
                 {
                     "command": "extension.vsKubernetesK3DCreateLast",
+                    "group": "Kubernetes: k3d: create",
                     "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
-                },
-                {
-                    "command": "extension.vsKubernetesK3DRecycle",
-                    "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
-                },
-                {
-                    "command": "extension.vsKubernetesK3DRecycleLast",
-                    "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
-                },
-                {
-                    "command": "extension.vsKubernetesK3DRecycle",
-                    "when": "viewItem =~ /k3d\\.cluster/"
-                },
-                {
-                    "command": "extension.vsKubernetesK3DRecycleLast",
-                    "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
                     "command": "extension.vsKubernetesK3DDelete",
+                    "group": "Kubernetes: k3d: create",
+                    "when": "viewItem =~ /k3d\\.cluster/"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DRecycle",
+                    "group": "Kubernetes: k3d: recycle",
+                    "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DRecycleLast",
+                    "group": "Kubernetes: k3d: recycle",
+                    "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DRecycle",
+                    "group": "Kubernetes: k3d: recycle",
+                    "when": "viewItem =~ /k3d\\.cluster/"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DRecycleLast",
+                    "group": "Kubernetes: k3d: recycle",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
                     "command": "extension.vsKubernetesK3DAddAgent",
+                    "group": "Kubernetes: k3d: nodes",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
                     "command": "extension.vsKubernetesK3DDeleteAgent",
+                    "group": "Kubernetes: k3d: nodes",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 }
             ]

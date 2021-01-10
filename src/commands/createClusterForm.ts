@@ -246,12 +246,20 @@ export async function getCreateClusterForm(defaults: ClusterCreateSettings): Pro
         <h6>
             Some network customizations. You are probably safe with default values.
         </h6>
+  `;
+
+  if (result.succeeded && result.result.length > 0) {
+    res += `
         <div class="block">
             <label for="clusterNet">
                 Use existing network
             </label>
             <input name='${FIELD_EXISTING_NET}' value='${defaults.network}' type="text" id="clusterNet" ${datalistParam}>
         </div>
+  `;
+  }
+
+  res += `
     </details>
     `;
 

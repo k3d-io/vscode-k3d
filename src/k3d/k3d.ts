@@ -1,7 +1,7 @@
 
 import { Observable, throwError } from 'rxjs';
 
-import { K3dClusterInfo } from "./k3d.objectmodel";
+import { K3dClusterInfo, K3dRegistryInfo } from "./k3d.objectmodel";
 import { ClusterCreateSettings, createClusterArgsFromSettings } from '../commands/createClusterSettings';
 import { getOrInstallK3D, EnsureMode } from '../installer/installer';
 
@@ -175,6 +175,26 @@ export async function getClustersNetworks(sh: shell.Shell): Promise<Errorable<st
     res = res.filter((thing, i, arr) => arr.findIndex(t => t === thing) === i);
 
     return { succeeded: true, result: res };
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// registries
+///////////////////////////////////////////////////////////////////////////////
+
+// getRegistries gets the list of current K3D registries
+export async function getRegistries(sh: shell.Shell): Promise<Errorable<K3dRegistryInfo[]>> {
+    function parse(stdout: string): K3dRegistryInfo[] {
+        return JSON.parse(stdout)
+            .map((registry: any) => (
+                {
+                    name: registry.name,
+                    network: registry.Network,
+                    created: new Date(registry.created)
+                }))
+            .orderBy((registry: K3dRegistryInfo) => registry.name);
+    }
+
+    return invokeK3DCommandObj(sh, 'registry list -o json', '', {}, parse);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

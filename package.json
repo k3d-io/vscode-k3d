@@ -101,6 +101,16 @@
                                 "type": "string",
                                 "default": "",
                                 "markdownDescription": "Default [K3S server arguments](https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/) for new K3D clusters."
+                            },
+                            "k3d.defaults.createRegistry": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Create a new registry by default for new K3D clusters."
+                            },
+                            "k3d.defaults.useRegistries": {
+                                "type": "array",
+                                "default": [],
+                                "description": "Use these registries by default for new K3D clusters."
                             }
                         }
                     },

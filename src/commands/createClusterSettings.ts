@@ -12,6 +12,8 @@ export interface ClusterCreateSettings {
     network: string | undefined;
     lb: boolean | undefined;
     serverArgs: string | undefined;
+    createRegistry: boolean | undefined;
+    useRegistries: string[] | undefined;
 }
 
 // createClusterArgsFromSettings returns a list of arguments for `k3d cluster create`
@@ -41,15 +43,23 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings, s
         args.push("--k3s-server-arg", `'${settings.serverArgs}'`);
     }
 
+    if (settings.createRegistry) {
+        args.push("--registry-create");
+    } else if (settings.useRegistries) {
+        args.push("--registry-use", settings.useRegistries.join(","));
+    }
+
     // check if we want to modify the kubeconfig
     const updateKubeconfig = config.getK3DConfigUpdateKubeconfig();
     if (updateKubeconfig &&
         (updateKubeconfig === config.UpdateKubeconfig.Always || updateKubeconfig === config.UpdateKubeconfig.OnCreate)) {
-        args.push("--update-default-kubeconfig");
+        // args.push("--update-default-kubeconfig");  // pre 4.0
+        args.push("--kubeconfig-update-default");
     }
 
     if (!switchContext) {
-        args.push("--switch-context=false");
+        // args.push("--switch-context=false"); // pre 4.0
+        args.push("--kubeconfig-switch-context=false");
     }
 
     return args;
@@ -72,6 +82,8 @@ class MementoClusterSettings implements ClusterCreateSettings {
     private readonly netStorageKey = "k3d-last-net";
     private readonly lbStorageKey = "k3d-last-lb";
     private readonly serverArgsKey = "k3d-last-server-args";
+    private readonly createRegistryKey = "k3d-last-create-registry";
+    private readonly useRegistriesKey = "k3d-last-use-registries";
 
     private readonly storage: vscode.Memento;
 
@@ -100,6 +112,12 @@ class MementoClusterSettings implements ClusterCreateSettings {
     set serverArgs(value: string | undefined) { this.storage.update(this.serverArgsKey, value); }
     get serverArgs(): string | undefined { return this.storage.get<string>(this.serverArgsKey); }
 
+    set createRegistry(value: boolean | undefined) { this.storage.update(this.createRegistryKey, value); }
+    get createRegistry(): boolean | undefined { return this.storage.get<boolean>(this.createRegistryKey); }
+
+    set useRegistries(value: string[] | undefined) { this.storage.update(this.useRegistriesKey, value); }
+    get useRegistries(): string[] | undefined { return this.storage.get<string[]>(this.useRegistriesKey); }
+
     private static instance: MementoClusterSettings;
 
     static getInstance(): MementoClusterSettings {
@@ -124,6 +142,8 @@ export function saveLastClusterCreateSettings(saved: ClusterCreateSettings) {
     lcs.numAgents = saved.numAgents;
     lcs.lb = saved.lb;
     lcs.serverArgs = saved.serverArgs;
+    lcs.createRegistry = saved.createRegistry;
+    lcs.useRegistries = saved.useRegistries;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,6 +175,12 @@ class DefaultClusterSettings implements ClusterCreateSettings {
 
     set serverArgs(value: string | undefined) { }
     get serverArgs(): string | undefined { return config.getK3DConfigCreateDefaults<string>("serverArgs"); }
+
+    set createRegistry(value: boolean | undefined) { }
+    get createRegistry(): boolean | undefined { return config.getK3DConfigCreateDefaults<boolean>("createRegistry"); }
+
+    set useRegistries(value: string[] | undefined) { }
+    get useRegistries(): string[] | undefined { return config.getK3DConfigCreateDefaults<string[]>("useRegistries"); }
 
     private static instance: DefaultClusterSettings;
 
@@ -188,5 +214,7 @@ export function forNewCluster(input: ClusterCreateSettings): ClusterCreateSettin
         network: input.network === undefined ? "" : input.network,
         lb: input.lb === undefined ? true : input.lb,
         serverArgs: input.serverArgs === undefined ? "" : input.serverArgs,
+        createRegistry: input.createRegistry === undefined ? false : input.createRegistry,
+        useRegistries: input.useRegistries === undefined ? [] : input.useRegistries
     };
 }

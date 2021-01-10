@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { ClusterCreateSettings } from './createClusterSettings';
 
-import { getClustersNetworks } from '../k3d/k3d';
+import { getClustersNetworks, getRegistries } from '../k3d/k3d';
 
 import * as config from '../utils/config';
 import { Errorable } from '../utils/errorable';
@@ -23,6 +23,8 @@ export const FIELD_NUM_AGENTS = 'cluster_num_agents';
 export const FIELD_LOAD_BALANCER = 'cluster_lb';
 export const FIELD_EXISTING_NET = 'cluster_net';
 export const FIELD_SERVER_ARGS = 'cluster_server_args';
+export const FIELD_CREATE_REGISTRY = 'create_registry';
+export const FIELD_EXISTING_REGISTRIES = 'existing_registries';
 
 // getCreateClusterFormStyle returns the style for the create form page
 export function getCreateClusterFormStyle(): string {
@@ -223,6 +225,57 @@ export async function getCreateClusterForm(defaults: ClusterCreateSettings): Pro
     `;
 
   //////////////////////////
+  // registries
+  //////////////////////////
+  datalistParam = "";
+  const registriesResult = await getRegistries(shell);
+  if (!registriesResult.succeeded) {
+    await vscode.window.showErrorMessage(`Could not obtain list of k3d registries: ${registriesResult.error}.`);
+  } else {
+    const registries = registriesResult.result;
+    if (registries.length > 0) {
+      res += `<datalist id="registries">`;
+      res += registries.map((s) => `<option value="${s.name}">${s.name}</option>`).join("\n");
+      res += `</datalist>`;
+
+      datalistParam = `list="registries"`;
+    }
+  }
+
+  res += `
+    <details>
+        <summary>Registry</summary>
+        <h6>
+            Start a local registry or connect to one of the existing local registries available.
+        </h6>
+        <div class="block">
+            <label for="createRegistry">
+                Create local registry
+            </label>
+            <input name='${FIELD_CREATE_REGISTRY}' type="checkbox" id="createRegistry"
+                value='${defaults.createRegistry ? "true" : "false"}'
+                onClick="this.value = this.checked"
+                ${defaults.createRegistry ? "checked" : ""}>
+        </div>
+    `;
+
+  if (registriesResult.succeeded && registriesResult.result.length > 0) {
+    res += `
+        <div class="block">
+            <label for="useRegistries">
+                Use existing registries
+            </label>
+            <input name='${FIELD_EXISTING_REGISTRIES}' value='${defaults.useRegistries}'
+                   type="text" id="useRegistries" ${datalistParam}>
+        </div>
+    `;
+  }
+
+  res += `
+    </details>
+    `;
+
+  //////////////////////////
   // network settings
   //////////////////////////
   datalistParam = "";
@@ -301,6 +354,8 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
   const lb: boolean = s[FIELD_LOAD_BALANCER] === "true" ? true : false;
   const network: string = s[FIELD_EXISTING_NET];
   const serverArgs: string = s[FIELD_SERVER_ARGS];
+  const createRegistry: boolean = s[FIELD_CREATE_REGISTRY] === "true" ? true : false;
+  const useRegistries: string = s[FIELD_EXISTING_REGISTRIES];
 
   return {
     name: name,
@@ -309,7 +364,9 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
     numAgents: numAgents,
     network: network,
     lb: lb,
-    serverArgs: serverArgs
+    serverArgs: serverArgs,
+    createRegistry: createRegistry,
+    useRegistries: useRegistries.split(",")
   };
 }
 

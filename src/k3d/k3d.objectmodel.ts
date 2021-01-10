@@ -20,3 +20,9 @@ export interface K3dClusterInfo {
     // date when the cluster was created, obtained as the oldest `created` in the nodes
     readonly created: Date;
 }
+
+export interface K3dRegistryInfo {
+    readonly name: string;
+    readonly network: string;
+    readonly created: Date;
+}

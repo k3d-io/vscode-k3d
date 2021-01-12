@@ -45,7 +45,7 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings, s
 
     if (settings.createRegistry) {
         args.push("--registry-create");
-    } else if (settings.useRegistries) {
+    } else if (settings.useRegistries && settings.useRegistries.length > 0) {
         args.push("--registry-use", settings.useRegistries.join(","));
     }
 

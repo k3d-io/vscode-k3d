@@ -156,6 +156,19 @@
                         "markdownDescription": "Equivalent to setting the DOCKER_HOST environment variable (for example, ssh://myuser@mymachine or tcp://1.2.3.4). When not provided, it will use the value specified in the `#docker.host#` setting from the Docker extension (if present), or the local daemon.",
                         "default": ""
                     },
+                    "k3d.updateChannel": {
+                        "type": "string",
+                        "enum": [
+                            "stable",
+                            "all"
+                        ],
+                        "markdownEnumDescriptions": [
+                            "Only consider **stable** releases",
+                            "Consider any k3d release (including `alpha` and `beta` releases)"
+                        ],
+                        "default": "stable",
+                        "description": "Versions of k3d that will be considered when downloading the binary from the list of GitHub releases."
+                    },
                     "k3d.updateKubeconfig": {
                         "type": "string",
                         "enum": [

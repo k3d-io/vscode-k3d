@@ -19,6 +19,10 @@ export const VS_KUBE_K3D_FORCE_KUBECONFIG_CFG_KEY =
 export const VS_KUBE_K3D_UPDATE_KUBECONFIG_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.updateKubeconfig`;
 
+// setting: update channel for the k3d binary
+export const VS_KUBE_K3D_UPDATE_CHANNEL_CFG_KEY =
+    `${VS_KUBE_K3D_CFG_KEY}.updateChannel`;
+
 // setting: context on recylce
 export const VS_KUBE_K3D_RECYCLE_CONTEXT_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.recycleContext`;
@@ -102,6 +106,22 @@ export function getK3DConfigImages(key: string): string | undefined {
 export function getK3DConfigImagesProposals(key: string): string | undefined {
     const config = vscode.workspace.getConfiguration(VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY);
     return config.get<string>(`${VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY}.${key}`);
+}
+
+export enum UpdateChannel {
+    Stable = 1,
+    All
+}
+
+// getK3DConfigUpdateChannel returns the update channel for the k3d binary
+export function getK3DConfigUpdateChannel(): UpdateChannel | undefined {
+    const config = vscode.workspace.getConfiguration();
+    const value = config.get<string>(VS_KUBE_K3D_UPDATE_CHANNEL_CFG_KEY, "stable");
+    switch (value) {
+        case "stable": return UpdateChannel.Stable;
+        case "all": return UpdateChannel.All;
+    }
+    return undefined;
 }
 
 // getK3DgetK3DDockerHost returns DockerHost

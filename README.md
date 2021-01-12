@@ -42,6 +42,7 @@ The following list contains all the options and their default values.:
 
 | Option | Default value | Description |
 | :--- | :--- | :--- |
+| `k3d.updateChannel` | "stable" | Update channel for downloading k3d binaries: stable/all |
 | `k3d.paths` | {} | paths for different tools. _[see following settings]_ |
 | `k3d.paths.k3d` | "" | this extension will download a recent version of `k3d` automatically, but you can use your own binary by seting this parameter. You can use OS-specific binaries by using `k3d.paths.k3d-{linux,mac,windows}` instead. |
 | `k3d.updateKubeconfig` | "always" | update the kubeconfig after creating/destroying a cluster. It can be `always`, `never` or `onCreate`. |
@@ -67,7 +68,6 @@ Example configuration:
     "k3d.defaults": {
         "k3d.defaults.image": "docker.io/rancher/k3s:v1.19.5-k3s1"
     }
-
 ```
 
 ## Keyboard shortcuts

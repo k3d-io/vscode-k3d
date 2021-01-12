@@ -14,6 +14,11 @@ import { Errorable, failed } from '../utils/errorable';
 import * as config from '../utils/config';
 import { refreshKubernetesToolsViews } from '../utils/vscode';
 
+// URL for all the k3d releases
+const updateChannelAllUpdateURL = 'https://api.github.com/repos/rancher/k3d/releases';
+
+// URL for the latest, stable release of k3d
+const updateChannelStableUpdateURL = `${updateChannelAllUpdateURL}/latest`;
 
 export enum EnsureMode {
     Alert,
@@ -122,7 +127,10 @@ export async function installK3D(): Promise<Errorable<string>> {
 
 // getStableK3DVersion gets the latest version of K3D from GitHub
 async function getStableK3DVersion(): Promise<Errorable<string>> {
-    const downloadResult = await download.toTempFile('https://api.github.com/repos/rancher/k3d/releases/latest');
+    const updateChannel = config.getK3DConfigUpdateChannel();
+    const updateChannelURL = updateChannel === config.UpdateChannel.All ? updateChannelAllUpdateURL : updateChannelStableUpdateURL;
+
+    const downloadResult = await download.toTempFile(updateChannelURL);
     if (failed(downloadResult)) {
         return {
             succeeded: false,

@@ -176,10 +176,10 @@
                             "always",
                             "never"
                         ],
-                        "enumDescriptions": [
-                            "Update the kubeconfig file only after creating a new cluster",
-                            "Always update the kubeconfig file",
-                            "Do not modify the existing kubeconfig file"
+                        "markdownEnumDescriptions": [
+                            "Update the `kubeconfig` file only after creating a new cluster",
+                            "Always update the `kubeconfig` file",
+                            "Do not modify the existing `kubeconfig` file"
                         ],
                         "default": "always",
                         "description": "Update the kubeconfig after creating or deleting a cluster."
@@ -195,9 +195,9 @@
                             "new",
                             "oldest"
                         ],
-                        "enumDescriptions": [
-                            "Wait until the new cluster and switch to it when recycling",
-                            "Switch to the oldest, existing cluster right after recycling"
+                        "markdownEnumDescriptions": [
+                            "Wait until the new cluster is ready for switching to it when recycling",
+                            "Switch to the oldest, existing cluster immediately"
                         ],
                         "default": "new",
                         "description": "When recycling cluster, the new cluster will be automatically activated by default ('new'). However, when some other clusters exist, we can switch to the oldest cluster immediately, not waiting for the new cluster ('oldest')."

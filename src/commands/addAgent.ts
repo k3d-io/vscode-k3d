@@ -1,13 +1,10 @@
-import * as vscode from 'vscode';
-
 import * as k3d from '../k3d/k3d';
 
 import { tryResolveClusterNode, promptCluster } from './utils';
 
 import { shell } from '../utils/shell';
-import { Errorable, succeeded } from '../utils/errorable';
 import { longRunning } from '../utils/host';
-import { refreshKubernetesToolsViews } from '../utils/vscode';
+import { displayNodeOperationResult } from './utils';
 
 export async function onAddAgent(target?: any): Promise<void> {
     if (target) {
@@ -37,21 +34,10 @@ async function addAgentInteractive(): Promise<void> {
 async function addAgentNodeToCluster(clusterName: string): Promise<void> {
     const max = 1000;
     const randInt = Math.floor(Math.random() * (max + 1));
-    const nodeName = `agent-${randInt}`;
+    const nodeName = `${clusterName}-agent-${randInt}`;
+
     const result = await longRunning(`Adding agent "${nodeName}" to "${clusterName}"...`,
-        () => k3d.addAgentTo(shell, clusterName, nodeName));
+        () => k3d.addNodeTo(shell, clusterName, nodeName, "agent"));
 
-    displayAddAgentDeletionResult(result, clusterName, nodeName);
-}
-
-// displayAddAgentDeletionResult displais the results of adding an agent to the cluster
-async function displayAddAgentDeletionResult(result: Errorable<string>, clusterName: string, nodeName: string): Promise<void> {
-    if (succeeded(result)) {
-        await Promise.all([
-            vscode.window.showInformationMessage(`"${nodeName}" successfully added to "${clusterName}"`),
-            refreshKubernetesToolsViews()
-        ]);
-    } else {
-        await vscode.window.showErrorMessage(`Could not add "${nodeName}" to "${clusterName}": ${result.error[0]}`);
-    }
+    displayNodeOperationResult(result, clusterName, nodeName, "added");
 }

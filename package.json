@@ -32,7 +32,9 @@
         "onCommand:extension.vsKubernetesK3DReplace",
         "onCommand:extension.vsKubernetesK3DReplaceLast",
         "onCommand:extension.vsKubernetesK3DAddAgent",
-        "onCommand:extension.vsKubernetesK3DDeleteAgent"
+        "onCommand:extension.vsKubernetesK3DDeleteAgent",
+        "onCommand:extension.vsKubernetesK3DAddServer",
+        "onCommand:extension.vsKubernetesK3DDeleteServer"
     ],
     "main": "./dist/extension",
     "contributes": {
@@ -240,7 +242,18 @@
                 "command": "extension.vsKubernetesK3DDeleteAgent",
                 "category": "Kubernetes: k3d",
                 "title": "Delete an Agent node"
+            },
+            {
+                "command": "extension.vsKubernetesK3DAddServer",
+                "category": "Kubernetes: k3d",
+                "title": "Add a Server node"
+            },
+            {
+                "command": "extension.vsKubernetesK3DDeleteServer",
+                "category": "Kubernetes: k3d",
+                "title": "Delete a Server node"
             }
+
         ],
         "keybindings": [
             {
@@ -296,6 +309,16 @@
                 },
                 {
                     "command": "extension.vsKubernetesK3DDeleteAgent",
+                    "group": "Kubernetes: k3d: nodes",
+                    "when": "viewItem =~ /k3d\\.cluster/"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DAddServer",
+                    "group": "Kubernetes: k3d: nodes",
+                    "when": "viewItem =~ /k3d\\.cluster/"
+                },
+                {
+                    "command": "extension.vsKubernetesK3DDeleteServer",
                     "group": "Kubernetes: k3d: nodes",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 }

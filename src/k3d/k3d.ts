@@ -206,18 +206,18 @@ export async function getKubeconfig(sh: shell.Shell, clusterName: string): Promi
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// add agent node
+// add node
 ///////////////////////////////////////////////////////////////////////////////
 
-export async function addAgentTo(sh: shell.Shell, clusterName: string, nodeName: string): Promise<Errorable<string>> {
-    return invokeK3DCommandObj(sh, `node create ${nodeName} --cluster ${clusterName} --role agent`, ``, {}, (s) => s);
+export async function addNodeTo(sh: shell.Shell, clusterName: string, nodeName: string, role: string): Promise<Errorable<string>> {
+    return invokeK3DCommandObj(sh, `node create ${nodeName} --cluster ${clusterName} --role ${role}`, ``, {}, (s) => s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// remove agent node
+// remove node
 ///////////////////////////////////////////////////////////////////////////////
 
-export async function deleteAgentFrom(sh: shell.Shell, clusterName: string, nodeName: string): Promise<Errorable<string>> {
+export async function deleteNodeFrom(sh: shell.Shell, clusterName: string, nodeName: string): Promise<Errorable<string>> {
     return invokeK3DCommandObj(sh, `node delete ${nodeName}`, ``, {}, (s) => s);
 }
 

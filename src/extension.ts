@@ -10,6 +10,8 @@ import { onCreateCluster, onCreateClusterLast } from './commands/createCluster';
 import { onDeleteCluster } from './commands/deleteCluster';
 import { onAddAgent } from './commands/addAgent';
 import { onDeleteAgent } from './commands/deleteAgent';
+import { onAddServer } from './commands/addServer';
+import { onDeleteServer } from './commands/deleteServer';
 import { onReplaceCluster, onReplaceClusterLast } from './commands/replaceCluster';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -42,6 +44,11 @@ export async function activate(context: vscode.ExtensionContext) {
         // Add/remove agents
         vscode.commands.registerCommand("extension.vsKubernetesK3DAddAgent", onAddAgent),
         vscode.commands.registerCommand("extension.vsKubernetesK3DDeleteAgent", onDeleteAgent),
+
+        // Add/remove agents
+        vscode.commands.registerCommand("extension.vsKubernetesK3DAddServer", onAddServer),
+        vscode.commands.registerCommand("extension.vsKubernetesK3DDeleteServer", onDeleteServer),
+
     ];
 
     context.subscriptions.push(...disposables);

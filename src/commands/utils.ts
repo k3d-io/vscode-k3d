@@ -7,7 +7,8 @@ import * as k3d from '../k3d/k3d';
 
 import { longRunning } from '../utils/host';
 import { shell } from '../utils/shell';
-import { failed } from '../utils/errorable';
+import { Errorable, succeeded, failed } from '../utils/errorable';
+import { refreshKubernetesToolsViews } from '../utils/vscode';
 
 export async function tryResolveClusterNode(target: any): Promise<K3dCloudProviderClusterNode | undefined> {
     const cloudExplorer = await k8s.extension.cloudExplorer.v1;
@@ -72,5 +73,17 @@ export async function promptNodesInCluster(
                 ignoreFocusOut: true
             });
         }
+    }
+}
+
+// displayNodeOperationResult displais the results of adding/deleting a node to the cluster
+export async function displayNodeOperationResult(result: Errorable<string>, clusterName: string, nodeName: string, was: string): Promise<void> {
+    if (succeeded(result)) {
+        await Promise.all([
+            vscode.window.showInformationMessage(`"${nodeName}" successfully ${was} to "${clusterName}"`),
+            refreshKubernetesToolsViews()
+        ]);
+    } else {
+        await vscode.window.showErrorMessage(`"${nodeName}" has not be ${was} to "${clusterName}": ${result.error[0]}`);
     }
 }

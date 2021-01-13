@@ -10,6 +10,14 @@ import { displayNodeOperationResult } from './utils';
 
 export async function onDeleteServer(target?: any): Promise<void> {
     if (target) {
+        try {
+            if (target.value.nodeType === "node") {
+                performDeleteServerNodeToCluster(target.value.nodeName, target.value.clusterName);
+            }
+        } catch (error) {
+            // pass
+        }
+
         await deleteServer(target);
     } else {
         await deleteServerInteractive();
@@ -40,6 +48,11 @@ async function deleteServerNodeToCluster(clusterName: string): Promise<void> {
         return;
     }
 
+    performDeleteServerNodeToCluster(nodeName, clusterName);
+}
+
+// deleteServerByName will be invoked when users click on "Delete server"
+async function performDeleteServerNodeToCluster(nodeName: string, clusterName: string): Promise<void> {
     const result = await longRunning(`Deleting server node "${nodeName}" from "${clusterName}"...`,
         () => k3d.deleteNodeFrom(shell, clusterName, nodeName));
 

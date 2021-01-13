@@ -10,6 +10,14 @@ import { displayNodeOperationResult } from './utils';
 
 export async function onDeleteAgent(target?: any): Promise<void> {
     if (target) {
+        try {
+            if (target.value.nodeType === "node") {
+                performDeleteAgentNodeToCluster(target.value.nodeName, target.value.clusterName);
+            }
+        } catch (error) {
+            // pass
+        }
+
         await deleteAgent(target);
     } else {
         await deleteAgentInteractive();
@@ -39,7 +47,10 @@ async function deleteAgentNodeToCluster(clusterName: string): Promise<void> {
         await vscode.window.showErrorMessage(`Could not get an agent node in cluster "${clusterName}"`);
         return;
     }
+    performDeleteAgentNodeToCluster(nodeName, clusterName);
+}
 
+async function performDeleteAgentNodeToCluster(nodeName: string, clusterName: string): Promise<void> {
     const result = await longRunning(`Deleting agent node "${nodeName}" from "${clusterName}"...`,
         () => k3d.deleteNodeFrom(shell, clusterName, nodeName));
 

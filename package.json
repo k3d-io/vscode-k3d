@@ -285,16 +285,6 @@
                 {
                     "command": "extension.vsKubernetesK3DReplace",
                     "group": "Kubernetes: k3d: replace",
-                    "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
-                },
-                {
-                    "command": "extension.vsKubernetesK3DReplaceLast",
-                    "group": "Kubernetes: k3d: replace",
-                    "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
-                },
-                {
-                    "command": "extension.vsKubernetesK3DReplace",
-                    "group": "Kubernetes: k3d: replace",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
@@ -310,7 +300,7 @@
                 {
                     "command": "extension.vsKubernetesK3DDeleteAgent",
                     "group": "Kubernetes: k3d: nodes",
-                    "when": "viewItem =~ /k3d\\.cluster/"
+                    "when": "viewItem =~ /k3d\\.nodeAgent/"
                 },
                 {
                     "command": "extension.vsKubernetesK3DAddServer",
@@ -320,7 +310,7 @@
                 {
                     "command": "extension.vsKubernetesK3DDeleteServer",
                     "group": "Kubernetes: k3d: nodes",
-                    "when": "viewItem =~ /k3d\\.cluster/"
+                    "when": "viewItem =~ /k3d\\.nodeServer/"
                 }
             ]
         }

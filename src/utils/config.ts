@@ -24,8 +24,8 @@ export const VS_KUBE_K3D_UPDATE_CHANNEL_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.updateChannel`;
 
 // setting: context on recylce
-export const VS_KUBE_K3D_RECYCLE_CONTEXT_CFG_KEY =
-    `${VS_KUBE_K3D_CFG_KEY}.recycleContext`;
+export const VS_KUBE_K3D_REPLACE_CONTEXT_CFG_KEY =
+    `${VS_KUBE_K3D_CFG_KEY}.replaceContext`;
 
 // setting: merge of the new kubeconfig in the default kubeconfig
 export const VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY =
@@ -72,18 +72,18 @@ export function getK3DConfigUpdateKubeconfig(): UpdateKubeconfig | undefined {
     return undefined;
 }
 
-export enum RecycleContext {
+export enum ReplaceContext {
     NewCluster,
     OldestCluster
 }
 
-// getK3DRecycleContext returns the contgext to use after recycling clusters.
-export function getK3DRecycleContext(): RecycleContext | undefined {
+// getK3DReplaceContext returns the contgext to use after recycling clusters.
+export function getK3DReplaceContext(): ReplaceContext | undefined {
     const config = vscode.workspace.getConfiguration();
-    const value = config.get<string>(VS_KUBE_K3D_RECYCLE_CONTEXT_CFG_KEY, "new");
+    const value = config.get<string>(VS_KUBE_K3D_REPLACE_CONTEXT_CFG_KEY, "new");
     switch (value) {
-        case "new": return RecycleContext.NewCluster;
-        case "oldest": return RecycleContext.OldestCluster;
+        case "new": return ReplaceContext.NewCluster;
+        case "oldest": return ReplaceContext.OldestCluster;
     }
     return undefined;
 }

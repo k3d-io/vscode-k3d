@@ -14,25 +14,25 @@ import * as kubectl from '../utils/kubectl';
 // commands entrypoints
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-// entrypoint for the "k3d: recycle cluster" command
-export async function onRecycleCluster(target?: any): Promise<void> {
+// entrypoint for the "k3d: replace cluster" command
+export async function onReplaceCluster(target?: any): Promise<void> {
     const defaultSettings = settings.forNewCluster(settings.getDefaultClusterSettings());
     const providedSettings = await promptClusterSettings(defaultSettings);
     if (providedSettings.cancelled) {
         return;
     }
-    return recycleCluster(providedSettings.value, target);
+    return replaceCluster(providedSettings.value, target);
 }
 
-// entrypoint for the "k3d: recycle cluster (with last settings)" command
-export async function onRecycleClusterLast(target?: any): Promise<void> {
+// entrypoint for the "k3d: replace cluster (with last settings)" command
+export async function onReplaceClusterLast(target?: any): Promise<void> {
     const lastSettings = settings.forNewCluster(settings.getLastClusterSettings());
-    return recycleCluster(lastSettings, target);
+    return replaceCluster(lastSettings, target);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-export async function recycleCluster(createSettings: settings.ClusterCreateSettings, target?: any): Promise<void> {
+export async function replaceCluster(createSettings: settings.ClusterCreateSettings, target?: any): Promise<void> {
     let actions: Promise<void>[] = [];
 
     const promisedClusters = await k3d.getClusters(shell);
@@ -57,8 +57,8 @@ export async function recycleCluster(createSettings: settings.ClusterCreateSetti
 
     // calculate the new cluster that will be active after delete/create
     let switchContext = true;
-    const behaviour = config.getK3DRecycleContext();
-    if (behaviour && (behaviour === config.RecycleContext.OldestCluster) && clustersByCreation.length > 1) {
+    const behaviour = config.getK3DReplaceContext();
+    if (behaviour && (behaviour === config.ReplaceContext.OldestCluster) && clustersByCreation.length > 1) {
         // when using the `OldestCluster`, we must switch to the oldest cluster
         // that will be alive (after removing the deleted cluster).
         const remainingClusters = clustersByCreation.filter((cluster: model.K3dClusterInfo) => cluster.name !== deleteName);

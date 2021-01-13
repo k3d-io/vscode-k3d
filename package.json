@@ -29,8 +29,8 @@
         "onCommand:extension.vsKubernetesK3DCreate",
         "onCommand:extension.vsKubernetesK3DCreateLast",
         "onCommand:extension.vsKubernetesK3DDelete",
-        "onCommand:extension.vsKubernetesK3DRecycle",
-        "onCommand:extension.vsKubernetesK3DRecycleLast",
+        "onCommand:extension.vsKubernetesK3DReplace",
+        "onCommand:extension.vsKubernetesK3DReplaceLast",
         "onCommand:extension.vsKubernetesK3DAddAgent",
         "onCommand:extension.vsKubernetesK3DDeleteAgent"
     ],
@@ -189,18 +189,18 @@
                         "default": "",
                         "description": "Apply changes in this kubeconfig when merging configuration after creating new clusters."
                     },
-                    "k3d.recycleContext": {
+                    "k3d.replaceContext": {
                         "type": "string",
                         "enum": [
                             "new",
                             "oldest"
                         ],
                         "markdownEnumDescriptions": [
-                            "Wait until the new cluster is ready for switching to it when recycling",
+                            "Wait until the new cluster is ready for switching to it when replacing clusters",
                             "Switch to the oldest, existing cluster immediately"
                         ],
                         "default": "new",
-                        "description": "When recycling cluster, the new cluster will be automatically activated by default ('new'). However, when some other clusters exist, we can switch to the oldest cluster immediately, not waiting for the new cluster ('oldest')."
+                        "description": "When replacing clusters, the new cluster will be automatically activated by default ('new'). However, when some other clusters exist, we can switch to the oldest, existing cluster immediately, not waiting for the new cluster ('oldest')."
                     }
                 }
             }
@@ -222,14 +222,14 @@
                 "title": "Delete Cluster"
             },
             {
-                "command": "extension.vsKubernetesK3DRecycle",
+                "command": "extension.vsKubernetesK3DReplace",
                 "category": "Kubernetes: k3d",
-                "title": "Recycle Cluster"
+                "title": "Replace Cluster"
             },
             {
-                "command": "extension.vsKubernetesK3DRecycleLast",
+                "command": "extension.vsKubernetesK3DReplaceLast",
                 "category": "Kubernetes: k3d",
-                "title": "Recycle Cluster (with last settings)"
+                "title": "Replace Cluster (with last settings)"
             },
             {
                 "command": "extension.vsKubernetesK3DAddAgent",
@@ -248,7 +248,7 @@
                 "key": "ctrl+k ctrl+c"
             },
             {
-                "command": "extension.vsKubernetesK3DRecycleLast",
+                "command": "extension.vsKubernetesK3DReplaceLast",
                 "key": "ctrl+k ctrl+r"
             }
         ],
@@ -270,23 +270,23 @@
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DRecycle",
-                    "group": "Kubernetes: k3d: recycle",
+                    "command": "extension.vsKubernetesK3DReplace",
+                    "group": "Kubernetes: k3d: replace",
                     "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DRecycleLast",
-                    "group": "Kubernetes: k3d: recycle",
+                    "command": "extension.vsKubernetesK3DReplaceLast",
+                    "group": "Kubernetes: k3d: replace",
                     "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DRecycle",
-                    "group": "Kubernetes: k3d: recycle",
+                    "command": "extension.vsKubernetesK3DReplace",
+                    "group": "Kubernetes: k3d: replace",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DRecycleLast",
-                    "group": "Kubernetes: k3d: recycle",
+                    "command": "extension.vsKubernetesK3DReplaceLast",
+                    "group": "Kubernetes: k3d: replace",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {

@@ -23,6 +23,10 @@ export const VS_KUBE_K3D_UPDATE_KUBECONFIG_CFG_KEY =
 export const VS_KUBE_K3D_UPDATE_CHANNEL_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.updateChannel`;
 
+// setting: drain nodes before deleting them
+export const VS_KUBE_K3D_DRAIN_CFG_KEY =
+    `${VS_KUBE_K3D_CFG_KEY}.drainBeforeDelete`;
+
 // setting: context on recylce
 export const VS_KUBE_K3D_REPLACE_CONTEXT_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.replaceContext`;
@@ -37,11 +41,11 @@ export const VS_KUBE_K3D_IMAGES_CFG_KEY =
 
 // setting: images proposals configuration
 export const VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY =
-`${VS_KUBE_K3D_IMAGES_CFG_KEY}.proposals`;
+    `${VS_KUBE_K3D_IMAGES_CFG_KEY}.proposals`;
 
 // setting: DOCKER_HOST
 export const VS_KUBE_K3D_DOCKERHOST_CFG_KEY =
-`${VS_KUBE_K3D_CFG_KEY}.dockerHost`;
+    `${VS_KUBE_K3D_CFG_KEY}.dockerHost`;
 
 // Use WSL on Windows
 
@@ -122,6 +126,13 @@ export function getK3DConfigUpdateChannel(): UpdateChannel | undefined {
         case "all": return UpdateChannel.All;
     }
     return undefined;
+}
+
+// getK3DConfigUpdateChannel returns if we should drain the node before deleting them
+export function getK3DConfigDrainBeforeDelete(): boolean {
+    const config = vscode.workspace.getConfiguration();
+    const value = config.get<boolean>(VS_KUBE_K3D_DRAIN_CFG_KEY, true);
+    return value ? value : true;
 }
 
 // getK3DgetK3DDockerHost returns DockerHost

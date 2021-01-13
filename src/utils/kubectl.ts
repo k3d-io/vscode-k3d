@@ -60,3 +60,22 @@ export async function setContext(contextName: string): Promise<void> {
 
     vscode.window.showInformationMessage(`Switched to "${contextName}".`);
 }
+
+export async function drain(node: string): Promise<string> {
+    const kubectl = await k8s.extension.kubectl.v1;
+    if (!kubectl.available) {
+        vscode.window.showErrorMessage(`Drain ${node} failed: kubectl is not available. See Output window for more details.`);
+        return "";
+    }
+
+    const drainResult = await kubectl.api.invokeCommand(`drain ${node}`);
+    if (drainResult?.code !== 0) {
+        const whatFailed = `Failed to drain "${node}": ${drainResult?.stderr}`;
+        logChannel.showOutput(whatFailed);
+        vscode.window.showErrorMessage(`Count not drain "${node}" failed. See Output window for more details.`);
+        return "";
+    }
+
+    vscode.window.showInformationMessage(`"${node}" has been drained.`);
+    return drainResult.stdout;
+}

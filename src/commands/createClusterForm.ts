@@ -355,7 +355,7 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
   const network: string = s[FIELD_EXISTING_NET];
   const serverArgs: string = s[FIELD_SERVER_ARGS];
   const createRegistry: boolean = s[FIELD_CREATE_REGISTRY] === "true" ? true : false;
-  const useRegistries: string = s[FIELD_EXISTING_REGISTRIES];
+  const useRegistries: string[] = s[FIELD_EXISTING_REGISTRIES] ? s[FIELD_EXISTING_REGISTRIES].split(",") : [];
 
   return {
     name: name,
@@ -366,7 +366,7 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
     lb: lb,
     serverArgs: serverArgs,
     createRegistry: createRegistry,
-    useRegistries: useRegistries.split(",")
+    useRegistries: useRegistries
   };
 }
 
@@ -388,6 +388,10 @@ function getImageRegistry(): string {
 // for a given image name.
 async function getProposedImages(): Promise<Errorable<string[]>> {
   const imageRepo = getImageRepo();
+  if (imageRepo === undefined || imageRepo.length === 0) {
+    return { succeeded: true, result: [] };
+  }
+
   const imageRegistry = getImageRegistry();
   if (imageRegistry.length === 0) {
     // return an empty result when no registry is provided

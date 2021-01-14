@@ -300,7 +300,7 @@
                 {
                     "command": "extension.vsKubernetesK3DDeleteAgent",
                     "group": "Kubernetes: k3d: nodes",
-                    "when": "viewItem =~ /k3d\\.nodeAgent/"
+                    "when": "viewItem =~ /k3d\\.nodeAgentRemovable/"
                 },
                 {
                     "command": "extension.vsKubernetesK3DAddServer",
@@ -310,7 +310,7 @@
                 {
                     "command": "extension.vsKubernetesK3DDeleteServer",
                     "group": "Kubernetes: k3d: nodes",
-                    "when": "viewItem =~ /k3d\\.nodeServer/"
+                    "when": "viewItem =~ /k3d\\.nodeServerRemovable/"
                 }
             ]
         }

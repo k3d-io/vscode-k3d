@@ -11,6 +11,7 @@ import * as registry from '../utils/registry';
 import * as docker from '../utils/docker';
 import { longRunning } from '../utils/host';
 import { shell } from '../utils/shell';
+import { logChannel } from "../utils/log";
 
 const DEFAULT_IMAGE_REGISTRY = "https://registry.hub.docker.com";
 const DEFAULT_IMAGE_REPO = "rancher/k3s";
@@ -381,11 +382,22 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
 // for a given image name.
 async function getProposedImages(): Promise<Errorable<string[]>> {
   const imageRepo: string = config.getK3DConfigImages("proposalsRepo", DEFAULT_IMAGE_REPO);
+  if (imageRepo.length === 0) {
+    logChannel.showOutput(`[images proposals] disabled by empty proposalsRepo`);
+    return { succeeded: true, result: [] };
+  }
+
   const imageRegistry = config.getK3DConfigImages("proposalsRegistry", DEFAULT_IMAGE_REGISTRY);
+  if (imageRegistry.length === 0) {
+    logChannel.showOutput(`[images proposals] disabled by empty proposalsRegistry`);
+    return { succeeded: true, result: [] };
+  }
 
   const components = imageRepo.split('/').slice(0, 2);
   if (components.length < 2) {
-    return { succeeded: false, error: [`imageRepo ${imageRepo} does not contain namespace/repo`] };
+    const errorMsg = `proposalsRepo "${imageRepo}" does not contain namespace/repo`;
+    logChannel.showOutput(`[images proposals] error: ${errorMsg}`);
+    return { succeeded: false, error: [errorMsg] };
   }
 
   const imageNamespace = components[0];
@@ -403,12 +415,19 @@ async function getProposedImages(): Promise<Errorable<string[]>> {
     imageArchFilter = "x86_64";
   }
 
-  const tags = await longRunning(`Obtaining image proposals for "${imageRepo}" (from ${imageRegistry})...`,
-    () => registry.registryTagsForImage(imageRegistry, imageNamespace, imageName, imageTagFilterRegex, imageArchFilter));
-  if (failed(tags)) {
-    return { succeeded: false, error: tags.error };
-  } else {
-    const tagsResult = tags.result;
-    return { succeeded: true, result: tagsResult.map((tag) => `${imageRepo}:${tag.name}`) };
+  try {
+    const tags = await longRunning(`Obtaining image proposals for "${imageRepo}" (from ${imageRegistry})...`,
+      () => registry.registryTagsForImage(imageRegistry, imageNamespace, imageName, imageTagFilterRegex, imageArchFilter));
+    if (failed(tags)) {
+      logChannel.showOutput(`[images proposals] error: ${tags.error}`);
+      return { succeeded: false, error: tags.error };
+    } else {
+      logChannel.showOutput(`[images proposals]  ${tags.result.length} images obtained`);
+      const tagsResult = tags.result;
+      return { succeeded: true, result: tagsResult.map((tag) => `${imageRepo}:${tag.name}`) };
+    }
+  } catch (error) {
+    logChannel.showOutput(`[images proposals] error: ${error}`);
+    return { succeeded: false, error: error };
   }
 }

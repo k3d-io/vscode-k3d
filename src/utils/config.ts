@@ -129,7 +129,7 @@ export function getK3DConfigDrainBeforeDelete(): boolean {
 }
 
 // getK3DgetK3DDockerHost returns DockerHost
-export function getK3DDockerHost(): string {
+export function getK3DDockerHost(): string | undefined {
     const config = vscode.workspace.getConfiguration();
 
     const k3dDockerHost = config.get<string>(VS_KUBE_K3D_DOCKERHOST_CFG_KEY);
@@ -152,7 +152,7 @@ export function getK3DDockerHost(): string {
         // }
     }
 
-    return "https://127.0.0.1:2375";
+    return undefined;
 }
 
 // Functions for working with tool paths

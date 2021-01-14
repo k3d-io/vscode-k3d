@@ -394,10 +394,9 @@ async function getProposedImages(): Promise<Errorable<string[]>> {
   const imageTagFilterConfig = config.getK3DConfigImages("proposalsTagRegex", "");
   const imageTagFilterRegex = imageTagFilterConfig ? new RegExp(imageTagFilterConfig, 'g') : undefined;
 
-  const dockerInfo = await docker.getDockerInfo(config.getK3DDockerHost());
-
   let imageArchFilter = "";
   try {
+    const dockerInfo = await docker.getDockerInfo(config.getK3DDockerHost());
     imageArchFilter = dockerInfo.architecture;
   } catch (error) {
     // TODO: could not obtain architecture info from docker info... show some message?

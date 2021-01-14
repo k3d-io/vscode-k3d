@@ -198,9 +198,12 @@ export async function getCreateClusterForm(defaults: ClusterCreateSettings): Pro
       res += imagesNames.map((s) => `<option value="${s}">${s}</option>`).join("\n");
       res += `</datalist>`;
 
+      const imageRepo = config.getK3DConfigImages("proposalsRepo", DEFAULT_IMAGE_REPO);
+      const imageRegistry = config.getK3DConfigImages("proposalsRegistry", DEFAULT_IMAGE_REGISTRY);
+
       datalistParam = `list="images"`;
       datalistExplain = `
-      <li> ... or accept one of proposals in the dropdown menu (obtained for "${getImageRepo()}" from ${getImageRegistry()}).</li>`;
+      <li> ... or accept one of proposals in the dropdown menu (obtained for "${imageRepo}" from ${imageRegistry}).</li>`;
     }
   }
 
@@ -374,29 +377,11 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
 // images proposals
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function getImageRepo(): string {
-  const imageRepoConfig = config.getK3DConfigImagesProposals("repo");
-  return imageRepoConfig ? imageRepoConfig : DEFAULT_IMAGE_REPO;
-}
-
-function getImageRegistry(): string {
-  const imageRegistryConfig = config.getK3DConfigImagesProposals("registry");
-  return imageRegistryConfig ? imageRegistryConfig : DEFAULT_IMAGE_REGISTRY;
-}
-
 // getProposedImages obtains a list of proposed images by querying the registry about tags
 // for a given image name.
 async function getProposedImages(): Promise<Errorable<string[]>> {
-  const imageRepo = getImageRepo();
-  if (imageRepo === undefined || imageRepo.length === 0) {
-    return { succeeded: true, result: [] };
-  }
-
-  const imageRegistry = getImageRegistry();
-  if (imageRegistry.length === 0) {
-    // return an empty result when no registry is provided
-    return { succeeded: true, result: [] };
-  }
+  const imageRepo: string = config.getK3DConfigImages("proposalsRepo", DEFAULT_IMAGE_REPO);
+  const imageRegistry = config.getK3DConfigImages("proposalsRegistry", DEFAULT_IMAGE_REGISTRY);
 
   const components = imageRepo.split('/').slice(0, 2);
   if (components.length < 2) {
@@ -406,7 +391,7 @@ async function getProposedImages(): Promise<Errorable<string[]>> {
   const imageNamespace = components[0];
   const imageName = components[1];
 
-  const imageTagFilterConfig = config.getK3DConfigImagesProposals("tagRegex");
+  const imageTagFilterConfig = config.getK3DConfigImages("proposalsTagRegex", "");
   const imageTagFilterRegex = imageTagFilterConfig ? new RegExp(imageTagFilterConfig, 'g') : undefined;
 
   const dockerInfo = await docker.getDockerInfo(config.getK3DDockerHost());

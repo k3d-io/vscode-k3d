@@ -39,10 +39,6 @@ export const VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY =
 export const VS_KUBE_K3D_IMAGES_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.images`;
 
-// setting: images proposals configuration
-export const VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY =
-    `${VS_KUBE_K3D_IMAGES_CFG_KEY}.proposals`;
-
 // setting: DOCKER_HOST
 export const VS_KUBE_K3D_DOCKERHOST_CFG_KEY =
     `${VS_KUBE_K3D_CFG_KEY}.dockerHost`;
@@ -100,16 +96,13 @@ export function getK3DConfigCreateDefaults<T>(key: string): T | undefined {
     return config.get<T>(`${VS_KUBE_K3D_CREATE_DEFAULS_CFG_KEY}.${key}`);
 }
 
-// getK3DConfigImages returns the image configuration.
-export function getK3DConfigImages(key: string): string | undefined {
-    const config = vscode.workspace.getConfiguration(VS_KUBE_K3D_IMAGES_CFG_KEY);
-    return config.get<string>(`${VS_KUBE_K3D_IMAGES_CFG_KEY}.${key}`);
-}
-
 // getK3DConfigImagesProposals returns the image proposals configuration.
-export function getK3DConfigImagesProposals(key: string): string | undefined {
-    const config = vscode.workspace.getConfiguration(VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY);
-    return config.get<string>(`${VS_KUBE_K3D_IMAGES_PROPOSALS_CFG_KEY}.${key}`);
+export function getK3DConfigImages(key: string, fallback: string): string {
+    const baseKey = `${VS_KUBE_K3D_IMAGES_CFG_KEY}.${key}`;
+    const configKey = enclosingKey(baseKey);
+    const config = vscode.workspace.getConfiguration(configKey)[baseKey];
+    return config ? config : fallback;
+    //    return config.get<string>(`${VS_KUBE_K3D_IMAGES_CFG_KEY}.${key}`, fallback);
 }
 
 export enum UpdateChannel {

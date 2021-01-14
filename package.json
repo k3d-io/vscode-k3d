@@ -120,36 +120,30 @@
                         "type": "object",
                         "description": "Settings for images used for creating new K3D cluster nodes",
                         "properties": {
-                            "k3d.images.proposals": {
-                                "type": "object",
-                                "description": "Proposed images, after querying the registry",
-                                "properties": {
-                                    "k3d.images.proposals.registry": {
-                                        "type": "string",
-                                        "default": "https://registry.hub.docker.com",
-                                        "format": "uri",
-                                        "examples": [
-                                            "https://registry.hub.docker.com"
-                                        ],
-                                        "description": "Registry used for looking for images for the cluster (defaults to the Docker Hub)."
-                                    },
-                                    "k3d.images.proposals.repo": {
-                                        "type": "string",
-                                        "default": "rancher/k3s",
-                                        "examples": [
-                                            "rancher/k3s"
-                                        ],
-                                        "markdownDescription": "Image repository used for proposing different images, including the namespace (ie, `rancher/k3s`)."
-                                    },
-                                    "k3d.images.proposals.tagRegex": {
-                                        "type": "string",
-                                        "default": "",
-                                        "examples": [
-                                            ".*1\\.19.*"
-                                        ],
-                                        "markdownDescription": "Filter images by a _regex_ (ie, `.*v1\\.19.*` for filtering all the images with _1.19_)."
-                                    }
-                                }
+                            "k3d.images.proposalsRegistry": {
+                                "type": "string",
+                                "default": "https://registry.hub.docker.com",
+                                "format": "uri",
+                                "examples": [
+                                    "https://registry.hub.docker.com"
+                                ],
+                                "description": "Registry used for looking for images for the cluster (defaults to the Docker Hub)."
+                            },
+                            "k3d.images.proposalsRepo": {
+                                "type": "string",
+                                "default": "rancher/k3s",
+                                "examples": [
+                                    "rancher/k3s"
+                                ],
+                                "markdownDescription": "Image repository used for proposing different images, including the namespace (ie, `rancher/k3s`)."
+                            },
+                            "k3d.images.proposalsTagRegex": {
+                                "type": "string",
+                                "default": "",
+                                "examples": [
+                                    ".*1\\.19.*"
+                                ],
+                                "markdownDescription": "Filter images by a _regex_ (ie, `.*v1\\.19.*` for filtering all the images with _1.19_)."
                             }
                         }
                     },
@@ -168,7 +162,7 @@
                             "Only consider **stable** releases",
                             "Consider any k3d release (including `alpha` and `beta` releases)"
                         ],
-                        "default": "stable",
+                        "default": "all",
                         "description": "Versions of k3d that will be considered when downloading the binary from the list of GitHub releases."
                     },
                     "k3d.updateKubeconfig": {

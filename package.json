@@ -278,12 +278,12 @@
                 },
                 {
                     "command": "extension.vsKubernetesK3DReplace",
-                    "group": "Kubernetes: k3d: replace",
+                    "group": "Kubernetes: k3d: create",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
                     "command": "extension.vsKubernetesK3DReplaceLast",
-                    "group": "Kubernetes: k3d: replace",
+                    "group": "Kubernetes: k3d: create",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {

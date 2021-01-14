@@ -45,7 +45,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand("extension.vsKubernetesK3DAddAgent", onAddAgent),
         vscode.commands.registerCommand("extension.vsKubernetesK3DDeleteAgent", onDeleteAgent),
 
-        // Add/remove agents
+        // Add/remove servers
         vscode.commands.registerCommand("extension.vsKubernetesK3DAddServer", onAddServer),
         vscode.commands.registerCommand("extension.vsKubernetesK3DDeleteServer", onDeleteServer),
 

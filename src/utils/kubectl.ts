@@ -46,7 +46,7 @@ export async function deleteClusterFromKubeconfig(context: KubectlContext): Prom
 export async function setContext(contextName: string): Promise<void> {
     const kubectl = await k8s.extension.kubectl.v1;
     if (!kubectl.available) {
-        vscode.window.showErrorMessage(`Delete ${contextName} failed: kubectl is not available. See Output window for more details.`);
+        vscode.window.showErrorMessage(`Set context ${contextName} failed: kubectl is not available. See Output window for more details.`);
         return;
     }
 
@@ -59,6 +59,24 @@ export async function setContext(contextName: string): Promise<void> {
     }
 
     vscode.window.showInformationMessage(`Switched to "${contextName}".`);
+}
+
+export async function getContext(): Promise<string> {
+    const kubectl = await k8s.extension.kubectl.v1;
+    if (!kubectl.available) {
+        vscode.window.showErrorMessage(`Get context failed: kubectl is not available. See Output window for more details.`);
+        return "";
+    }
+
+    const setContextResult = await kubectl.api.invokeCommand(`config current-context`);
+    if (setContextResult?.code !== 0) {
+        const whatFailed = `Failed to get context: ${setContextResult?.stderr}`;
+        logChannel.showOutput(whatFailed);
+        vscode.window.showErrorMessage(`Could not get context. See Output window for more details.`);
+        return "";
+    }
+    const context = setContextResult.stdout.trim();
+    return context;
 }
 
 export async function drain(node: string): Promise<string> {
@@ -78,4 +96,27 @@ export async function drain(node: string): Promise<string> {
 
     vscode.window.showInformationMessage(`"${node}" has been drained.`);
     return drainResult.stdout;
+}
+
+// getKubeconfigPath gets the current KUBECONFIG
+export async function getKubeconfigPath(): Promise<string> {
+    const config = await k8s.extension.configuration.v1;
+    if (!config.available) {
+        vscode.window.showErrorMessage(`Kuebernetes config is not available. See Output window for more details.`);
+        return "";
+    }
+
+    const kubeconfig = config.api.getKubeconfigPath();
+    switch (kubeconfig.pathType) {
+        case "wsl": return kubeconfig.wslPath;
+        case "host": return kubeconfig.hostPath;
+    }
+}
+
+export function getClusterForContext(context: string): string {
+    return context.substr("k3d-".length);
+}
+
+export function getContextForCluster(cluster: string): string {
+    return `k3d-${cluster}`;
 }

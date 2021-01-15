@@ -2,8 +2,8 @@
 
 import * as vscode from 'vscode';
 
-
-import { Platform, platform } from "../utils/shell";
+import * as kubectl from './kubectl';
+import { Platform, platform } from "./shell";
 
 // the K3D config key
 export const VS_KUBE_K3D_CFG_KEY = "k3d";
@@ -49,6 +49,24 @@ const USE_WSL_KEY = "use-wsl";
 
 export function getK3DConfigForcedKubeconfig(): string | undefined {
     return vscode.workspace.getConfiguration()[VS_KUBE_K3D_FORCE_KUBECONFIG_CFG_KEY];
+}
+
+export async function getK3DKubeconfigPath(kubeconfig?: string): Promise<string> {
+    if (kubeconfig) {
+        return kubeconfig;
+    }
+
+    const forcedKubeconfig = getK3DConfigForcedKubeconfig();
+    if (forcedKubeconfig) {
+        return forcedKubeconfig;
+    }
+
+    const systemKubeconfig = await kubectl.getKubeconfigPath();
+    if (systemKubeconfig.length > 0) {
+        return kubectl.getKubeconfigPath();
+    }
+
+    return "";
 }
 
 export enum UpdateKubeconfig {

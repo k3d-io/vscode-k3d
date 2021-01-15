@@ -11,6 +11,7 @@ import * as settings from '../commands/createClusterSettings';
 
 import * as k3d from '../k3d/k3d';
 
+import * as config from '../utils/config';
 import { Errorable } from '../utils/errorable';
 import { shell, ProcessTrackingEvent } from '../utils/shell';
 import { cantHappen } from '../utils/never';
@@ -27,20 +28,20 @@ export const K3D_CLUSTER_PROVIDER: k8s.ClusterProviderV1.ClusterProvider = {
 
 const PAGE_SETTINGS = 'settings';
 
-function onNext(wizard: k8s.ClusterProviderV1.Wizard, _action: k8s.ClusterProviderV1.ClusterProviderAction, message: any): void {
+async function onNext(wizard: k8s.ClusterProviderV1.Wizard, _action: k8s.ClusterProviderV1.ClusterProviderAction, message: any): Promise<void> {
     wizard.showPage("<h1>Please wait...</h1>");
     const sendingStep: string = message[k8s.ClusterProviderV1.SENDING_STEP_KEY];
     const defaultSettings = settings.forNewCluster(settings.getDefaultClusterSettings());
-    const htmlPromise = getPage(defaultSettings, sendingStep, message);
+    const htmlPromise = await getPage(defaultSettings, sendingStep, message);
     wizard.showPage(htmlPromise);
 }
 
-function getPage(defaults: settings.ClusterCreateSettings, sendingStep: string, previousData: any): k8s.ClusterProviderV1.Sequence<string> {
+async function getPage(defaults: settings.ClusterCreateSettings, sendingStep: string, previousData: any): Promise<k8s.ClusterProviderV1.Sequence<string>> {
     switch (sendingStep) {
         case k8s.ClusterProviderV1.SELECT_CLUSTER_TYPE_STEP_ID:
             return getPageSettings(defaults, previousData);
         case PAGE_SETTINGS:
-            return getPageCreatingCluster(previousData);
+            return await getPageCreatingCluster(previousData);
         default:
             return "Internal error";
     }
@@ -60,9 +61,9 @@ async function getPageSettings(defaults: settings.ClusterCreateSettings, previou
 }
 
 // getPageCreatingCluster shows the web page that show how the cluster is being created
-function getPageCreatingCluster(previousData: any): k8s.ClusterProviderV1.Observable<string> {
+async function getPageCreatingCluster(previousData: any): Promise<k8s.ClusterProviderV1.Observable<string>> {
     return {
-        subscribe(observer: k8s.ClusterProviderV1.Observer<string>): void {
+        async subscribe(observer: k8s.ClusterProviderV1.Observer<string>): Promise<void> {
             observer.onNext("<h1>Creating k3d Cluster</h1>");
 
             let stdout = '';
@@ -121,8 +122,10 @@ function getPageCreatingCluster(previousData: any): k8s.ClusterProviderV1.Observ
 
             const createSettings = form.createClusterSettingsFromForm(previousData);
 
+            const kubeconfig = await config.getK3DKubeconfigPath();
+
             const progressSteps: Observable<ProgressStep<Errorable<null>>> = k3d.createCluster(shell,
-                createSettings, undefined).pipe(
+                createSettings, kubeconfig).pipe(
                     map((e) => createClusterProgressOf(e))
                 );
 

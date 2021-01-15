@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 
 import { Observable, throwError } from 'rxjs';
 
@@ -5,13 +6,12 @@ import { K3dClusterInfo, K3dRegistryInfo } from "./k3d.objectmodel";
 import { ClusterCreateSettings, createClusterArgsFromSettings } from '../commands/createClusterSettings';
 import { getOrInstallK3D, EnsureMode } from '../installer/installer';
 
-import * as config from '../utils/config';
-import { getKubeconfigPath } from '../utils/kubeconfig';
 import { Errorable, failed } from '../utils/errorable';
 import * as shell from '../utils/shell';
 import { logChannel } from '../utils/log';
 import '../utils/array';
 import { minDate } from '../utils/time';
+import * as kubectl from '../utils/kubectl';
 
 
 // invokeK3DCommandObj runs the k3d command with some
@@ -65,23 +65,18 @@ function invokeK3DCommandTracking(
 
 export function createCluster(sh: shell.Shell,
     settings: ClusterCreateSettings,
-    kubeconfig: string | undefined,
+    kubeconfig: string,
     switchContext: boolean = true): Observable<shell.ProcessTrackingEvent> {
 
     let opts = shell.defExecOpts();
 
-    // check if we should set the KUBECONFIG env variable
-    const updateKubeconfig = config.getK3DConfigUpdateKubeconfig();
-    if (updateKubeconfig &&
-        (updateKubeconfig === config.UpdateKubeconfig.Always || updateKubeconfig === config.UpdateKubeconfig.OnCreate)) {
-        if (kubeconfig === undefined) {
-            const forcedKubeconfig = config.getK3DConfigForcedKubeconfig();
-            if (forcedKubeconfig) {
-                kubeconfig = forcedKubeconfig;
-            } else {
-                kubeconfig = getKubeconfigPath();
-            }
+    if (kubeconfig.length > 0) {
+        if (kubeconfig.includes(":")) {
+            const warningMsg = `KUBECONFIG includes multiple files: k3d will not be able to update it.`;
+            logChannel.appendLine(`[WARNING] ${warningMsg}`);
+            vscode.window.showInformationMessage(`WARNING: ${warningMsg}.`);
         }
+
         opts.env["KUBECONFIG"] = kubeconfig;
     }
 
@@ -227,6 +222,15 @@ export async function deleteNodeFrom(sh: shell.Shell, clusterName: string, nodeN
 
 export async function version(sh: shell.Shell): Promise<Errorable<string>> {
     return invokeK3DCommandObj(sh, `version`, '', {}, (s) => s.trim());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// current cluster
+///////////////////////////////////////////////////////////////////////////////
+
+export async function getCurrentCluster(): Promise<Errorable<string>> {
+    const context = await kubectl.getContext();
+    return { succeeded: true, result: kubectl.getClusterForContext(context) };
 }
 
 ///////////////////////////////////////////////////////////////////////////////

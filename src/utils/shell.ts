@@ -29,7 +29,7 @@ export function defExecOpts(): any {
 export interface Shell {
     exec(cmd: string, stdin?: string): Promise<Errorable<ShellResult>>;
     execObj<T>(cmd: string, cmdDesc: string, opts: ExecOpts, fn: (stdout: string) => T): Promise<Errorable<T>>;
-    execTracking(cmd: string, args: string[]): rx.Observable<ProcessTrackingEvent>;
+    execTracking(cmd: string, args: string[], opts: ExecOpts): rx.Observable<ProcessTrackingEvent>;
 }
 
 export const shell: Shell = {
@@ -84,11 +84,15 @@ function execCore(cmd: string, opts: any, stdin?: string): Promise<ShellResult> 
     });
 }
 
-function execTracking(command: string, args: string[]): rx.Observable<ProcessTrackingEvent> {
+function execTracking(command: string, args: string[], opts: ExecOpts): rx.Observable<ProcessTrackingEvent> {
     const eventSubject = new rx.Subject<ProcessTrackingEvent>();
     let pendingOut = '';
     let stderr = '';
-    const spawnEvents = spawnrx.spawn<{ source: 'stdout' | 'stderr', text: string }>(command, args, { split: true });
+
+    const spawnEvents = spawnrx.spawn<{ source: 'stdout' | 'stderr', text: string }>
+        (command, args,
+            { split: true, env: opts.env, cwd: opts.cwd });
+
     spawnEvents.subscribe(
         (chunk) => {
             const isStdOut = chunk.source === 'stdout';

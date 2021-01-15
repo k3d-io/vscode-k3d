@@ -6,6 +6,7 @@ import { K3dClusterInfo, K3dRegistryInfo } from "./k3d.objectmodel";
 import { ClusterCreateSettings, createClusterArgsFromSettings } from '../commands/createClusterSettings';
 import { getOrInstallK3D, EnsureMode } from '../installer/installer';
 
+import * as config from '../utils/config';
 import { Errorable, failed } from '../utils/errorable';
 import * as shell from '../utils/shell';
 import { logChannel } from '../utils/log';
@@ -20,7 +21,6 @@ async function invokeK3DCommandObj<T>(
     sh: shell.Shell,
     command: string,
     args: string,
-    opts: shell.ExecOpts,
     fn: (stdout: string) => T): Promise<Errorable<T>> {
 
     const k3dExe = getOrInstallK3D(EnsureMode.Alert);
@@ -28,6 +28,19 @@ async function invokeK3DCommandObj<T>(
         return k3dExe;
     }
     const exe = k3dExe.result;
+
+    let opts = shell.defExecOpts();
+
+    const kubeconfig = await config.getK3DKubeconfigPath();
+    if (kubeconfig.length > 0) {
+        if (kubeconfig.includes(":")) {
+            const warningMsg = `KUBECONFIG includes multiple files: k3d will not be able to update it.`;
+            logChannel.appendLine(`[WARNING] ${warningMsg}`);
+            vscode.window.showInformationMessage(`WARNING: ${warningMsg}.`);
+        }
+
+        opts.env["KUBECONFIG"] = kubeconfig;
+    }
 
     const cmd = `${exe} ${command} ${args}`;
     logChannel.appendLine(`$ ${cmd}`);
@@ -46,7 +59,7 @@ function invokeK3DCommandTracking(
     sh: shell.Shell,
     command: string,
     args: string[],
-    opts: shell.ExecOpts): Observable<shell.ProcessTrackingEvent> {
+    kubeconfig?: string): Observable<shell.ProcessTrackingEvent> {
 
     const k3dExe = getOrInstallK3D(EnsureMode.Alert);
     if (failed(k3dExe)) {
@@ -54,9 +67,21 @@ function invokeK3DCommandTracking(
     }
     const exe = k3dExe.result;
 
+    let opts = shell.defExecOpts();
+
+    if (kubeconfig) {
+        if (kubeconfig.includes(":")) {
+            const warningMsg = `KUBECONFIG includes multiple files: k3d will not be able to update it.`;
+            logChannel.appendLine(`[WARNING] ${warningMsg}`);
+            vscode.window.showInformationMessage(`WARNING: ${warningMsg}.`);
+        }
+
+        opts.env["KUBECONFIG"] = kubeconfig;
+    }
+
     const cmd = [...(command.split(' ')), ...args];
     logChannel.appendLine(`$ ${exe} ${cmd.join(' ')}`);
-    return sh.execTracking(exe, cmd);
+    return sh.execTracking(exe, cmd, opts);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,24 +93,9 @@ export function createCluster(sh: shell.Shell,
     kubeconfig: string,
     switchContext: boolean = true): Observable<shell.ProcessTrackingEvent> {
 
-    let opts = shell.defExecOpts();
-
-    if (kubeconfig.length > 0) {
-        if (kubeconfig.includes(":")) {
-            const warningMsg = `KUBECONFIG includes multiple files: k3d will not be able to update it.`;
-            logChannel.appendLine(`[WARNING] ${warningMsg}`);
-            vscode.window.showInformationMessage(`WARNING: ${warningMsg}.`);
-        }
-
-        opts.env["KUBECONFIG"] = kubeconfig;
-    }
-
     const args: string[] = createClusterArgsFromSettings(settings, switchContext);
     if (settings.name) {
-        return invokeK3DCommandTracking(sh,
-            `cluster create ${settings.name}`,
-            args,
-            opts);
+        return invokeK3DCommandTracking(sh, `cluster create ${settings.name}`, args, kubeconfig);
     } else {
         logChannel.appendLine(`[ERROR] no cluster name provided in 'createCluster'`);
         return throwError(new Error(`[ERROR] no cluster name provided in 'createCluster'`));
@@ -97,7 +107,7 @@ export function createCluster(sh: shell.Shell,
 ///////////////////////////////////////////////////////////////////////////////
 
 export function deleteCluster(sh: shell.Shell, clusterName: string): Promise<Errorable<null>> {
-    return invokeK3DCommandObj(sh, 'cluster delete', `${clusterName}`, {}, (_) => null);
+    return invokeK3DCommandObj(sh, 'cluster delete', `${clusterName}`, (_) => null);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,7 +141,7 @@ export async function getClusters(sh: shell.Shell): Promise<Errorable<K3dCluster
             .orderBy((cluster: K3dClusterInfo) => cluster.name);
     }
 
-    return invokeK3DCommandObj(sh, 'cluster list -o json', '', {}, parse);
+    return invokeK3DCommandObj(sh, 'cluster list -o json', '', parse);
 }
 
 // getClusterInfo gets some info for a cluster
@@ -189,7 +199,7 @@ export async function getRegistries(sh: shell.Shell): Promise<Errorable<K3dRegis
             .orderBy((registry: K3dRegistryInfo) => registry.name);
     }
 
-    return invokeK3DCommandObj(sh, 'registry list -o json', '', {}, parse);
+    return invokeK3DCommandObj(sh, 'registry list -o json', '', parse);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -197,7 +207,7 @@ export async function getRegistries(sh: shell.Shell): Promise<Errorable<K3dRegis
 ///////////////////////////////////////////////////////////////////////////////
 
 export async function getKubeconfig(sh: shell.Shell, clusterName: string): Promise<Errorable<string>> {
-    return invokeK3DCommandObj(sh, `kubeconfig get`, `${clusterName}`, {}, (s) => s);
+    return invokeK3DCommandObj(sh, `kubeconfig get`, `${clusterName}`, (s) => s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -205,7 +215,7 @@ export async function getKubeconfig(sh: shell.Shell, clusterName: string): Promi
 ///////////////////////////////////////////////////////////////////////////////
 
 export async function addNodeTo(sh: shell.Shell, clusterName: string, nodeName: string, role: string): Promise<Errorable<string>> {
-    return invokeK3DCommandObj(sh, `node create ${nodeName} --cluster ${clusterName} --role ${role}`, ``, {}, (s) => s);
+    return invokeK3DCommandObj(sh, `node create ${nodeName} --cluster ${clusterName} --role ${role}`, ``, (s) => s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -213,7 +223,7 @@ export async function addNodeTo(sh: shell.Shell, clusterName: string, nodeName: 
 ///////////////////////////////////////////////////////////////////////////////
 
 export async function deleteNodeFrom(sh: shell.Shell, clusterName: string, nodeName: string): Promise<Errorable<string>> {
-    return invokeK3DCommandObj(sh, `node delete ${nodeName}`, ``, {}, (s) => s);
+    return invokeK3DCommandObj(sh, `node delete ${nodeName}`, ``, (s) => s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -221,7 +231,7 @@ export async function deleteNodeFrom(sh: shell.Shell, clusterName: string, nodeN
 ///////////////////////////////////////////////////////////////////////////////
 
 export async function version(sh: shell.Shell): Promise<Errorable<string>> {
-    return invokeK3DCommandObj(sh, `version`, '', {}, (s) => s.trim());
+    return invokeK3DCommandObj(sh, `version`, '', (s) => s.trim());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -43,9 +43,13 @@ export async function replaceCluster(createSettings: settings.ClusterCreateSetti
 
     // check if the user selected a cluster in the UI
     let deleteName = "";
+    const currentCluster = await k3d.getCurrentCluster();
     const selectedCluster = await tryResolveClusterNode(target);
     if (selectedCluster !== undefined) {
         deleteName = selectedCluster.clusterName;
+    } else if (currentCluster.succeeded) {
+        // replace the current cluster if no cluster was being selected in the UI
+        deleteName = currentCluster.result;
     } else if (clustersByCreation.length > 0) {
         // check if we can remove an old cluster: in that case, add an action for removing it
         deleteName = clustersByCreation[0].name;
@@ -63,7 +67,7 @@ export async function replaceCluster(createSettings: settings.ClusterCreateSetti
         // that will be alive (after removing the deleted cluster).
         const remainingClusters = clustersByCreation.filter((cluster: model.K3dClusterInfo) => cluster.name !== deleteName);
         if (remainingClusters.length > 0) {
-            const newContext = `k3d-${remainingClusters[0].name}`;
+            const newContext = kubectl.getContextForCluster(remainingClusters[0].name);
 
             actions.push(kubectl.setContext(newContext));
             switchContext = false;

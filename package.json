@@ -242,7 +242,6 @@
                 "category": "Kubernetes: k3d",
                 "title": "Delete a Server node"
             }
-
         ],
         "keybindings": [
             {
@@ -325,6 +324,7 @@
         "@types/request-promise-native": "^1.0.17",
         "@types/shelljs": "^0.8.3",
         "@types/tmp": "0.0.33",
+        "@types/url-join": "^4.0.0",
         "@types/vscode": "^1.44.0",
         "ts-loader": "^6.0.4",
         "tslint": "^5.8.0",
@@ -346,6 +346,7 @@
         "shelljs": "^0.8.3",
         "spawn-rx": "^3.0.0",
         "tmp": "^0.0.33",
+        "url-join": "^4.0.1",
         "vscode-azureextensionui": "^0.38.2",
         "vscode-kubernetes-tools-api": "^1.0.0"
     },

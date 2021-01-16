@@ -1,9 +1,10 @@
 import { workspace } from "vscode";
 import { Response } from "request";
 import * as request from 'request-promise-native';
-import { URL } from "url";
 
 import { Errorable } from '../utils/errorable';
+
+const urljoin = require('url-join');
 
 // maximum number of tags to return
 const MAX_TAGS_RESULTS = 12;
@@ -54,9 +55,13 @@ function ITagCompare(a: ITag, b: ITag): number {
 export async function registryTagsForImage(registry: string, namespace: string, repoName: string,
     regex?: RegExp, arch?: string, limit: number = MAX_TAGS_RESULTS): Promise<Errorable<ITag[]>> {
 
+    if (!registry.startsWith("http")) {
+        registry = `https://${registry}`;
+    }
+
     let res: ITag[] = [];
-    const urlInit = new URL(`${registry}/v2/repositories/${namespace}/${repoName}/tags`);
-    let url: string = urlInit.toString();
+
+    let url: string = urljoin(registry, "v2", "repositories", namespace, repoName, "tags").toString();
     while (true) {
         let response = await registryRequest<ITags>('GET', url.toString());
         // TODO: we should check the response errors

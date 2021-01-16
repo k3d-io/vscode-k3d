@@ -1,12 +1,9 @@
-import * as vscode from 'vscode';
-
 import { Observable, throwError } from 'rxjs';
 
 import { K3dClusterInfo, K3dRegistryInfo } from "./k3d.objectmodel";
 import { ClusterCreateSettings, createClusterArgsFromSettings } from '../commands/createClusterSettings';
 import { getOrInstallK3D, EnsureMode } from '../installer/installer';
 
-import * as config from '../utils/config';
 import { Errorable, failed } from '../utils/errorable';
 import * as shell from '../utils/shell';
 import { logChannel } from '../utils/log';
@@ -29,18 +26,10 @@ async function invokeK3DCommandObj<T>(
     }
     const exe = k3dExe.result;
 
+    const kubeconfig = await kubectl.getKubeconfigPath();
+
     let opts = shell.defExecOpts();
-
-    const kubeconfig = await config.getK3DKubeconfigPath();
-    if (kubeconfig.length > 0) {
-        if (kubeconfig.includes(":")) {
-            const warningMsg = `KUBECONFIG includes multiple files: k3d will not be able to update it.`;
-            logChannel.appendLine(`[WARNING] ${warningMsg}`);
-            vscode.window.showInformationMessage(`WARNING: ${warningMsg}.`);
-        }
-
-        opts.env["KUBECONFIG"] = kubeconfig;
-    }
+    opts.env["KUBECONFIG"] = kubeconfig;
 
     const cmd = `${exe} ${command} ${args}`;
     logChannel.appendLine(`$ ${cmd}`);
@@ -68,14 +57,7 @@ function invokeK3DCommandTracking(
     const exe = k3dExe.result;
 
     let opts = shell.defExecOpts();
-
     if (kubeconfig) {
-        if (kubeconfig.includes(":")) {
-            const warningMsg = `KUBECONFIG includes multiple files: k3d will not be able to update it.`;
-            logChannel.appendLine(`[WARNING] ${warningMsg}`);
-            vscode.window.showInformationMessage(`WARNING: ${warningMsg}.`);
-        }
-
         opts.env["KUBECONFIG"] = kubeconfig;
     }
 

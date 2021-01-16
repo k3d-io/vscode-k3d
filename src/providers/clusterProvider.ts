@@ -11,7 +11,7 @@ import * as settings from '../commands/createClusterSettings';
 
 import * as k3d from '../k3d/k3d';
 
-import * as config from '../utils/config';
+import * as kubectl from '../utils/kubectl';
 import { Errorable } from '../utils/errorable';
 import { shell, ProcessTrackingEvent } from '../utils/shell';
 import { cantHappen } from '../utils/never';
@@ -122,7 +122,7 @@ async function getPageCreatingCluster(previousData: any): Promise<k8s.ClusterPro
 
             const createSettings = form.createClusterSettingsFromForm(previousData);
 
-            const kubeconfig = await config.getK3DKubeconfigPath();
+            const kubeconfig = await kubectl.getKubeconfigPath();
 
             const progressSteps: Observable<ProgressStep<Errorable<null>>> = k3d.createCluster(shell,
                 createSettings, kubeconfig).pipe(

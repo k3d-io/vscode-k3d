@@ -180,11 +180,6 @@
                         "default": "always",
                         "description": "Update the kubeconfig after creating or deleting a cluster."
                     },
-                    "k3d.kubeconfig": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Apply changes in this kubeconfig when merging configuration after creating new clusters."
-                    },
                     "k3d.replaceContext": {
                         "type": "string",
                         "enum": [

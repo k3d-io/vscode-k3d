@@ -8,7 +8,7 @@ import * as form from './createClusterForm';
 
 import * as k3d from '../k3d/k3d';
 
-import * as config from '../utils/config';
+import * as kubectl from '../utils/kubectl';
 import { logChannel } from '../utils/log';
 import { shell, ProcessTrackingEvent } from '../utils/shell';
 import { succeeded, Errorable } from '../utils/errorable';
@@ -52,7 +52,7 @@ export async function createClusterInteractive(
     clusterSettings: settings.ClusterCreateSettings,
     switchContext: boolean = true): Promise<void> {
 
-    const kubeconfig = await config.getK3DKubeconfigPath();
+    const kubeconfig = await kubectl.getKubeconfigPath();
 
     // createClusterProgressOf is invoked for processing each line of output from `k3d cluster create`
     function createClusterProgressOf(e: ProcessTrackingEvent): ProgressStep<Errorable<null>> {

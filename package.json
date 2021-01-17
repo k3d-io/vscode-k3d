@@ -333,6 +333,7 @@
         "webpack-cli": "^3.3.6"
     },
     "dependencies": {
+        "@octokit/rest": "^18.0.9",
         "@types/mkdirp": "^0.5.2",
         "dedent": "^0.7.0",
         "docker-cli-js": "^2.8.0",

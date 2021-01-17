@@ -5,6 +5,7 @@ import * as download from './downloads';
 import * as fs from 'fs';
 import * as path from 'path';
 import mkdirp = require('mkdirp');
+import { Octokit } from "@octokit/rest";
 
 import { platformUrlString, getInstallFolder } from './installationlayout';
 
@@ -14,11 +15,7 @@ import { Errorable, failed } from '../utils/errorable';
 import * as config from '../utils/config';
 import { refreshKubernetesToolsViews } from '../utils/host';
 
-// URL for all the k3d releases
-const updateChannelAllUpdateURL = 'https://api.github.com/repos/rancher/k3d/releases';
-
-// URL for the latest, stable release of k3d
-const updateChannelStableUpdateURL = `${updateChannelAllUpdateURL}/latest`;
+const octokit = new Octokit();
 
 // the base URL for downloading the executable
 const updateExeURLBase = "https://github.com/rancher/k3d/releases/download";
@@ -81,10 +78,7 @@ export async function installK3D(): Promise<Errorable<string>> {
 
     const version = await getLatestK3DVersionAvailable();
     if (failed(version)) {
-        return {
-            succeeded: false,
-            error: version.error
-        };
+        return { succeeded: false, error: version.error };
     }
 
     // final URL where the executable is located
@@ -116,29 +110,30 @@ export async function installK3D(): Promise<Errorable<string>> {
     logChannel.appendLine(`[installer] k3d installed successfully`);
     refreshKubernetesToolsViews();
 
-    return {
-        succeeded: true,
-        result: downloadFile
-    };
+    return { succeeded: true, result: downloadFile };
 }
 
 // getLatestK3DVersionAvailable gets the latest version of K3D from GitHub
 async function getLatestK3DVersionAvailable(): Promise<Errorable<string>> {
     const updateChannel = config.getK3DConfigUpdateChannel();
-    const updateChannelURL = updateChannel === config.UpdateChannel.All ? updateChannelAllUpdateURL : updateChannelStableUpdateURL;
 
-    const downloadResult = await download.toTempFile(updateChannelURL);
-    if (failed(downloadResult)) {
-        return {
-            succeeded: false,
-            error: [`Failed to find k3d version from ${updateChannelURL}: ${downloadResult.error[0]}`]
-        };
+    let latestVersion: string;
+    switch (updateChannel) {
+        case config.UpdateChannel.Stable:
+            const release = await octokit.repos.getLatestRelease({ owner: "rancher", repo: "k3d" });
+            latestVersion = release.data.tag_name;
+            break;
+
+        case config.UpdateChannel.All:
+            const releases = await octokit.repos.listReleases({ owner: "rancher", repo: "k3d" });
+            latestVersion = releases.data[0].tag_name;
+            break;
+
+        default:
+            latestVersion = "";
+            break;
     }
 
-    const versionObj = JSON.parse(fs.readFileSync(downloadResult.result, 'utf-8'));
-    fs.unlinkSync(downloadResult.result);
-
-    const v = versionObj['tag_name'];
-    logChannel.appendLine(`[installer] found latest version ${v} from GitHub relases`);
-    return { succeeded: true, result: v };
+    logChannel.appendLine(`[installer] found latest version ${latestVersion} from GitHub relases`);
+    return { succeeded: true, result: latestVersion };
 }

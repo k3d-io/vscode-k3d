@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as k8s from 'vscode-kubernetes-tools-api';
 
 import { Observable } from '../../node_modules/rxjs';
 
@@ -90,4 +91,16 @@ export async function refreshRepoExplorer(): Promise<void> {
 
 export async function refreshCredentialExplorer(): Promise<void> {
     await vscode.commands.executeCommand("duffle.refreshCredentialExplorer");
+}
+
+export async function refreshKubernetesToolsViews(): Promise<void> {
+    const cloudExplorer = await k8s.extension.cloudExplorer.v1;
+    if (cloudExplorer.available) {
+        cloudExplorer.api.refresh();
+    }
+
+    const clusterExplorer = await k8s.extension.clusterExplorer.v1;
+    if (clusterExplorer.available) {
+        clusterExplorer.api.refresh();
+    }
 }

@@ -7,7 +7,7 @@ import { tryResolveClusterNode, promptCluster } from './utils';
 import { shell } from '../utils/shell';
 import { Errorable, succeeded } from '../utils/errorable';
 import { longRunning, confirm } from '../utils/host';
-import { refreshKubernetesToolsViews } from '../utils/vscode';
+import { refreshKubernetesToolsViews } from '../utils/host';
 
 export async function onDeleteCluster(target?: any): Promise<void> {
     if (target) {

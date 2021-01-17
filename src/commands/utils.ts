@@ -8,7 +8,7 @@ import * as k3d from '../k3d/k3d';
 import { longRunning } from '../utils/host';
 import { shell } from '../utils/shell';
 import { Errorable, succeeded, failed } from '../utils/errorable';
-import { refreshKubernetesToolsViews } from '../utils/vscode';
+import { refreshKubernetesToolsViews } from '../utils/host';
 
 export async function tryResolveClusterNode(target: any): Promise<K3dCloudProviderClusterNode | undefined> {
     const cloudExplorer = await k8s.extension.cloudExplorer.v1;

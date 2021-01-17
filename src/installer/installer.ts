@@ -12,7 +12,7 @@ import * as shell from '../utils/shell';
 import { logChannel } from '../utils/log';
 import { Errorable, failed } from '../utils/errorable';
 import * as config from '../utils/config';
-import { refreshKubernetesToolsViews } from '../utils/vscode';
+import { refreshKubernetesToolsViews } from '../utils/host';
 
 // URL for all the k3d releases
 const updateChannelAllUpdateURL = 'https://api.github.com/repos/rancher/k3d/releases';

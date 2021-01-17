@@ -15,7 +15,7 @@ import { succeeded, Errorable } from '../utils/errorable';
 import { longRunningWithMessages, ProgressStep, ProgressUpdate } from '../utils/host';
 import { Cancellable } from '../utils/cancellable';
 import * as webview from '../utils/webview';
-import { refreshKubernetesToolsViews } from '../utils/vscode';
+import { refreshKubernetesToolsViews } from '../utils/host';
 import { cantHappen } from '../utils/never';
 
 //////////////////////////////////////////////////////////////////////////////////////////////

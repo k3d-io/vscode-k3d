@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.8
+
+- Fix: the installer was not finding the right k3d binary when using
+  the "all" update channel.
+
 ## 0.0.7
 
 - Fix: problems on the KUBECONFIG: just use the same KUBECONFIG specified

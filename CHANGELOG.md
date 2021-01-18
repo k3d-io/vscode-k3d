@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.9
+
+- Feature: show status for registries
+- Improved docs
+
 ## 0.0.8
 
 - Fix: the installer was not finding the right k3d binary when using

@@ -25,4 +25,5 @@ export interface K3dRegistryInfo {
     readonly name: string;
     readonly network: string;
     readonly created: Date;
+    readonly status: string;
 }

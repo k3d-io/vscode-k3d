@@ -1,15 +1,15 @@
 import { Observable, throwError } from 'rxjs';
-
-import { K3dClusterInfo, K3dRegistryInfo } from "./k3d.objectmodel";
 import { ClusterCreateSettings, createClusterArgsFromSettings } from '../commands/createClusterSettings';
-import { getOrInstallK3D, EnsureMode } from '../installer/installer';
-
-import { Errorable, failed } from '../utils/errorable';
-import * as shell from '../utils/shell';
-import { logChannel } from '../utils/log';
+import { EnsureMode, getOrInstallK3D } from '../installer/installer';
 import '../utils/array';
-import { minDate } from '../utils/time';
+import { Errorable, failed } from '../utils/errorable';
 import * as kubectl from '../utils/kubectl';
+import { logChannel } from '../utils/log';
+import * as shell from '../utils/shell';
+import { minDate } from '../utils/time';
+import { K3dClusterInfo, K3dRegistryInfo } from "./k3d.objectmodel";
+
+
 
 
 // invokeK3DCommandObj runs the k3d command with some
@@ -176,7 +176,8 @@ export async function getRegistries(sh: shell.Shell): Promise<Errorable<K3dRegis
                 {
                     name: registry.name,
                     network: registry.Network,
-                    created: new Date(registry.created)
+                    created: new Date(registry.created),
+                    status: registry.State.Status
                 }))
             .orderBy((registry: K3dRegistryInfo) => registry.name);
     }

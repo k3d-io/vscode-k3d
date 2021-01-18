@@ -1,17 +1,16 @@
 import * as vscode from 'vscode';
-
+import { getClustersNetworks, getRegistries } from '../k3d/k3d';
+import * as config from '../utils/config';
+import * as docker from '../utils/docker';
+import { Errorable, failed } from '../utils/errorable';
+import { longRunning } from '../utils/host';
+import { logChannel } from "../utils/log";
+import * as registry from '../utils/registry';
+import { shell } from '../utils/shell';
 import { ClusterCreateSettings } from './createClusterSettings';
 
-import { getClustersNetworks, getRegistries } from '../k3d/k3d';
 
-import * as config from '../utils/config';
-import { Errorable } from '../utils/errorable';
-import { failed } from '../utils/errorable';
-import * as registry from '../utils/registry';
-import * as docker from '../utils/docker';
-import { longRunning } from '../utils/host';
-import { shell } from '../utils/shell';
-import { logChannel } from "../utils/log";
+
 
 const DEFAULT_IMAGE_REGISTRY = "https://registry.hub.docker.com";
 const DEFAULT_IMAGE_REPO = "rancher/k3s";
@@ -239,7 +238,7 @@ export async function getCreateClusterForm(defaults: ClusterCreateSettings): Pro
     const registries = registriesResult.result;
     if (registries.length > 0) {
       res += `<datalist id="registries">`;
-      res += registries.map((s) => `<option value="${s.name}">${s.name}</option>`).join("\n");
+      res += registries.map((s) => `<option value="${s.name}">${s.name} (${s.status})</option>`).join("\n");
       res += `</datalist>`;
 
       datalistParam = `list="registries"`;

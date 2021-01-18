@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
+
 import { getClustersNetworks, getRegistries } from '../k3d/k3d';
+
 import * as config from '../utils/config';
 import * as docker from '../utils/docker';
 import { Errorable, failed } from '../utils/errorable';
@@ -7,10 +9,8 @@ import { longRunning } from '../utils/host';
 import { logChannel } from "../utils/log";
 import * as registry from '../utils/registry';
 import { shell } from '../utils/shell';
+
 import { ClusterCreateSettings } from './createClusterSettings';
-
-
-
 
 const DEFAULT_IMAGE_REGISTRY = "https://registry.hub.docker.com";
 const DEFAULT_IMAGE_REPO = "rancher/k3s";
@@ -25,6 +25,7 @@ export const FIELD_EXISTING_NET = 'cluster_net';
 export const FIELD_SERVER_ARGS = 'cluster_server_args';
 export const FIELD_CREATE_REGISTRY = 'create_registry';
 export const FIELD_EXISTING_REGISTRIES = 'existing_registries';
+export const FIELD_GROW_SERVERS = 'cluster_grow_servers';
 
 // getCreateClusterFormStyle returns the style for the create form page
 export function getCreateClusterFormStyle(): string {
@@ -338,6 +339,15 @@ export async function getCreateClusterForm(defaults: ClusterCreateSettings): Pro
                 ${defaults.lb ? "checked" : ""}>
         </div>
         <div class="block">
+            <label for="grow">
+                Growable servers
+            </label>
+            <input name='${FIELD_GROW_SERVERS}' type="checkbox" id="grow"
+                value='${defaults.growServers ? "true" : "false"}'
+                onClick="this.value = this.checked"
+                ${defaults.growServers ? "checked" : ""}>
+        </div>
+        <div class="block">
             <label for="serverArgs">
                 Extra <a href="https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/">K3S server arguments</a>
             </label>
@@ -353,6 +363,7 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
   const name: string = s[FIELD_CLUSTER_NAME];
   const image: string = s[FIELD_CUSTOM_IMAGE];
   const numServers: number = +s[FIELD_NUM_SERVERS];
+  const growServers: boolean = s[FIELD_GROW_SERVERS] === "true" ? true : false;
   const numAgents: number = +s[FIELD_NUM_AGENTS];
   const lb: boolean = s[FIELD_LOAD_BALANCER] === "true" ? true : false;
   const network: string = s[FIELD_EXISTING_NET];
@@ -364,6 +375,7 @@ export function createClusterSettingsFromForm(s: any): ClusterCreateSettings {
     name: name,
     image: image,
     numServers: numServers,
+    growServers: growServers,
     numAgents: numAgents,
     network: network,
     lb: lb,

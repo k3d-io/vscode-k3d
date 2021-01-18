@@ -110,7 +110,8 @@ export async function getClusters(sh: shell.Shell): Promise<Errorable<K3dCluster
                             role: node.role,
                             running: new String(node.State.Running).trim().toLowerCase() === 'true',
                             image: node.image,
-                            created: new Date(node.created)
+                            created: new Date(node.created),
+                            cmd: node.Cmd
                         })),
                     agentsCount: cluster.agentsCount,
                     agentsRunning: cluster.agentsRunning,
@@ -132,18 +133,12 @@ export async function getClusterInfo(sh: shell.Shell, clusterName: string): Prom
     if (clusters.succeeded) {
         for (const cluster of clusters.result) {
             if (cluster.name === clusterName) {
-                return {
-                    succeeded: true,
-                    result: cluster
-                };
+                return { succeeded: true, result: cluster };
             }
         }
     }
 
-    return {
-        succeeded: false,
-        error: [`cluster ${clusterName} not found`]
-    };
+    return { succeeded: false, error: [`cluster ${clusterName} not found`] };
 }
 
 // getClustersNetworks returns all the existing clusters networks
@@ -236,4 +231,22 @@ export function strippedLines(s: string): string[] {
         .map((l) => l.substring(20))
         .map((l) => l.trim())
         .filter((l) => l.length > 0);
+}
+
+// utility function for checking if a cluster can grow the number of servers
+export function getClusterGrowServers(clusterInfo: K3dClusterInfo): boolean {
+    if (clusterInfo.serversCount >= 2) {
+        return true;
+    }
+
+    // check if we can find the `--cluster-init` argument in some of the servers
+    if (clusterInfo.nodes.
+        filter((node) => node.role === "server").
+        map((node) => node.cmd.join(" ")).
+        join(" ").
+        includes("cluster-init")) {
+        return true ;
+    }
+
+    return false;
 }

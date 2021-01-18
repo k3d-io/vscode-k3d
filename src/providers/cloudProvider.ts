@@ -69,9 +69,16 @@ class K3dTreeDataProvider implements vscode.TreeDataProvider<K3dCloudProviderTre
                                 return self.indexOf(value) === index;
                             }
 
+                            let serversCanGrow = "no";
+                            if (k3d.getClusterGrowServers(cluster.result)) {
+                                clusterTreeItem.contextValue += " k3d.clusterServerGrowable";
+                                serversCanGrow = "yes";
+                            }
+
                             clusterTreeItem.tooltip = new vscode.MarkdownString().appendMarkdown(dedent`
                                 <strong>k3d cluster _"${element.clusterName}"_ </strong>
-                                * ${cluster.result.serversRunning} servers running (${cluster.result.serversRunning} total) / ${cluster.result.agentsRunning} agents running (${cluster.result.agentsCount} total)
+                                * ${cluster.result.serversRunning} servers running (${cluster.result.serversCount} total) / ${cluster.result.agentsRunning} agents running (${cluster.result.agentsCount} total)
+                                * growable servers: ${serversCanGrow}
                                 * created at _${cluster.result.created}_
                                 * load balancer: _${cluster.result.hasLoadBalancer}_
                                 * images volume: _${cluster.result.imageVolume}_

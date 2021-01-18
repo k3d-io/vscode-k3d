@@ -5,6 +5,7 @@ export interface K3dClusterNodeInfo {
     readonly running: boolean;
     readonly image: string;
     readonly created: Date;
+    readonly cmd: string[];
 }
 
 export interface K3dClusterInfo {

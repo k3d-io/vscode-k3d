@@ -8,6 +8,7 @@ export interface ClusterCreateSettings {
     name: string | undefined;
     image: string | undefined;
     numServers: number | undefined;
+    growServers: boolean | undefined;
     numAgents: number | undefined;
     network: string | undefined;
     lb: boolean | undefined;
@@ -38,9 +39,9 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings, s
             args.push("--no-lb");
         }
     }
-    // TODO: we should improve this and split by shlex
+
     if (settings.serverArgs) {
-        args.push("--k3s-server-arg", `'${settings.serverArgs}'`);
+        settings.serverArgs.split(" ").forEach((arg) => args.push("--k3s-server-arg", arg));
     }
 
     if (settings.createRegistry) {
@@ -60,6 +61,10 @@ export function createClusterArgsFromSettings(settings: ClusterCreateSettings, s
     if (!switchContext) {
         // args.push("--switch-context=false"); // pre 4.0
         args.push("--kubeconfig-switch-context=false");
+    }
+
+    if (settings.growServers) {
+        args.push("--k3s-server-arg", "--cluster-init");
     }
 
     return args;
@@ -84,6 +89,7 @@ class MementoClusterSettings implements ClusterCreateSettings {
     private readonly serverArgsKey = "k3d-last-server-args";
     private readonly createRegistryKey = "k3d-last-create-registry";
     private readonly useRegistriesKey = "k3d-last-use-registries";
+    private readonly growServersStorageKey = "k3d-last-grow-servers";
 
     private readonly storage: vscode.Memento;
 
@@ -118,6 +124,9 @@ class MementoClusterSettings implements ClusterCreateSettings {
     set useRegistries(value: string[] | undefined) { this.storage.update(this.useRegistriesKey, value); }
     get useRegistries(): string[] | undefined { return this.storage.get<string[]>(this.useRegistriesKey); }
 
+    set growServers(value: boolean | undefined) { this.storage.update(this.growServersStorageKey, value); }
+    get growServers(): boolean | undefined { return this.storage.get<boolean>(this.growServersStorageKey); }
+
     private static instance: MementoClusterSettings;
 
     static getInstance(): MementoClusterSettings {
@@ -144,6 +153,7 @@ export function saveLastClusterCreateSettings(saved: ClusterCreateSettings) {
     lcs.serverArgs = saved.serverArgs;
     lcs.createRegistry = saved.createRegistry;
     lcs.useRegistries = saved.useRegistries;
+    lcs.growServers = saved.growServers;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,6 +192,9 @@ class DefaultClusterSettings implements ClusterCreateSettings {
     set useRegistries(value: string[] | undefined) { }
     get useRegistries(): string[] | undefined { return config.getK3DConfigCreateDefaults<string[]>("useRegistries"); }
 
+    set growServers(value: boolean | undefined) { }
+    get growServers(): boolean | undefined { return config.getK3DConfigCreateDefaults<boolean>("growServers"); }
+
     private static instance: DefaultClusterSettings;
 
     static getInstance(): DefaultClusterSettings {
@@ -210,6 +223,7 @@ export function forNewCluster(input: ClusterCreateSettings): ClusterCreateSettin
         name: randomName,
         image: input.image === undefined ? "" : input.image,
         numServers: input.numServers === undefined ? 1 : input.numServers,
+        growServers: input.growServers === undefined ? false : input.growServers,
         numAgents: input.numAgents === undefined ? 0 : input.numAgents,
         network: input.network === undefined ? "" : input.network,
         lb: input.lb === undefined ? true : input.lb,

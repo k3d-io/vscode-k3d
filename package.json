@@ -113,6 +113,11 @@
                                 "type": "array",
                                 "default": [],
                                 "description": "Use these registries by default for new K3D clusters."
+                            },
+                            "k3d.defaults.growServers": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Create new K3D clusters with the right flags for growing the group of server nodes."
                             }
                         }
                     },
@@ -293,7 +298,7 @@
                 {
                     "command": "extension.vsKubernetesK3DAddServer",
                     "group": "Kubernetes: k3d: nodes",
-                    "when": "viewItem =~ /k3d\\.cluster/"
+                    "when": "viewItem =~ /k3d\\.clusterServerGrowable/"
                 },
                 {
                     "command": "extension.vsKubernetesK3DDeleteServer",

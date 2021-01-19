@@ -26,12 +26,19 @@ delete clusters, and to merge them into your `kubeconfig`.
 
   <p><img src="images/demo-create-cluster.gif" width="700"/></p>
 
-* **Add/remove nodes** to existing k3d clusters.
+* **Add/remove nodes** to/from existing k3d clusters.
 
-  For example, we can add a new "Agent node" to an exiting cluster by
-  using the right menu available in the `Clouds` view for k3d clusters.
+  The number of Server and Agent nodes can be set not only when creating a clusterm, but you
+  can also grow the cluster later on. For example, we can add a new "Agent node" to an exiting
+  cluster by using the right menu available in the `Clouds` view for k3d clusters.
 
   <p><img src="images/demo-create-cluster-add-agent.gif" width="250"/></p>
+
+  It is important to note that there are some **constraints on node additions and removals**:
+
+  * Servers can only be added to clusters that were created with two or more servers or
+    with the _"Growable servers"_ flag set.
+  * A server cannot be removed when it is the last server in the cluster.
 
 * **Commands and keyboard shortcuts** for all the operations.
 

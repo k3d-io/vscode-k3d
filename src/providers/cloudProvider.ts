@@ -112,8 +112,13 @@ class K3dTreeDataProvider implements vscode.TreeDataProvider<K3dCloudProviderTre
                                 // specific nodes
                                 switch (node.role) {
                                     case "server":
-                                        // TODO: add the `*Removable` iff it can be removed (ie, it is not the last server in the cluster)
-                                        nodeTreeItem.contextValue += ' k3d.nodeServer k3d.nodeServerRemovable';
+                                        nodeTreeItem.contextValue += ' k3d.nodeServer';
+
+                                        // add the `*Removable` iff it can be removed
+                                        // (ie, it is not the last server in the cluster)
+                                        if (cluster.result.serversRunning > 1) {
+                                            nodeTreeItem.contextValue += ' k3d.nodeServerRemovable';
+                                        }
                                         break;
 
                                     case "agent":

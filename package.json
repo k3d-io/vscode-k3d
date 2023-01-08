@@ -349,7 +349,7 @@
         "request": "^2.88.2",
         "request-promise-native": "^1.0.9",
         "rxjs": "^6.4.0",
-        "shelljs": "^0.8.3",
+        "shelljs": "^0.8.5",
         "spawn-rx": "^3.0.0",
         "tmp": "^0.0.33",
         "url-join": "^4.0.1",

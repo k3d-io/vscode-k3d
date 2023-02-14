@@ -1,4 +1,4 @@
-# Kubernetes [k3d](https://github.com/rancher/k3d) extension for Visual Studio Code
+# Kubernetes [k3d](https://github.com/k3d-io/k3d) extension for Visual Studio Code
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/inercia.vscode-k3d.svg)](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d)
 [![Installs](https://vsmarketplacebadge.apphb.com/installs/inercia.vscode-k3d.svg)](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d)
@@ -6,7 +6,7 @@
 
 ## Overview
 
-This extension displays your [k3d](https://github.com/rancher/k3d) local clusters
+This extension displays your [k3d](https://github.com/k3d-io/k3d) local clusters
 in the Kubernetes extension's Cloud Explorer. You can use this to create and
 delete clusters, and to merge them into your `kubeconfig`.
 
@@ -75,7 +75,7 @@ You can find this plugin in the
 You will find detailed installation instructions there.
 
 This extension will download the latest, stable version of `k3d` automatically, although you can
-force a specific instalation _channel_ of `k3d` with some settings (see [bellow](#Settings)).
+force a specific instalation _channel_ of `k3d` with some settings (see [bellow](#settings)).
 
 ## Settings
 
@@ -136,7 +136,7 @@ the [official documentation](https://code.visualstudio.com/docs/getstarted/keybi
 
 The easiest way to start coding on the extension is by following these steps:
 
-* `git clone https://github.com/inercia/vscode-k3d.git`
+* `git clone https://github.com/k3d-io/vscode-k3d.git`
 * `code vscode-k3d`
 * `npm install` in the terminal for installing all the dependencies,
 * Press `F5` for starting a new VSCode window with the extension running in it.

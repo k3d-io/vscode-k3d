@@ -1,10 +1,10 @@
-import * as k8s from 'vscode-kubernetes-tools-api';
-import * as vscode from 'vscode';
 import * as dedent from 'dedent';
+import * as vscode from 'vscode';
+import * as k8s from 'vscode-kubernetes-tools-api';
 
 import * as k3d from '../k3d/k3d';
-import { shell } from '../utils/shell';
 import { failed } from '../utils/errorable';
+import { shell } from '../utils/shell';
 import '../utils/string';
 
 
@@ -158,7 +158,6 @@ class K3dTreeDataProvider implements vscode.TreeDataProvider<K3dCloudProviderTre
             switch (element.nodeType) {
                 case 'cluster':
                     return getNodesForCluster(element.clusterName);
-                    break;
             }
 
             return [];

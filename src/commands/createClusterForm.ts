@@ -33,6 +33,7 @@ export function getCreateClusterFormStyle(): string {
     [vscode.ColorThemeKind.Light]: "light",
     [vscode.ColorThemeKind.Dark]: "dark",
     [vscode.ColorThemeKind.HighContrast]: "dark",
+    [vscode.ColorThemeKind.HighContrastLight]: "light",
   }[vscode.window.activeColorTheme.kind];
 
   // TODO: there must be a better way to do this...
@@ -215,7 +216,7 @@ export async function getCreateClusterForm(defaults: ClusterCreateSettings): Pro
             The image used for creating all the nodes in the cluster.
             <ul>
               <li> Leave empty for using the default image.</li>
-              <li> You can also provide your own image name (ie, "rancher/k3d:v1.18")</li>
+              <li> You can also provide your own image name (ie, "k3d-io/k3d:v1.18")</li>
               ${datalistExplain}
             </ul>
         </h6>

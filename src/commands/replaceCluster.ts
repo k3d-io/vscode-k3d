@@ -33,7 +33,7 @@ export async function onReplaceClusterLast(target?: any): Promise<void> {
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 export async function replaceCluster(createSettings: settings.ClusterCreateSettings, target?: any): Promise<void> {
-    let actions: Promise<void>[] = [];
+    const actions: Promise<void>[] = [];
 
     const promisedClusters = await k3d.getClusters(shell);
     let clustersByCreation: model.K3dClusterInfo[] = [];

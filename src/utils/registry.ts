@@ -1,10 +1,10 @@
-import { workspace } from "vscode";
 import { Response } from "request";
 import * as request from 'request-promise-native';
+import { workspace } from "vscode";
 
 import { Errorable } from '../utils/errorable';
 
-const urljoin = require('url-join');
+import urljoin from "url-join";
 
 // maximum number of tags to return
 const MAX_TAGS_RESULTS = 12;
@@ -14,8 +14,8 @@ interface IResponse<T> extends Response {
 }
 
 export async function registryRequest<T>(method: 'GET' | 'DELETE' | 'POST', url: string, customOptions?: request.RequestPromiseOptions): Promise<IResponse<T>> {
-    let httpSettings = workspace.getConfiguration('http');
-    let strictSSL = httpSettings.get<boolean>('proxyStrictSSL', true);
+    const httpSettings = workspace.getConfiguration('http');
+    const strictSSL = httpSettings.get<boolean>('proxyStrictSSL', true);
     const options = {
         method,
         json: true,
@@ -63,7 +63,7 @@ export async function registryTagsForImage(registry: string, namespace: string, 
 
     let url: string = urljoin(registry, "v2", "repositories", namespace, repoName, "tags").toString();
     while (true) {
-        let response = await registryRequest<ITags>('GET', url.toString());
+        const response = await registryRequest<ITags>('GET', url.toString());
         // TODO: we should check the response errors
         if (response.statusCode !== 200) {
             return { succeeded: false, error: [response.statusMessage] };

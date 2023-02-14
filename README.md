@@ -1,19 +1,19 @@
-# Kubernetes [k3d](https://github.com/rancher/k3d) extension for Visual Studio Code
+# Kubernetes [k3d](https://github.com/k3d-io/k3d) extension for Visual Studio Code
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/inercia.vscode-k3d.svg)](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d)
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/inercia.vscode-k3d.svg)](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d)
-[![Ratings](https://vsmarketplacebadge.apphb.com/rating/inercia.vscode-k3d.svg)](https://vsmarketplacebadge.apphb.com/rating/inercia.vscode-k3d.svg)
+![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/k3d-io.k3d?style=for-the-badge)
+![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/k3d-io.k3d?label=Installs&style=for-the-badge)
+![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/r/k3d-io.k3d?style=for-the-badge)
 
 ## Overview
 
-This extension displays your [k3d](https://github.com/rancher/k3d) local clusters
+This extension displays your [k3d](https://github.com/k3d-io/k3d) local clusters
 in the Kubernetes extension's Cloud Explorer. You can use this to create and
 delete clusters, and to merge them into your `kubeconfig`.
 
 > IMPORTANT: **This is an early stage preview. It's not feature complete! Feature requests
   welcome via the issues page. (And let us know about bugs too!)**
 
-> This project was originally based on the
+> This project was developed by @inercia and originally based on the
   [KinD plugin for VSCode](https://github.com/deislabs/kind-vscode).
 
 ## Features
@@ -71,11 +71,11 @@ delete clusters, and to merge them into your `kubeconfig`.
 ## Installation
 
 You can find this plugin in the
-[VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d).
+[VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=k3d-io.k3d).
 You will find detailed installation instructions there.
 
 This extension will download the latest, stable version of `k3d` automatically, although you can
-force a specific instalation _channel_ of `k3d` with some settings (see [bellow](#Settings)).
+force a specific instalation _channel_ of `k3d` with some settings (see [bellow](#settings)).
 
 ## Settings
 
@@ -136,8 +136,8 @@ the [official documentation](https://code.visualstudio.com/docs/getstarted/keybi
 
 The easiest way to start coding on the extension is by following these steps:
 
-* `git clone https://github.com/inercia/vscode-k3d.git`
-* `code vscode-k3d`
+* `git clone https://github.com/k3d-io/k3d.git`
+* `code k3d`
 * `npm install` in the terminal for installing all the dependencies,
 * Press `F5` for starting a new VSCode window with the extension running in it.
   You can add breakpoints and so on, and you can see the debug output

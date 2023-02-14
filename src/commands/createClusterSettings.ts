@@ -19,7 +19,7 @@ export interface ClusterCreateSettings {
 
 // createClusterArgsFromSettings returns a list of arguments for `k3d cluster create`
 // for some cluster creation settings
-export function createClusterArgsFromSettings(settings: ClusterCreateSettings, switchContext: boolean = true): string[] {
+export function createClusterArgsFromSettings(settings: ClusterCreateSettings, switchContext = true): string[] {
     const args: string[] = [];
 
     if (settings.numServers) {

@@ -50,7 +50,7 @@ export async function createCluster(createSettings: settings.ClusterCreateSettin
 
 export async function createClusterInteractive(
     clusterSettings: settings.ClusterCreateSettings,
-    switchContext: boolean = true): Promise<void> {
+    switchContext = true): Promise<void> {
 
     const kubeconfig = await kubectl.getKubeconfigPath();
 

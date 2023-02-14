@@ -1,24 +1,24 @@
 'use strict';
 
+import { Octokit } from "@octokit/rest";
+import * as fs from 'fs';
+import { mkdirp } from 'mkdirp';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import * as download from './downloads';
-import * as fs from 'fs';
-import * as path from 'path';
-import mkdirp = require('mkdirp');
-import { Octokit } from "@octokit/rest";
 
-import { platformUrlString, getInstallFolder } from './installationlayout';
+import { getInstallFolder, platformUrlString } from './installationlayout';
 
-import * as shell from '../utils/shell';
-import { logChannel } from '../utils/log';
-import { Errorable, failed } from '../utils/errorable';
 import * as config from '../utils/config';
+import { Errorable, failed } from '../utils/errorable';
 import { refreshKubernetesToolsViews } from '../utils/host';
+import { logChannel } from '../utils/log';
+import * as shell from '../utils/shell';
 
 const octokit = new Octokit();
 
 // the base URL for downloading the executable
-const updateExeURLBase = "https://github.com/rancher/k3d/releases/download";
+const updateExeURLBase = "https://github.com/k3d-io/k3d/releases/download";
 
 export enum EnsureMode {
     Alert,

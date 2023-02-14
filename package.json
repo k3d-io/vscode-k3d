@@ -1,12 +1,12 @@
 {
-    "name": "vscode-k3d",
-    "displayName": "Kubernetes k3d",
-    "description": "Work with local Kubernetes clusters with K3D provider in Visual Studio Code",
+    "name": "k3d",
+    "displayName": "k3d - K3s in Docker",
+    "description": "Manage k3d clusters from VS Code",
     "version": "0.0.1",
     "preview": true,
-    "publisher": "inercia",
+    "publisher": "k3d-io",
     "engines": {
-        "vscode": "^1.44.0"
+        "vscode": "^1.75.1"
     },
     "license": "MIT",
     "categories": [
@@ -21,27 +21,18 @@
     "galleryBanner": {
         "theme": "light"
     },
-    "homepage": "https://github.com/inercia/vscode-k3d/blob/master/README.md",
+    "homepage": "https://github.com/k3d-io/vscode-k3d/blob/master/README.md",
     "activationEvents": [
         "onCommand:extension.vsKubernetesConfigureFromCluster",
         "onCommand:extension.vsKubernetesCreateCluster",
-        "onView:kubernetes.cloudExplorer",
-        "onCommand:extension.vsKubernetesK3DCreate",
-        "onCommand:extension.vsKubernetesK3DCreateLast",
-        "onCommand:extension.vsKubernetesK3DDelete",
-        "onCommand:extension.vsKubernetesK3DReplace",
-        "onCommand:extension.vsKubernetesK3DReplaceLast",
-        "onCommand:extension.vsKubernetesK3DAddAgent",
-        "onCommand:extension.vsKubernetesK3DDeleteAgent",
-        "onCommand:extension.vsKubernetesK3DAddServer",
-        "onCommand:extension.vsKubernetesK3DDeleteServer"
+        "onView:kubernetes.cloudExplorer"
     ],
     "main": "./dist/extension",
     "contributes": {
         "configuration": [
             {
-                "title": "Kubernetes K3D",
-                "description": "Configuration for the K3D kubernetes provider.",
+                "title": "k3d - K3s in Docker",
+                "description": "Configuration for the k3d Kubernetes provider.",
                 "properties": {
                     "k3d.paths": {
                         "type": "object",
@@ -72,58 +63,58 @@
                     },
                     "k3d.defaults": {
                         "type": "object",
-                        "title": "New K3D cluster defaults",
-                        "description": "Default values for new K3D clusters",
+                        "title": "New k3d cluster defaults",
+                        "description": "Default values for new k3d clusters",
                         "properties": {
                             "k3d.defaults.numServers": {
                                 "type": "integer",
                                 "default": 1,
                                 "minimum": 1,
                                 "maximum": 100,
-                                "description": "Default number of server nodes for new K3D clusters."
+                                "description": "Default number of server nodes for new k3d clusters."
                             },
                             "k3d.defaults.numAgents": {
                                 "type": "integer",
                                 "default": 0,
                                 "minimum": 0,
                                 "maximum": 100,
-                                "description": "Default number of agent nodes for new K3D clusters."
+                                "description": "Default number of agent nodes for new k3d clusters."
                             },
                             "k3d.defaults.network": {
                                 "type": "string",
                                 "default": "",
-                                "description": "Default existing network for new K3D cluster."
+                                "description": "Default existing network for new k3d cluster."
                             },
                             "k3d.defaults.image": {
                                 "type": "string",
                                 "default": "",
-                                "description": "Default image for new K3D clusters."
+                                "description": "Default image for new k3d clusters."
                             },
                             "k3d.defaults.serverArgs": {
                                 "type": "string",
                                 "default": "",
-                                "markdownDescription": "Default [K3S server arguments](https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/) for new K3D clusters."
+                                "markdownDescription": "Default [K3S server arguments](https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/) for new k3d clusters."
                             },
                             "k3d.defaults.createRegistry": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Create a new registry by default for new K3D clusters."
+                                "description": "Create a new registry by default for new k3d clusters."
                             },
                             "k3d.defaults.useRegistries": {
                                 "type": "array",
                                 "default": [],
-                                "description": "Use these registries by default for new K3D clusters."
+                                "description": "Use these registries by default for new k3d clusters."
                             },
                             "k3d.defaults.growServers": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Create new K3D clusters with the right flags for growing the group of server nodes."
+                                "description": "Create new k3d clusters with the right flags for growing the group of server nodes."
                             }
                         }
                     },
                     "k3d.images": {
                         "type": "object",
-                        "description": "Settings for images used for creating new K3D cluster nodes",
+                        "description": "Settings for images used for creating new k3d cluster nodes",
                         "properties": {
                             "k3d.images.proposalsRegistry": {
                                 "type": "string",
@@ -203,105 +194,105 @@
         ],
         "commands": [
             {
-                "command": "extension.vsKubernetesK3DCreate",
+                "command": "extension.vsKubernetesk3dCreate",
                 "category": "Kubernetes: k3d",
                 "title": "Create Cluster"
             },
             {
-                "command": "extension.vsKubernetesK3DCreateLast",
+                "command": "extension.vsKubernetesk3dCreateLast",
                 "category": "Kubernetes: k3d",
                 "title": "Create Cluster (with last settings)"
             },
             {
-                "command": "extension.vsKubernetesK3DDelete",
+                "command": "extension.vsKubernetesk3dDelete",
                 "category": "Kubernetes: k3d",
                 "title": "Delete Cluster"
             },
             {
-                "command": "extension.vsKubernetesK3DReplace",
+                "command": "extension.vsKubernetesk3dReplace",
                 "category": "Kubernetes: k3d",
                 "title": "Replace Cluster"
             },
             {
-                "command": "extension.vsKubernetesK3DReplaceLast",
+                "command": "extension.vsKubernetesk3dReplaceLast",
                 "category": "Kubernetes: k3d",
                 "title": "Replace Cluster (with last settings)"
             },
             {
-                "command": "extension.vsKubernetesK3DAddAgent",
+                "command": "extension.vsKubernetesk3dAddAgent",
                 "category": "Kubernetes: k3d",
                 "title": "Add an Agent node"
             },
             {
-                "command": "extension.vsKubernetesK3DDeleteAgent",
+                "command": "extension.vsKubernetesk3dDeleteAgent",
                 "category": "Kubernetes: k3d",
                 "title": "Delete an Agent node"
             },
             {
-                "command": "extension.vsKubernetesK3DAddServer",
+                "command": "extension.vsKubernetesk3dAddServer",
                 "category": "Kubernetes: k3d",
                 "title": "Add a Server node"
             },
             {
-                "command": "extension.vsKubernetesK3DDeleteServer",
+                "command": "extension.vsKubernetesk3dDeleteServer",
                 "category": "Kubernetes: k3d",
                 "title": "Delete a Server node"
             }
         ],
         "keybindings": [
             {
-                "command": "extension.vsKubernetesK3DCreateLast",
+                "command": "extension.vsKubernetesk3dCreateLast",
                 "key": "ctrl+k ctrl+c"
             },
             {
-                "command": "extension.vsKubernetesK3DReplaceLast",
+                "command": "extension.vsKubernetesk3dReplaceLast",
                 "key": "ctrl+k ctrl+r"
             }
         ],
         "menus": {
             "view/item/context": [
                 {
-                    "command": "extension.vsKubernetesK3DCreate",
+                    "command": "extension.vsKubernetesk3dCreate",
                     "group": "Kubernetes: k3d: create",
                     "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DCreateLast",
+                    "command": "extension.vsKubernetesk3dCreateLast",
                     "group": "Kubernetes: k3d: create",
                     "when": "viewItem == kubernetes.cloudExplorer.cloud.k3d"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DDelete",
+                    "command": "extension.vsKubernetesk3dDelete",
                     "group": "Kubernetes: k3d: create",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DReplace",
+                    "command": "extension.vsKubernetesk3dReplace",
                     "group": "Kubernetes: k3d: create",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DReplaceLast",
+                    "command": "extension.vsKubernetesk3dReplaceLast",
                     "group": "Kubernetes: k3d: create",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DAddAgent",
+                    "command": "extension.vsKubernetesk3dAddAgent",
                     "group": "Kubernetes: k3d: nodes",
                     "when": "viewItem =~ /k3d\\.cluster/"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DDeleteAgent",
+                    "command": "extension.vsKubernetesk3dDeleteAgent",
                     "group": "Kubernetes: k3d: nodes",
                     "when": "viewItem =~ /k3d\\.nodeAgentRemovable/"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DAddServer",
+                    "command": "extension.vsKubernetesk3dAddServer",
                     "group": "Kubernetes: k3d: nodes",
                     "when": "viewItem =~ /k3d\\.clusterServerGrowable/"
                 },
                 {
-                    "command": "extension.vsKubernetesK3DDeleteServer",
+                    "command": "extension.vsKubernetesk3dDeleteServer",
                     "group": "Kubernetes: k3d: nodes",
                     "when": "viewItem =~ /k3d\\.nodeServerRemovable/"
                 }
@@ -313,8 +304,8 @@
         "watch": "webpack --mode none --watch",
         "test": "npm run compile",
         "test-compile": "tsc -p ./",
-        "lint": "./node_modules/tslint/bin/tslint -p tsconfig.json -c tslint.json  src/**/*.ts",
-        "lint:fix": "./node_modules/tslint/bin/tslint -p tsconfig.json -c tslint.json --fix src/**/*.ts",
+        "lint": "npx eslint . --ext .ts",
+        "lint:fix": "npx eslint . --ext .ts --fix",
         "vscode:prepublish": "webpack --mode production",
         "dist": "vsce package",
         "dist-tools": "npm install -g vsce"
@@ -324,43 +315,46 @@
     ],
     "devDependencies": {
         "@types/dedent": "^0.7.0",
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^8.10.25",
-        "@types/request-promise-native": "^1.0.17",
-        "@types/shelljs": "^0.8.3",
-        "@types/tmp": "0.0.33",
-        "@types/url-join": "^4.0.0",
-        "@types/vscode": "^1.44.0",
-        "ts-loader": "^6.0.4",
-        "tslint": "^5.8.0",
-        "typescript": "^3.5.2",
-        "webpack": "^4.36.1",
-        "webpack-cli": "^3.3.6"
+        "@types/mocha": "^10.0.1",
+        "@types/node": "^18.13.0",
+        "@types/request-promise-native": "^1.0.18",
+        "@types/shelljs": "^0.8.11",
+        "@types/tmp": "0.2.3",
+        "@types/url-join": "^4.0.1",
+        "@types/vscode": "^1.75.1",
+        "@typescript-eslint/eslint-plugin": "^5.52.0",
+        "@typescript-eslint/parser": "^5.52.0",
+        "@vscode/test-electron": "^2.2.3",
+        "eslint": "^8.34.0",
+        "ts-loader": "^9.4.2",
+        "typescript": "^4.9.5",
+        "vsce": "^2.15.0",
+        "webpack": "^5.75.0",
+        "webpack-cli": "^5.0.1"
     },
     "dependencies": {
-        "@octokit/rest": "^18.0.9",
-        "@types/mkdirp": "^0.5.2",
+        "@octokit/rest": "^19.0.7",
         "dedent": "^0.7.0",
-        "docker-cli-js": "^2.8.0",
+        "docker-cli-js": "^2.10.0",
         "docker-client": "^1.38.1",
-        "download": "^7.1.0",
-        "mkdirp": "^0.5.1",
-        "replace-string": "^3.0.0",
+        "download": "^8.0.0",
+        "mkdirp": "^2.1.3",
+        "replace-string": "^4.0.0",
         "request": "^2.88.2",
         "request-promise-native": "^1.0.9",
-        "rxjs": "^6.4.0",
-        "shelljs": "^0.8.3",
+        "rxjs": "^7.8.0",
+        "shelljs": "^0.8.5",
         "spawn-rx": "^3.0.0",
-        "tmp": "^0.0.33",
-        "url-join": "^4.0.1",
-        "vscode-azureextensionui": "^0.38.2",
-        "vscode-kubernetes-tools-api": "^1.0.0"
+        "tmp": "^0.2.1",
+        "url-join": "^5.0.0",
+        "vscode-azureextensionui": "^0.50.0",
+        "vscode-kubernetes-tools-api": "^1.3.0"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/inercia/vscode-k3d"
+        "url": "https://github.com/k3d-io/vscode-k3d"
     },
     "bugs": {
-        "url": "https://github.com/inercia/vscode-k3d/issues"
+        "url": "https://github.com/k3d-io/vscode-k3d/issues"
     }
 }

@@ -36,8 +36,8 @@ jobs:
       - name: Setup GIT
         run: |
           git switch -c main
-          git config --global user.email "alvaro.saurin@gmail.com"
-          git config --global user.name "Alvaro Saurin"
+          git config --global user.email "ghactions@k3d.io"
+          git config --global user.name "k3d-io"
 
       - name: Set release version
         run: npm version --no-git-tag-version --allow-same-version ${{ steps.info.outputs.SOURCE_TAG }}
@@ -69,7 +69,7 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload VXIS to GitHub release
+      - name: Upload VSIX to GitHub release
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:

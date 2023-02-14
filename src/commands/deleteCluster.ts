@@ -34,7 +34,7 @@ async function deleteClusterInteractive(): Promise<void> {
 }
 
 // deleteClusterByName will be invoked when users click on "Delete cluster"
-export async function deleteClusterByName(clusterName: string, askUser: boolean = true): Promise<void> {
+export async function deleteClusterByName(clusterName: string, askUser = true): Promise<void> {
     if (askUser) {
         const confirmed = await confirm(`This will delete "${clusterName}". You will not be able to undo this.`, 'Delete cluster');
         if (!confirmed) {

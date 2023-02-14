@@ -7,8 +7,8 @@ import * as spawnrx from 'spawn-rx';
 import * as vscode from 'vscode';
 
 import { getUseWsl } from './config';
-import { Errorable } from './errorable';
 import { Dictionary } from './dictionary';
+import { Errorable } from './errorable';
 
 export interface ExecOpts {
     readonly cwd?: string;
@@ -79,7 +79,7 @@ function execCore(cmd: string, opts: any, stdin?: string): Promise<ShellResult> 
     return new Promise<ShellResult>((resolve, _reject) => {
         const proc = shelljs.exec(cmd, opts, (code, stdout, stderr) => resolve({ code: code, stdout: stdout, stderr: stderr }));
         if (stdin) {
-            proc.stdin.end(stdin);
+            proc.stdin?.end(stdin);
         }
     });
 }
@@ -167,7 +167,7 @@ export function platform(): Platform {
     }
 }
 
-const WINDOWS: string = 'win32';
+const WINDOWS = 'win32';
 
 export function isWindows(): boolean {
     return (process.platform === WINDOWS) && !getUseWsl();

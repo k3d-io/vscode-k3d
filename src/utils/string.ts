@@ -1,4 +1,4 @@
-import replaceString = require('replace-string');
+import replaceString from 'replace-string';
 
 declare global {
     interface String {

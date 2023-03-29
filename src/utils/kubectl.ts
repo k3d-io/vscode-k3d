@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as k8s from 'vscode-kubernetes-tools-api';
+import * as k8s from "vscode-kubernetes-tools-api";
 
 import { logChannel } from "./log";
 
@@ -9,52 +9,76 @@ export interface KubectlContext {
     readonly userName: string;
 }
 
-export async function deleteClusterFromKubeconfig(context: KubectlContext): Promise<boolean> {
+export async function deleteClusterFromKubeconfig(
+    context: KubectlContext
+): Promise<boolean> {
     const kubectl = await k8s.extension.kubectl.v1;
     if (!kubectl.available) {
-        vscode.window.showErrorMessage(`Delete ${context.contextName} failed: kubectl is not available. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Delete ${context.contextName} failed: kubectl is not available. See Output window for more details.`
+        );
         return false;
     }
 
-    const deleteClusterResult = await kubectl.api.invokeCommand(`config delete-cluster ${context.clusterName}`);
+    const deleteClusterResult = await kubectl.api.invokeCommand(
+        `config delete-cluster ${context.clusterName}`
+    );
     if (deleteClusterResult?.code !== 0) {
         const whatFailed = `Failed to remove the underlying cluster for context ${context.clusterName} from the kubeconfig: ${deleteClusterResult?.stderr}`;
         logChannel.showOutput(whatFailed);
 
-        vscode.window.showWarningMessage(`Failed to remove the underlying cluster for context ${context.contextName}. See Output window for more details.`);
+        vscode.window.showWarningMessage(
+            `Failed to remove the underlying cluster for context ${context.contextName}. See Output window for more details.`
+        );
     }
 
-    const deleteUserResult = await kubectl.api.invokeCommand(`config unset users.${context.userName}`);
+    const deleteUserResult = await kubectl.api.invokeCommand(
+        `config unset users.${context.userName}`
+    );
     if (deleteUserResult?.code !== 0) {
         const whatFailed = `Failed to remove the underlying user for context ${context.contextName} from the kubeconfig: ${deleteUserResult?.stderr}`;
         logChannel.showOutput(whatFailed);
-        vscode.window.showWarningMessage(`Failed to remove the underlying user for context ${context.contextName}. See Output window for more details.`);
+        vscode.window.showWarningMessage(
+            `Failed to remove the underlying user for context ${context.contextName}. See Output window for more details.`
+        );
     }
 
-    const deleteContextResult = await kubectl.api.invokeCommand(`config delete-context ${context.contextName}`);
+    const deleteContextResult = await kubectl.api.invokeCommand(
+        `config delete-context ${context.contextName}`
+    );
     if (deleteContextResult?.code !== 0) {
         const whatFailed = `Failed to delete the specified cluster's context ${context.contextName} from the kubeconfig: ${deleteContextResult?.stderr}`;
         logChannel.showOutput(whatFailed);
-        vscode.window.showErrorMessage(`Delete ${context.contextName} failed. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Delete ${context.contextName} failed. See Output window for more details.`
+        );
         return false;
     }
 
-    vscode.window.showInformationMessage(`Deleted context '${context.contextName}' and associated data from the kubeconfig.`);
+    vscode.window.showInformationMessage(
+        `Deleted context '${context.contextName}' and associated data from the kubeconfig.`
+    );
     return true;
 }
 
 export async function setContext(contextName: string): Promise<void> {
     const kubectl = await k8s.extension.kubectl.v1;
     if (!kubectl.available) {
-        vscode.window.showErrorMessage(`Set context ${contextName} failed: kubectl is not available. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Set context ${contextName} failed: kubectl is not available. See Output window for more details.`
+        );
         return;
     }
 
-    const setContextResult = await kubectl.api.invokeCommand(`config set-context ${contextName}`);
+    const setContextResult = await kubectl.api.invokeCommand(
+        `config set-context ${contextName}`
+    );
     if (setContextResult?.code !== 0) {
         const whatFailed = `Failed to set "${contextName}": ${setContextResult?.stderr}`;
         logChannel.showOutput(whatFailed);
-        vscode.window.showErrorMessage(`Count not set "${contextName}" failed. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Count not set "${contextName}" failed. See Output window for more details.`
+        );
         return;
     }
 
@@ -64,15 +88,21 @@ export async function setContext(contextName: string): Promise<void> {
 export async function getContext(): Promise<string> {
     const kubectl = await k8s.extension.kubectl.v1;
     if (!kubectl.available) {
-        vscode.window.showErrorMessage(`Get context failed: kubectl is not available. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Get context failed: kubectl is not available. See Output window for more details.`
+        );
         return "";
     }
 
-    const setContextResult = await kubectl.api.invokeCommand(`config current-context`);
+    const setContextResult = await kubectl.api.invokeCommand(
+        `config current-context`
+    );
     if (setContextResult?.code !== 0) {
         const whatFailed = `Failed to get context: ${setContextResult?.stderr}`;
         logChannel.showOutput(whatFailed);
-        vscode.window.showErrorMessage(`Could not get context. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Could not get context. See Output window for more details.`
+        );
         return "";
     }
     const context = setContextResult.stdout.trim();
@@ -82,7 +112,9 @@ export async function getContext(): Promise<string> {
 export async function drain(node: string): Promise<string> {
     const kubectl = await k8s.extension.kubectl.v1;
     if (!kubectl.available) {
-        vscode.window.showErrorMessage(`Drain ${node} failed: kubectl is not available. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Drain ${node} failed: kubectl is not available. See Output window for more details.`
+        );
         return "";
     }
 
@@ -90,7 +122,9 @@ export async function drain(node: string): Promise<string> {
     if (drainResult?.code !== 0) {
         const whatFailed = `Failed to drain "${node}": ${drainResult?.stderr}`;
         logChannel.showOutput(whatFailed);
-        vscode.window.showErrorMessage(`Count not drain "${node}" failed. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Count not drain "${node}" failed. See Output window for more details.`
+        );
         return "";
     }
 
@@ -102,14 +136,18 @@ export async function drain(node: string): Promise<string> {
 export async function getKubeconfigPath(): Promise<string> {
     const config = await k8s.extension.configuration.v1;
     if (!config.available) {
-        vscode.window.showErrorMessage(`Kuebernetes config is not available. See Output window for more details.`);
+        vscode.window.showErrorMessage(
+            `Kuebernetes config is not available. See Output window for more details.`
+        );
         return "";
     }
 
     const kubeconfig = config.api.getKubeconfigPath();
     switch (kubeconfig.pathType) {
-        case "wsl": return kubeconfig.wslPath;
-        case "host": return kubeconfig.hostPath;
+        case "wsl":
+            return kubeconfig.wslPath;
+        case "host":
+            return kubeconfig.hostPath;
     }
 }
 

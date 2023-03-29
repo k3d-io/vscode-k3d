@@ -1,5 +1,5 @@
-import * as sysfs from 'fs';
-import { promisify } from 'util';
+import * as sysfs from "fs";
+import { promisify } from "util";
 
 export const fs = {
     copyFile: promisify(sysfs.copyFile),

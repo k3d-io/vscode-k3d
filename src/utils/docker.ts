@@ -1,6 +1,6 @@
 import "process";
 
-import { Docker, Options } from 'docker-cli-js';
+import { Docker, Options } from "docker-cli-js";
 
 // getDockerInfo returns the same info obtained with `docker info`
 export async function getDockerInfo(dockerHost?: string): Promise<any> {
@@ -13,7 +13,7 @@ export async function getDockerInfo(dockerHost?: string): Promise<any> {
     }
 
     const docker = new Docker(options);
-    return docker.command('info').then(function (data) {
+    return docker.command("info").then(function (data) {
         return data.object;
     });
 }

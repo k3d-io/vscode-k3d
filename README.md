@@ -71,7 +71,7 @@ delete clusters, and to merge them into your `kubeconfig`.
 ## Installation
 
 You can find this plugin in the
-[VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=k3d-io.k3d).
+[VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=inercia.vscode-k3d).
 You will find detailed installation instructions there.
 
 This extension will download the latest, stable version of `k3d` automatically, although you can

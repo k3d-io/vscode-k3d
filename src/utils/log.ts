@@ -8,11 +8,15 @@ export interface ILogChannel {
 }
 
 class LogChannel implements ILogChannel {
-    private readonly channel: vscode.OutputChannel = vscode.window.createOutputChannel(CHANNEL_ID);
+    private readonly channel: vscode.OutputChannel =
+        vscode.window.createOutputChannel(CHANNEL_ID);
 
     showOutput(message: string, title?: string): void {
         if (title) {
-            const simplifiedTime = (new Date()).toISOString().replace(/z|t/gi, ' ').trim(); // YYYY-MM-DD HH:mm:ss.sss
+            const simplifiedTime = new Date()
+                .toISOString()
+                .replace(/z|t/gi, " ")
+                .trim(); // YYYY-MM-DD HH:mm:ss.sss
             const hightlightingTitle = `[${title} ${simplifiedTime}]`;
             this.appendLine(hightlightingTitle);
         }

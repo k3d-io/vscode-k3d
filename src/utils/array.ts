@@ -14,15 +14,25 @@ declare global {
 }
 
 if (!Array.prototype.choose) {
-    Array.prototype.choose = function<T, U>(this: T[], fn: (t: T) => U | undefined): U[] {
-        return this.map(fn).filter((u) => u !== undefined).map((u) => u!);
+    Array.prototype.choose = function <T, U>(
+        this: T[],
+        fn: (t: T) => U | undefined
+    ): U[] {
+        return this.map(fn)
+            .filter((u) => u !== undefined)
+            .map((u) => u!);
     };
 }
 
 if (!Array.prototype.orderBy) {
-    Array.prototype.orderBy = function<T, U>(this: T[], key: (fn: T) => U): T[] {
+    Array.prototype.orderBy = function <T, U>(
+        this: T[],
+        key: (fn: T) => U
+    ): T[] {
         const copy = this.map((e) => ({ index: key(e), value: e }));
-        copy.sort((m1, m2) => (m1.index > m2.index) ? 1 : (m1.index < m2.index ? -1 : 0));
+        copy.sort((m1, m2) =>
+            m1.index > m2.index ? 1 : m1.index < m2.index ? -1 : 0
+        );
         return copy.map((m) => m.value);
     };
 }

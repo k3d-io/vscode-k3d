@@ -1,14 +1,17 @@
-import * as settings from './createClusterSettings';
-import { promptClusterSettings, createClusterInteractive } from './createCluster';
-import { deleteClusterByName } from './deleteCluster';
-import { tryResolveClusterNode } from './utils';
+import * as settings from "./createClusterSettings";
+import {
+    promptClusterSettings,
+    createClusterInteractive,
+} from "./createCluster";
+import { deleteClusterByName } from "./deleteCluster";
+import { tryResolveClusterNode } from "./utils";
 
-import * as k3d from '../k3d/k3d';
-import * as model from '../k3d/k3d.objectmodel';
+import * as k3d from "../k3d/k3d";
+import * as model from "../k3d/k3d.objectmodel";
 
-import * as config from '../utils/config';
-import { shell } from '../utils/shell';
-import * as kubectl from '../utils/kubectl';
+import * as config from "../utils/config";
+import { shell } from "../utils/shell";
+import * as kubectl from "../utils/kubectl";
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // commands entrypoints
@@ -16,7 +19,9 @@ import * as kubectl from '../utils/kubectl';
 
 // entrypoint for the "k3d: replace cluster" command
 export async function onReplaceCluster(target?: any): Promise<void> {
-    const defaultSettings = settings.forNewCluster(settings.getDefaultClusterSettings());
+    const defaultSettings = settings.forNewCluster(
+        settings.getDefaultClusterSettings()
+    );
     const providedSettings = await promptClusterSettings(defaultSettings);
     if (providedSettings.cancelled) {
         return;
@@ -26,19 +31,26 @@ export async function onReplaceCluster(target?: any): Promise<void> {
 
 // entrypoint for the "k3d: replace cluster (with last settings)" command
 export async function onReplaceClusterLast(target?: any): Promise<void> {
-    const lastSettings = settings.forNewCluster(settings.getLastClusterSettings());
+    const lastSettings = settings.forNewCluster(
+        settings.getLastClusterSettings()
+    );
     return replaceCluster(lastSettings, target);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-export async function replaceCluster(createSettings: settings.ClusterCreateSettings, target?: any): Promise<void> {
+export async function replaceCluster(
+    createSettings: settings.ClusterCreateSettings,
+    target?: any
+): Promise<void> {
     const actions: Promise<void>[] = [];
 
     const promisedClusters = await k3d.getClusters(shell);
     let clustersByCreation: model.K3dClusterInfo[] = [];
     if (promisedClusters.succeeded && promisedClusters.result.length > 0) {
-        clustersByCreation = promisedClusters.result.orderBy((cluster: model.K3dClusterInfo) => cluster.created);
+        clustersByCreation = promisedClusters.result.orderBy(
+            (cluster: model.K3dClusterInfo) => cluster.created
+        );
     }
 
     // check if the user selected a cluster in the UI
@@ -62,12 +74,20 @@ export async function replaceCluster(createSettings: settings.ClusterCreateSetti
     // calculate the new cluster that will be active after delete/create
     let switchContext = true;
     const behaviour = config.getK3DReplaceContext();
-    if (behaviour && (behaviour === config.ReplaceContext.OldestCluster) && clustersByCreation.length > 1) {
+    if (
+        behaviour &&
+        behaviour === config.ReplaceContext.OldestCluster &&
+        clustersByCreation.length > 1
+    ) {
         // when using the `OldestCluster`, we must switch to the oldest cluster
         // that will be alive (after removing the deleted cluster).
-        const remainingClusters = clustersByCreation.filter((cluster: model.K3dClusterInfo) => cluster.name !== deleteName);
+        const remainingClusters = clustersByCreation.filter(
+            (cluster: model.K3dClusterInfo) => cluster.name !== deleteName
+        );
         if (remainingClusters.length > 0) {
-            const newContext = kubectl.getContextForCluster(remainingClusters[0].name);
+            const newContext = kubectl.getContextForCluster(
+                remainingClusters[0].name
+            );
 
             actions.push(kubectl.setContext(newContext));
             switchContext = false;

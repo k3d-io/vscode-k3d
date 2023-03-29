@@ -3,9 +3,7 @@
         "module": "commonjs",
         "target": "es2020",
         "outDir": "out",
-        "lib": [
-            "es2020"
-        ],
+        "lib": ["es2020"],
         "sourceMap": true,
         "rootDir": "src",
         "strict": true,
@@ -15,8 +13,5 @@
         // "noFallthroughCasesInSwitch": true,
         // "noUnusedParameters": true
     },
-    "exclude": [
-        "node_modules",
-        ".vscode-test"
-    ]
+    "exclude": ["node_modules", ".vscode-test"]
 }
